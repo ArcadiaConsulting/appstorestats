@@ -1,5 +1,8 @@
 package com.github.andlyticsproject.console.v2;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +52,10 @@ import org.apache.http.protocol.HTTP;
  * 
  */
 public class DevConsoleV2 implements DevConsole {
+	/**
+	 * Logger for this class
+	 */
+	private static final Logger logger = LoggerFactory.getLogger(DevConsoleV2.class);
 
 	// 30 seconds -- for both socket and connection
 	public static final int TIMEOUT = 30 * 1000;
@@ -178,7 +185,9 @@ public class DevConsoleV2 implements DevConsole {
 				.getDeveloperConsoleAccounts()) {
 			String developerId = consoleAccount.getDeveloperId();
                         String developername = consoleAccount.getName();
-                        System.out.println("Getting apps for: " + developername + " - " + developerId );
+			if (logger.isDebugEnabled()) {
+				logger.debug("fetchAppInfos() - {}", "Getting apps for: " + developername + " - " + developerId); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			}
 
 			String response = post(protocol.createFetchAppsUrl(developerId),
 					protocol.createFetchAppInfosRequest(), developerId);
@@ -197,22 +206,27 @@ public class DevConsoleV2 implements DevConsole {
 					incompletePackages.add(app.getPackageName());
 				}
 			}
-			System.out.println(String.format("Found %d apps for %s", apps.size(), developerId));
-			System.out.println(String.format("Incomplete packages: %d", incompletePackages.size()));
+			if (logger.isDebugEnabled()) {
+				logger.debug("fetchAppInfos() - {}", String.format("Found %d apps for %s", apps.size(), developerId)); //$NON-NLS-1$ //$NON-NLS-2$
+				logger.debug("fetchAppInfos() - {}", String.format("Incomplete packages: %d", incompletePackages.size())); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 
 			if (incompletePackages.isEmpty()) {
 				continue;
 			}
 
-                System.out.println(String.format("Got %d incomplete apps, issuing details request",
-                                incompletePackages.size()));
+			if (logger.isDebugEnabled()) {
+				logger.debug("fetchAppInfos() - {}", String.format("Got %d incomplete apps, issuing details request", incompletePackages.size())); //$NON-NLS-1$ //$NON-NLS-2$
+			}
                 
                 response = post(protocol.createFetchAppsUrl(developerId),
                                 protocol.createFetchAppInfosRequest(incompletePackages), developerId);
                         
                 // if info is not here, not much to do, skip
                 List<AppInfo> extraApps = protocol.parseAppInfosResponse(response, accountName, true);
-                System.out.println(String.format("Got %d extra apps from details request", extraApps.size()));
+			if (logger.isDebugEnabled()) {
+				logger.debug("fetchAppInfos() - {}", String.format("Got %d extra apps from details request", extraApps.size())); //$NON-NLS-1$ //$NON-NLS-2$
+			}
                 for (AppInfo appInfo : extraApps) {
                         appInfo.setDeveloperId(developerId);
                         appInfo.setDeveloperName(consoleAccount.getName());
@@ -347,7 +361,9 @@ public class DevConsoleV2 implements DevConsole {
 				CookieStore cookieStore = httpClient.getCookieStore();
 				List<Cookie> cookies = cookieStore.getCookies();
 				for (Cookie c : cookies) {
-					System.out.println(String.format("****Cookie**** %s=%s", c.getName(), c.getValue()));
+					if (logger.isDebugEnabled()) {
+						logger.debug("post(String, String, String) - {}", String.format("****Cookie**** %s=%s", c.getName(), c.getValue())); //$NON-NLS-1$ //$NON-NLS-2$
+					}
 				}
 			}
 

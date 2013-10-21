@@ -1,5 +1,8 @@
 package com.github.andlyticsproject.io;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -24,6 +27,10 @@ import com.github.andlyticsproject.model.AppStats;
 import org.apache.commons.lang3.StringUtils;
 
 public class StatsCsvReaderWriter {
+	/**
+	 * Logger for this class
+	 */
+	private static final Logger logger = LoggerFactory.getLogger(StatsCsvReaderWriter.class);
 
 	private static final String TAG = StatsCsvReaderWriter.class.getSimpleName();
 
@@ -129,7 +136,9 @@ public class StatsCsvReaderWriter {
 			}
 			return result;
 		} catch (IOException e) {
-			System.out.println("Error reading zip file: " + e.getMessage());
+			if (logger.isDebugEnabled()) {
+				logger.debug("getImportFileNamesFromZip(String, List<String>, String) - {}", "Error reading zip file: " + e.getMessage()); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 
 			return new ArrayList<String>();
 		}

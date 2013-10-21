@@ -1,5 +1,8 @@
 package com.github.andlyticsproject.console.v2;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 
 import org.apache.http.client.methods.HttpPost;
@@ -11,6 +14,10 @@ import com.github.andlyticsproject.model.AppStats;
 import com.github.andlyticsproject.model.Comment;
 
 public class DevConsoleV2Protocol {
+	/**
+	 * Logger for this class
+	 */
+	private static final Logger logger = LoggerFactory.getLogger(DevConsoleV2Protocol.class);
 
 	// Base urls
 	static final String URL_DEVELOPER_CONSOLE = "https://play.google.com:443/apps/publish";
@@ -154,10 +161,9 @@ public class DevConsoleV2Protocol {
 	}
 
 	private static void saveDebugJson(String json) {
-        System.out.println("saveDebugJson on DevConsoleV2Protocol");
-        System.out.println("-------------------");
-        System.out.println(json);
-        System.out.println("-------------------");
+		if (logger.isDebugEnabled()) {
+			logger.debug("saveDebugJson(String) - {}", "saveDebugJson on DevConsoleV2Protocol: {}", json); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 	}
 
 	String createFetchAppInfoRequest(String packageName) {

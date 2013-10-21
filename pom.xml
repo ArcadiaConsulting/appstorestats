@@ -12,8 +12,18 @@
 		<developerConnection>scm:svn:https://github.com/ArcadiaConsulting/appstorestats/trunk</developerConnection>
 		<url>https://github.com/ArcadiaConsulting/appstorestats/trunk</url>
 	</scm>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 	<dependencyManagement>
 		<dependencies>
+		
+			<!-- Project elements -->
+			<dependency>
+				<groupId>es.arcadiaconsulting.appstorestats</groupId>
+				<artifactId>appstoresstats-common</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 
 			<!-- JSON -->
 			<dependency>
@@ -72,7 +82,22 @@
 
 		</dependencies>
 	</dependencyManagement>
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<configuration>
+						<source>1.6</source>
+						<target>1.6</target>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 	<modules>
 		<module>appstoresstats-android</module>
+		<module>appstoresstats-ios</module>
+		<module>appstoresstats-common</module>
 	</modules>
 </project>

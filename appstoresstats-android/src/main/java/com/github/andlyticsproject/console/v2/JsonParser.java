@@ -1,5 +1,8 @@
 package com.github.andlyticsproject.console.v2;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -24,6 +27,10 @@ import com.github.andlyticsproject.model.Comment;
  */
 @SuppressWarnings("JavadocReference")
 public class JsonParser {
+	/**
+	 * Logger for this class
+	 */
+	private static final Logger logger = LoggerFactory.getLogger(JsonParser.class);
 
 	private static final String TAG = JsonParser.class.getSimpleName();
 
@@ -176,22 +183,26 @@ public class JsonParser {
 			// XXX should we just let this crash so we know there is a problem?
                         if (!jsonAppInfo.has("2")) {
 				if (skipIncomplete) {
-					System.out.println(String.format(
-							"Skipping app %d because no app details found: package name=%s", i,
-							packageName));
+					if (logger.isDebugEnabled()) {
+						logger.debug("parseAppInfos(String, String, boolean) - {}", String.format("Skipping app %d because no app details found: package name=%s", i, packageName)); //$NON-NLS-1$ //$NON-NLS-2$
+					}
 				} else {
-					System.out.println("Adding incomplete app: " + packageName);
+					if (logger.isDebugEnabled()) {
+						logger.debug("parseAppInfos(String, String, boolean) - {}", "Adding incomplete app: " + packageName); //$NON-NLS-1$ //$NON-NLS-2$
+					}
 					apps.add(app);
 				}
 				continue;
 			}
 			if (!jsonAppInfo.has("4")) {
 				if (skipIncomplete) {
-					System.out.println(String.format(
-							"Skipping app %d because no versions info found: package name=%s", i,
-							packageName));
+					if (logger.isDebugEnabled()) {
+						logger.debug("parseAppInfos(String, String, boolean) - {}", String.format("Skipping app %d because no versions info found: package name=%s", i, packageName)); //$NON-NLS-1$ //$NON-NLS-2$
+					}
 				} else {
-					System.out.println("Adding incomplete app: " + packageName);
+					if (logger.isDebugEnabled()) {
+						logger.debug("parseAppInfos(String, String, boolean) - {}", "Adding incomplete app: " + packageName); //$NON-NLS-1$ //$NON-NLS-2$
+					}
 					apps.add(app);
 				}
 				continue;
@@ -214,11 +225,13 @@ public class JsonParser {
 			}
 			if (appVersions == null) {
 				if (skipIncomplete) {
-					System.out.println(String.format(
-							"Skipping app %d because no versions info found: package name=%s", i,
-							packageName));
+					if (logger.isDebugEnabled()) {
+						logger.debug("parseAppInfos(String, String, boolean) - {}", String.format("Skipping app %d because no versions info found: package name=%s", i, packageName)); //$NON-NLS-1$ //$NON-NLS-2$
+					}
 				} else {
-					System.out.println("Adding incomplete app: " + packageName);
+					if (logger.isDebugEnabled()) {
+						logger.debug("parseAppInfos(String, String, boolean) - {}", "Adding incomplete app: " + packageName); //$NON-NLS-1$ //$NON-NLS-2$
+					}
 					apps.add(app);
 				}
 				continue;
@@ -240,11 +253,13 @@ public class JsonParser {
 			}
 			if (jsonAppStats == null) {
 				if (skipIncomplete) {
-					System.out.println(String.format(
-							"Skipping app %d because no stats found: package name=%s", i,
-							packageName));
+					if (logger.isDebugEnabled()) {
+						logger.debug("parseAppInfos(String, String, boolean) - {}", String.format("Skipping app %d because no stats found: package name=%s", i, packageName)); //$NON-NLS-1$ //$NON-NLS-2$
+					}
 				} else {
-					System.out.println("Adding incomplete app: " + packageName);
+					if (logger.isDebugEnabled()) {
+						logger.debug("parseAppInfos(String, String, boolean) - {}", "Adding incomplete app: " + packageName); //$NON-NLS-1$ //$NON-NLS-2$
+					}
 					apps.add(app);
 				}
 				continue;
@@ -277,15 +292,9 @@ public class JsonParser {
                         
                         app.setLatestStats(stats);
                                                 
-                        System.out.println(
-                                app.getPackageName() + ", " +
-                                app.getAccount() + ", " +
-                                app.getName() + ", " +
-                                app.getVersionName() + ", " +
-                                stats.getTotalDownloads() + ", " +
-                                stats.getActiveInstalls() + ", " +
-                                stats.getAvgRatingDiff() + ", "
-                                );
+			if (logger.isDebugEnabled()) {
+				logger.debug("parseAppInfos(String, String, boolean) - {}", app.getPackageName() + ", " + app.getAccount() + ", " + app.getName() + ", " + app.getVersionName() + ", " + stats.getTotalDownloads() + ", " + stats.getActiveInstalls() + ", " + stats.getAvgRatingDiff() + ", "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
+			}
                         
 			apps.add(app);
                         
@@ -297,26 +306,24 @@ public class JsonParser {
 	private static void pp(String name, JSONArray jsonArr) {
 		try {
 			String pp = jsonArr == null ? "null" : jsonArr.toString(2);
-			System.out.println(String.format("%s: %s", name, pp));
-            System.out.println("-------------------");
-            System.out.println("pp on JsonParser");
-            System.out.println(pp);
-            System.out.println("-------------------");
+			if (logger.isDebugEnabled()) {
+				logger.debug("pp(String, JSONArray) - {}", String.format("%s: %s", name, pp)); //$NON-NLS-1$ //$NON-NLS-2$
+				logger.debug("pp(String, JSONArray) - pp on JsonParser: {}", pp); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 		} catch (JSONException e) {
-			System.out.println("Error printing JSON: " + e.getMessage() + e);
+			logger.error("pp(String, JSONArray) - {}", "Error printing JSON: " + e.getMessage() + e); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
 	private static void pp(String name, JSONObject jsonObj) {
 		try {
 			String pp = jsonObj == null ? "null" : jsonObj.toString(2);
-			System.out.println(String.format("%s: %s", name, pp));
-            System.out.println("-------------------");
-            System.out.println("pp on JsonParser");
-            System.out.println(pp);
-            System.out.println("-------------------");
+			if (logger.isDebugEnabled()) {
+				logger.debug("pp(String, JSONObject) - {}", String.format("%s: %s", name, pp)); //$NON-NLS-1$ //$NON-NLS-2$
+				logger.debug("pp(String, JSONObject) - pp on JsonParser: {}", pp); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 		} catch (JSONException e) {
-			System.out.println("Error printing JSON: " + e.getMessage() + e);
+			logger.error("pp(String, JSONObject) - {}", "Error printing JSON: " + e.getMessage() + e); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 

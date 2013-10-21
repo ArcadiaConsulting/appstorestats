@@ -1,5 +1,8 @@
 package com.github.andlyticsproject.console.v2;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +24,10 @@ import com.github.andlyticsproject.console.AuthenticationException;
 import com.github.andlyticsproject.model.DeveloperConsoleAccount;
 
 public class PasswordAuthenticator extends BaseAuthenticator {
+	/**
+	 * Logger for this class
+	 */
+	private static final Logger logger = LoggerFactory.getLogger(PasswordAuthenticator.class);
 
 	private static final String TAG = PasswordAuthenticator.class.getSimpleName();
 
@@ -74,7 +81,9 @@ public class PasswordAuthenticator extends BaseAuthenticator {
 				}
 			}
 			if (DEBUG) {
-				System.out.println("GALX: " + galxValue);
+				if (logger.isDebugEnabled()) {
+					logger.debug("authenticate() - {}", "GALX: " + galxValue); //$NON-NLS-1$ //$NON-NLS-2$
+				}
 			}
 
 			HttpPost post = new HttpPost(AUTHENTICATE_URL);
@@ -89,7 +98,9 @@ public class PasswordAuthenticator extends BaseAuthenticator {
 
 			String responseStr = EntityUtils.toString(response.getEntity());
 			if (DEBUG) {
-				System.out.println("Response: " + responseStr);
+				if (logger.isDebugEnabled()) {
+					logger.debug("authenticate() - {}", "Response: " + responseStr); //$NON-NLS-1$ //$NON-NLS-2$
+				}
 			}
 			DeveloperConsoleAccount[] developerAccounts = findDeveloperAccounts(responseStr);
 			if (developerAccounts == null) {

@@ -1,11 +1,22 @@
+
+
+
+
+
+
+
+
+
+
 package com.github.andlyticsproject.console.v2;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -22,6 +33,10 @@ import com.github.andlyticsproject.console.NetworkException;
 import com.github.andlyticsproject.model.DeveloperConsoleAccount;
 
 public class AccountManagerAuthenticator extends BaseAuthenticator {
+	/**
+	 * Logger for this class
+	 */
+	private static final Logger logger = LoggerFactory.getLogger(AccountManagerAuthenticator.class);
 
 	private static final boolean DEBUG = false;
     
@@ -53,7 +68,7 @@ public class AccountManagerAuthenticator extends BaseAuthenticator {
             try {
                 return authenticateInternal(invalidate);
             } catch (URISyntaxException ex) {
-                Logger.getLogger(AccountManagerAuthenticator.class.getName()).log(Level.SEVERE, null, ex);
+				logger.error("authenticateSilently(boolean) - Invalir URL for authentication", ex); //$NON-NLS-1$
             }
             return null;
 	}
@@ -99,8 +114,10 @@ public class AccountManagerAuthenticator extends BaseAuthenticator {
 		HttpGet issueAuth= new HttpGet(AUTH_TOKEN_URL);
 		HttpResponse issueAuthResponse = httpClient.execute(issueAuth);
 		String auth = EntityUtils.toString(issueAuthResponse.getEntity()).trim();
-		//System.out.println("Auth_Token: " + auth);
-                System.out.println("Correct authentication");
+			if (logger.isDebugEnabled()) {
+				logger.debug("authenticateInternal(boolean) - {}", "Auth_Token: " + auth); //$NON-NLS-1$ //$NON-NLS-2$
+				logger.debug("authenticateInternal(boolean) - {}", "Correct authentication"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
                 
                 String TOKEN_AUTH_URL = new StringBuilder ("https://www.google.com/accounts/TokenAuth?")
                     .append("auth=")
@@ -128,7 +145,9 @@ public class AccountManagerAuthenticator extends BaseAuthenticator {
             }
 
             if (DEBUG) {
-                System.out.println("Response: " + responseStr);
+				if (logger.isDebugEnabled()) {
+					logger.debug("authenticateInternal(boolean) - {}", "Response: " + responseStr); //$NON-NLS-1$ //$NON-NLS-2$
+				}
             }
 
             DeveloperConsoleAccount[] developerAccounts = findDeveloperAccounts(responseStr);
@@ -158,19 +177,19 @@ public class AccountManagerAuthenticator extends BaseAuthenticator {
     }
         
 	private void debugAuthFailure(String responseStr) {
-        System.out.println("-------------------");
-        System.out.println("debugAuthFailure on AccountManagerAuthenticator");
-        System.out.println(responseStr);
-        System.out.println("-------------------");
+		if (logger.isDebugEnabled()) {
+			logger.debug("debugAuthFailure(String) - {}", "debugAuthFailure on AccountManagerAuthenticator: {}", responseStr); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 		openAuthUrlInBrowser();
 	}
 
 	private void openAuthUrlInBrowser() {
                 if (loginUrl2 == null){
-			System.out.println("Null webloginUrl?");
+			if (logger.isDebugEnabled()) {
+				logger.debug("openAuthUrlInBrowser() - {}", "Null webloginUrl?"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 			return;
 		}
-		System.out.println("Opening login URL in browser: " + loginUrl2);
 	}
 
 }
