@@ -7,7 +7,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.http.cookie.Cookie;
 
 import com.github.andlyticsproject.model.DeveloperConsoleAccount;
 
@@ -19,7 +18,6 @@ public abstract class BaseAuthenticator implements DevConsoleAuthenticator {
 			.compile("\\\\\"1\\\\\":\\\\\"(\\d{20})\\\\\",\\\\\"2\\\\\":\\\\\"(.+?)\\\\\",");
 	protected static final Pattern XSRF_TOKEN_PATTERN = Pattern
 			.compile("\"XsrfToken\":\"\\{\\\\\"1\\\\\":\\\\\"(\\S+)\\\\\"\\}\"");
-
 	protected static final Pattern WHITELISTED_FEATURES_PATTERN = Pattern
 			.compile("\"WhitelistedFeatures\":\"\\{\\\\\"1\\\\\":\\[(\\S+?)\\]\\}");
 
@@ -27,15 +25,6 @@ public abstract class BaseAuthenticator implements DevConsoleAuthenticator {
 
 	protected BaseAuthenticator(String accountName) {
 		this.accountName = accountName;
-	}
-
-	protected String findAdCookie(List<Cookie> cookies) {
-		for (Cookie c : cookies) {
-			if ("AD".equals(c.getName())) {
-				return c.getValue();
-			}
-		}
-		return null;
 	}
 
 	protected String findXsrfToken(String responseStr) {

@@ -1,255 +1,176 @@
 package com.github.andlyticsproject.console.v2;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.net.URISyntaxException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.cookie.Cookie;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.accounts.AuthenticatorException;
-import android.accounts.OperationCanceledException;
-import android.app.Activity;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationCompat.Builder;
-import android.util.Log;
-
-import com.github.andlyticsproject.AndlyticsApp;
-import com.github.andlyticsproject.R;
 import com.github.andlyticsproject.console.AuthenticationException;
 import com.github.andlyticsproject.console.NetworkException;
 import com.github.andlyticsproject.model.DeveloperConsoleAccount;
-import com.github.andlyticsproject.util.FileUtils;
 
 public class AccountManagerAuthenticator extends BaseAuthenticator {
 
-	private static final String TAG = AccountManagerAuthenticator.class.getSimpleName();
-
-	private static final String DEVELOPER_CONSOLE_URL = "https://play.google.com/apps/publish/";
-
-	private static final int REQUEST_AUTHENTICATE = 42;
-
 	private static final boolean DEBUG = false;
-
-	private AccountManager accountManager;
-
+    
 	// includes one-time token
-	private String webloginUrl;
-
+        private String loginUrl2 ="https://accounts.google.com/ServiceLogin";
+        
 	private DefaultHttpClient httpClient;
 
 	public AccountManagerAuthenticator(String accountName, DefaultHttpClient httpClient) {
 		super(accountName);
-		this.accountManager = AccountManager.get(AndlyticsApp.getInstance());
 		this.httpClient = httpClient;
 	}
 
-	// as described here: http://www.slideshare.net/pickerweng/chromium-os-login
+        // as described here: http://www.slideshare.net/pickerweng/chromium-os-login
 	// http://www.chromium.org/chromium-os/chromiumos-design-docs/login
 	// and implemented by the Android Browser:
 	// packages/apps/Browser/src/com/android/browser/GoogleAccountLogin.java
 	// packages/apps/Browser/src/com/android/browser/DeviceAccountLogin.java
-	@Override
-	public SessionCredentials authenticate(Activity activity, boolean invalidate)
-			throws AuthenticationException {
-		return authenticateInternal(activity, invalidate);
-	}
 
 	@Override
+	public SessionCredentials authenticate(boolean invalidate)
+			throws AuthenticationException {
+		return authenticateSilently(invalidate);
+	}
+
+        @Override
 	public SessionCredentials authenticateSilently(boolean invalidate)
-			throws AuthenticationException {
-		return authenticateInternal(null, invalidate);
+                throws AuthenticationException {
+            try {
+                return authenticateInternal(invalidate);
+            } catch (URISyntaxException ex) {
+                Logger.getLogger(AccountManagerAuthenticator.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            return null;
 	}
 
-	@SuppressWarnings("deprecation")
-	private SessionCredentials authenticateInternal(Activity activity, boolean invalidate)
-			throws AuthenticationException {
-		try {
-			Account[] accounts = accountManager.getAccountsByType("com.google");
-			Account account = null;
-			for (Account acc : accounts) {
-				if (acc.name.equals(accountName)) {
-					account = acc;
-					break;
-				}
-			}
-			if (account == null) {
-				throw new AuthenticationException(String.format("Account %s not found on device?",
-						accountName));
-			}
+	@SuppressWarnings ("deprecation")
+	private SessionCredentials authenticateInternal(boolean invalidate)
+		throws AuthenticationException, URISyntaxException {
+            try {
 
-			if (invalidate && webloginUrl != null) {
-				// probably not needed, since what we are getting is a very
-				// short-lived token
-				accountManager.invalidateAuthToken(account.type, webloginUrl);
-			}
+                StringBuilder content = new StringBuilder();
+                content.append("Email=").append(URLEncoder.encode("youraccount", "UTF-8"));
+                content.append("&Passwd=").append(URLEncoder.encode("yourpassword", "UTF-8"));
+                content.append("&service=").append(URLEncoder.encode("apps", "UTF-8"));
+   
+                HttpClient client = new DefaultHttpClient();
+                HttpPost post = new HttpPost("https://www.google.com/accounts/ClientLogin");
+                post.addHeader("Content-Type", "application/x-www-form-urlencoded");
 
-			Bundle authResult = accountManager.getAuthToken(account,
-					"weblogin:service=androiddeveloper&continue=" + DEVELOPER_CONSOLE_URL, false,
-					null, null).getResult();
-			if (authResult.containsKey(AccountManager.KEY_INTENT)) {
-				Intent authIntent = authResult.getParcelable(AccountManager.KEY_INTENT);
-				if (DEBUG) {
-					Log.w(TAG, "Got a reauthenticate intent: " + authIntent);
-				}
+                post.setEntity(new StringEntity(content.toString(), null, null));
 
-				// silent mode, show notification
-				if (activity == null) {
-					Context ctx = AndlyticsApp.getInstance();
-					Builder builder = new NotificationCompat.Builder(ctx);
-					builder.setSmallIcon(R.drawable.statusbar_andlytics);
-					builder.setContentTitle(ctx.getResources().getString(R.string.auth_error,
-							accountName));
-					builder.setContentText(ctx.getResources().getString(R.string.auth_error,
-							accountName));
-					builder.setAutoCancel(true);
-					PendingIntent contentIntent = PendingIntent.getActivity(ctx,
-							accountName.hashCode(), authIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-					builder.setContentIntent(contentIntent);
+                HttpResponse response = client.execute(post);
+                HttpEntity entity = response.getEntity();
+                String strResponse = EntityUtils.toString(entity);
 
-					NotificationManager nm = (NotificationManager) ctx
-							.getSystemService(Context.NOTIFICATION_SERVICE);
-					nm.notify(accountName.hashCode(), builder.build());
+                String sid = null;
+                String lsid = null;
+                                
+                for(String a : strResponse.split("\\s")){
+                    if(a.startsWith("SID=")){
+                        sid = a.substring(4);
+                    }else if (a.startsWith("LSID=")){
+                        lsid = a.substring(5);
+                    }
+                }
+                              
+                String AUTH_TOKEN_URL = new StringBuilder("https://www.google.com/accounts/IssueAuthToken?")
+                    .append("SID=")
+                    .append(sid)
+                    .append("&LSID=")
+                    .append(lsid)
+                    .append("&service=gaia").toString();
+                
+		HttpGet issueAuth= new HttpGet(AUTH_TOKEN_URL);
+		HttpResponse issueAuthResponse = httpClient.execute(issueAuth);
+		String auth = EntityUtils.toString(issueAuthResponse.getEntity()).trim();
+		//System.out.println("Auth_Token: " + auth);
+                System.out.println("Correct authentication");
+                
+                String TOKEN_AUTH_URL = new StringBuilder ("https://www.google.com/accounts/TokenAuth?")
+                    .append("auth=")
+                    .append(auth)
+                    .append("&service=apps&session=false")
+                    .append("&continue=")
+                    .append("https://play.google.com/apps/publish/v2/").toString();
+                    
+                HttpGet getCookies = new HttpGet(TOKEN_AUTH_URL);
+                HttpResponse response2 = httpClient.execute(getCookies);
+                
+                // fail if not found, otherwise get page content
+                String responseStr = EntityUtils.toString(response2.getEntity(), "UTF-8");
 
-					return null;
-				}
+            int status = response2.getStatusLine().getStatusCode();
+            if (status == HttpStatus.SC_UNAUTHORIZED) {
+                throw new AuthenticationException("Authentication token expired: " + response2.getStatusLine());
+            }
+            if (status != HttpStatus.SC_OK) {
+                throw new AuthenticationException("Authentication error: " + response2.getStatusLine());
+            }
+            HttpEntity entity2 = response2.getEntity();
+            if (entity2 == null) {
+                throw new AuthenticationException("Authentication error: null result?");
+            }
 
-				// activity mode, start activity
-				authIntent.setFlags(authIntent.getFlags() & ~Intent.FLAG_ACTIVITY_NEW_TASK);
-				activity.startActivityForResult(authIntent, REQUEST_AUTHENTICATE);
+            if (DEBUG) {
+                System.out.println("Response: " + responseStr);
+            }
 
-				return null;
-			}
-			webloginUrl = authResult.getString(AccountManager.KEY_AUTHTOKEN);
-			if (webloginUrl == null) {
-				throw new AuthenticationException(
-						"Unexpected authentication error: weblogin URL = null");
-			}
-			if (DEBUG) {
-				Log.d(TAG, "Weblogin URL: " + webloginUrl);
-			}
+            DeveloperConsoleAccount[] developerAccounts = findDeveloperAccounts(responseStr);
+            
+            if (developerAccounts == null) {
+                debugAuthFailure(responseStr);
+                throw new AuthenticationException("Couldn't get developer account ID.");
+            }
 
-			if (!webloginUrl.contains("MergeSession")) {
-				Log.d(TAG, "Most probably additional verification is required, "
-						+ "opening browser");
+            String xsrfToken = findXsrfToken(responseStr);
+            if (xsrfToken == null) {
+                debugAuthFailure(responseStr);
 
-				openAuthUrlInBrowser(activity);
+                throw new AuthenticationException("Couldn't get XSRF token.");
+            }
 
-				throw new AuthenticationException("Sign in via the browser, then "
-						+ "get back to Andlytics");
-			}
+            List<String> whitelistedFeatures = findWhitelistedFeatures(responseStr);
 
-			HttpGet getConsole = new HttpGet(webloginUrl);
-			HttpResponse response = httpClient.execute(getConsole);
-			int status = response.getStatusLine().getStatusCode();
-			if (status == HttpStatus.SC_UNAUTHORIZED) {
-				throw new AuthenticationException("Authentication token expired: "
-						+ response.getStatusLine());
-			}
-			if (status != HttpStatus.SC_OK) {
-				throw new AuthenticationException("Authentication error: "
-						+ response.getStatusLine());
-			}
-			HttpEntity entity = response.getEntity();
-			if (entity == null) {
-				throw new AuthenticationException("Authentication error: null result?");
-			}
+            SessionCredentials result = new SessionCredentials(accountName, xsrfToken,developerAccounts);
+            result.addCookies(httpClient.getCookieStore().getCookies());
+            result.addWhitelistedFeatures(whitelistedFeatures);
 
-			String responseStr = EntityUtils.toString(entity, "UTF-8");
-			if (DEBUG) {
-				Log.d(TAG, "Response: " + responseStr);
-			}
-
-			CookieStore cookieStore = httpClient.getCookieStore();
-			List<Cookie> cookies = cookieStore.getCookies();
-			String adCookie = findAdCookie(cookies);
-			if (DEBUG) {
-				Log.d(TAG, "AD cookie " + adCookie);
-			}
-			if (adCookie == null) {
-				debugAuthFailure(activity, responseStr);
-
-				throw new AuthenticationException("Couldn't get AD cookie.");
-			}
-
-			DeveloperConsoleAccount[] developerAccounts = findDeveloperAccounts(responseStr);
-			if (developerAccounts == null) {
-				debugAuthFailure(activity, responseStr);
-
-				throw new AuthenticationException("Couldn't get developer account ID.");
-			}
-
-			String xsrfToken = findXsrfToken(responseStr);
-			if (xsrfToken == null) {
-				debugAuthFailure(activity, responseStr);
-
-				throw new AuthenticationException("Couldn't get XSRF token.");
-			}
-
-			List<String> whitelistedFeatures = findWhitelistedFeatures(responseStr);
-
-			SessionCredentials result = new SessionCredentials(accountName, xsrfToken,
-					developerAccounts);
-			result.addCookies(cookies);
-			result.addWhitelistedFeatures(whitelistedFeatures);
-
-			return result;
-		} catch (IOException e) {
-			throw new NetworkException(e);
-		} catch (OperationCanceledException e) {
-			throw new AuthenticationException(e);
-		} catch (AuthenticatorException e) {
-			throw new AuthenticationException(e);
-		}
+            return result;
+        } catch (IOException e) {
+            throw new NetworkException(e);
+        }
+    }
+        
+	private void debugAuthFailure(String responseStr) {
+        System.out.println("-------------------");
+        System.out.println("debugAuthFailure on AccountManagerAuthenticator");
+        System.out.println(responseStr);
+        System.out.println("-------------------");
+		openAuthUrlInBrowser();
 	}
 
-	private void debugAuthFailure(Activity activity, String responseStr) {
-		FileUtils.writeToAndlyticsDir("console-response.html", responseStr);
-		openAuthUrlInBrowser(activity);
-	}
-
-	private void openAuthUrlInBrowser(Activity activity) {
-		if (webloginUrl == null) {
-			Log.d(TAG, "Null webloginUrl?");
+	private void openAuthUrlInBrowser() {
+                if (loginUrl2 == null){
+			System.out.println("Null webloginUrl?");
 			return;
 		}
-
-		Log.d(TAG, "Opening login URL in browser: " + webloginUrl);
-
-		Intent viewInBrowser = new Intent(Intent.ACTION_VIEW);
-		viewInBrowser.setData(Uri.parse(webloginUrl));
-
-		// Always show the notification
-		// When this occurs, it can often occur in batches, e.g. if a the user also clicks to view
-		// comments which results in multiple dev consoles opening in their browser without an
-		// explanation. This is even worse if they have multiple accounts and/or are currently
-		// signed in via a different account
-		Context ctx = AndlyticsApp.getInstance();
-		Builder builder = new NotificationCompat.Builder(ctx);
-		builder.setSmallIcon(R.drawable.statusbar_andlytics);
-		builder.setContentTitle(ctx.getResources().getString(R.string.auth_error, accountName));
-		builder.setContentText(ctx.getResources().getString(R.string.auth_error_open_browser,
-				accountName));
-		builder.setAutoCancel(true);
-		PendingIntent contentIntent = PendingIntent.getActivity(ctx, accountName.hashCode(),
-				viewInBrowser, PendingIntent.FLAG_UPDATE_CURRENT);
-		builder.setContentIntent(contentIntent);
-
-		NotificationManager nm = (NotificationManager) ctx
-				.getSystemService(Context.NOTIFICATION_SERVICE);
-		nm.notify(accountName.hashCode(), builder.build());
+		System.out.println("Opening login URL in browser: " + loginUrl2);
 	}
+
 }

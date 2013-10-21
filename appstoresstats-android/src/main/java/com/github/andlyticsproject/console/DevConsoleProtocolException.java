@@ -2,9 +2,6 @@ package com.github.andlyticsproject.console;
 
 public class DevConsoleProtocolException extends DevConsoleException {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -6909987334134805822L;
 
 	private String postData;

@@ -39,7 +39,7 @@ public class DeveloperConsoleAccount {
 	@Override
 	public String toString() {
 		return String
-				.format("DeveloperConsoleAccount [developerId=%s, name=%s]", developerId, name);
+                    .format("DeveloperConsoleAccount [developerId=%s, name=%s]", developerId, name);
 	}
 
 }

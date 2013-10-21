@@ -4,20 +4,17 @@ package com.github.andlyticsproject.model;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import android.annotation.SuppressLint;
-import android.util.SparseArray;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AppStats {
 
 	private int totalDownloads;
 
 	private int activeInstalls;
-
 	private int activeInstallsDiff;
 
 	private int numberOfComments;
-
 	private int numberOfCommentsDiff;
 
 	private Date requestDate;
@@ -26,46 +23,27 @@ public class AppStats {
 
 	private boolean smoothingApplied;
 
-	private Integer versionCode;
+	private int versionCode;
 
-	private Integer rating1 = 0;
+	private Integer rating1;
+	private Integer rating2;
+	private Integer rating3;
+	private Integer rating4;
+	private Integer rating5;
 
-	private Integer rating2 = 0;
-
-	private Integer rating3 = 0;
-
-	private Integer rating4 = 0;
-
-	private Integer rating5 = 0;
-
-	private Integer rating1Diff = 0;
-
-	private Integer rating2Diff = 0;
-
-	private Integer rating3Diff = 0;
-
-	private Integer rating4Diff = 0;
-
-	private Integer rating5Diff = 0;
+	private Integer rating1Diff;
+	private Integer rating2Diff;
+	private Integer rating3Diff;
+	private Integer rating4Diff;
+	private Integer rating5Diff;
 
 	private float avgRating;
-
 	private float avgRatingDiff;
 
 	private int ratingCount;
-
 	private int ratingCountDiff;
 
 	private String avgRatingString;
-
-	private String numberOfCommentsPercentString;
-
-	private String ratingCountPercentString;
-
-	private SparseArray<String> ratingPercentStringMap;
-
-	private String activeInstallsPercentString;
-
 	private String avgRatingDiffString;
 
 	// XXX should put in wrapper class
@@ -102,10 +80,6 @@ public class AppStats {
 		this.avgRating = appStats.avgRating;
 		this.ratingCount = appStats.ratingCount;
 		this.setAvgRatingString(appStats.getAvgRatingString());
-		this.numberOfCommentsPercentString = appStats.numberOfCommentsPercentString;
-		this.ratingCountPercentString = appStats.ratingCountPercentString;
-		this.ratingPercentStringMap = appStats.ratingPercentStringMap;
-		this.setActiveInstallsPercentString(appStats.getActiveInstallsPercentString());
 		this.versionCode = appStats.versionCode;
 		this.packageName = appStats.packageName;
 	}
@@ -113,11 +87,7 @@ public class AppStats {
 	public void init() {
 		calcAvgRating();
 		calcAvgRatingString();
-		calcNumberOfCommentsPercentString();
 		calcRatingCount();
-		calcRatingCountPercentString();
-		calsRatingPercentStrings();
-		calcActiveInstallsPercentString();
 		calcAvgRatingDiffString();
 	}
 
@@ -204,9 +174,7 @@ public class AppStats {
 	}
 
 	public float getAvgRating() {
-
 		return avgRating;
-
 	}
 
 	public void calcAvgRating() {
@@ -251,14 +219,11 @@ public class AppStats {
 	}
 
 	public int getRatingCount() {
-
 		return ratingCount;
-
 	}
 
 	public void calcRatingCount() {
 		this.ratingCount = rating1 + rating2 + rating3 + rating4 + rating5;
-
 	}
 
 	public void calcAvgRatingString() {
@@ -277,79 +242,12 @@ public class AppStats {
 		return this.avgRatingString;
 	}
 
-	public String getRatingPercentString(int rating) {
-		return ratingPercentStringMap.get(rating);
-	}
-
-	public void calsRatingPercentStrings() {
-
-		this.ratingPercentStringMap = new SparseArray<String>();
-		int sum = getRatingCount();
-
-		for (int i = 1; i < 6; i++) {
-
-			BigDecimal ratingBigDecimal = new BigDecimal(20);
-			if (sum != 0) {
-
-				Integer rate = null;
-
-				switch (i) {
-					case 1:
-						rate = rating1;
-						break;
-					case 2:
-						rate = rating2;
-						break;
-					case 3:
-						rate = rating3;
-						break;
-					case 4:
-						rate = rating4;
-						break;
-					case 5:
-						rate = rating5;
-						break;
-
-					default:
-						break;
-				}
-
-				if (rate == null || rate < 1) {
-					rate = 0;
-				}
-				ratingBigDecimal = new BigDecimal(100.f / sum * rate);
-			}
-			ratingBigDecimal = ratingBigDecimal.setScale(2, BigDecimal.ROUND_HALF_EVEN);
-			ratingPercentStringMap.put(i, ratingBigDecimal.toPlainString() + "%");
-		}
-	}
-
-	public String getActiveInstallsPercentString() {
-		return activeInstallsPercentString;
-	}
-
-	public void calcActiveInstallsPercentString() {
-		BigDecimal percentBigDecimal = new BigDecimal(getActiveInstallsPercent());
-		percentBigDecimal = percentBigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP);
-		this.setActiveInstallsPercentString(percentBigDecimal.toPlainString());
-	}
-
-	@SuppressLint("SimpleDateFormat")
 	public String getRequestDateString() {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		return dateFormat.format(getRequestDate());
 	}
 
-	public double getActiveInstallsPercent() {
-
-		if (totalDownloads < 1) {
-			return 0;
-		}
-
-		return (activeInstalls * 100.0) / totalDownloads;
-
-	}
-
+        
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -388,37 +286,6 @@ public class AppStats {
 		if (totalDownloads != other.totalDownloads)
 			return false;
 		return true;
-	}
-
-	public String getNumberOfCommentsPercentString() {
-		return numberOfCommentsPercentString;
-	}
-
-	public void calcNumberOfCommentsPercentString() {
-
-		int numberOfComments = getNumberOfComments();
-		float percent = 0.0f;
-		if (totalDownloads > 0) {
-			percent = 100.0f / totalDownloads * numberOfComments;
-		}
-		BigDecimal percentBigDecimal = new BigDecimal(percent);
-		percentBigDecimal = percentBigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP);
-		this.numberOfCommentsPercentString = percentBigDecimal.toPlainString();
-	}
-
-	public String getRatingCountPercentString() {
-		return ratingCountPercentString;
-	}
-
-	public void calcRatingCountPercentString() {
-		int numberOfComments = getRatingCount();
-		float percent = 0.0f;
-		if (totalDownloads > 0) {
-			percent = 100.0f / totalDownloads * numberOfComments;
-		}
-		BigDecimal percentBigDecimal = new BigDecimal(percent);
-		percentBigDecimal = percentBigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP);
-		this.ratingCountPercentString = percentBigDecimal.toPlainString();
 	}
 
 	public Integer getRating1() {
@@ -547,10 +414,6 @@ public class AppStats {
 
 	public Integer getVersionCode() {
 		return versionCode;
-	}
-
-	public void setActiveInstallsPercentString(String activeInstallsPercentString) {
-		this.activeInstallsPercentString = activeInstallsPercentString;
 	}
 
 	public void setAvgRatingString(String avgRatingString) {

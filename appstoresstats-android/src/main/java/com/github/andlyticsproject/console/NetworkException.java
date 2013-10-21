@@ -2,9 +2,6 @@ package com.github.andlyticsproject.console;
 
 public class NetworkException extends DevConsoleException {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 4549798608972299810L;
 
 	public NetworkException(String message) {

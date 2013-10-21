@@ -12,10 +12,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.util.Log;
+//import org.apache.http.HttpEntity;
+//import org.apache.http.HttpResponse;
 
 import com.github.andlyticsproject.console.AuthenticationException;
 import com.github.andlyticsproject.console.DevConsole;
@@ -25,7 +23,14 @@ import com.github.andlyticsproject.model.AppInfo;
 import com.github.andlyticsproject.model.AppStats;
 import com.github.andlyticsproject.model.Comment;
 import com.github.andlyticsproject.model.DeveloperConsoleAccount;
-import com.github.andlyticsproject.util.Utils;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.protocol.HTTP;
+//import org.apache.http.HttpEntity;
+//import org.apache.http.HttpResponse;
+//import org.apache.http.client.ClientProtocolException;
+//import org.apache.http.protocol.HTTP;
+//import org.apache.http.util.EntityUtils;
+//import java.net.URI;
 
 /**
  * This is a WIP class representing the new v2 version of the developer console.
@@ -43,7 +48,6 @@ import com.github.andlyticsproject.util.Utils;
  * This class fetches the data, which is then passed using {@link JsonParser}
  * 
  */
-@SuppressLint("DefaultLocale")
 public class DevConsoleV2 implements DevConsole {
 
 	// 30 seconds -- for both socket and connection
@@ -59,8 +63,9 @@ public class DevConsoleV2 implements DevConsole {
 	private DevConsoleV2Protocol protocol;
 
 	private ResponseHandler<String> responseHandler = HttpClientFactory.createResponseHandler();
+	//private ResponseHandler<byte[]> responseHandler = new ResponseHandler<byte[]>();
 
-	public static DevConsoleV2 createForAccount(String accountName, DefaultHttpClient httpClient) {
+        public static DevConsoleV2 createForAccount(String accountName, DefaultHttpClient httpClient) {
 		DevConsoleAuthenticator authenticator = new AccountManagerAuthenticator(accountName,
 				httpClient);
 
@@ -90,16 +95,16 @@ public class DevConsoleV2 implements DevConsole {
 	 * @return
 	 * @throws DevConsoleException
 	 */
-	public synchronized List<AppInfo> getAppInfo(Activity activity) throws DevConsoleException {
+	public synchronized List<AppInfo> getAppInfo() throws DevConsoleException {
 		try {
 			// the authenticator launched a sub-activity, bail out for now
-			if (!authenticateWithCachedCredentialas(activity)) {
+			if (!authenticateWithCachedCredentialas()) {
 				return new ArrayList<AppInfo>();
 			}
 
 			return fetchAppInfosAndStatistics();
 		} catch (AuthenticationException ex) {
-			if (!authenticateFromScratch(activity)) {
+			if (!authenticateFromScratch()) {
 				return new ArrayList<AppInfo>();
 			}
 
@@ -113,11 +118,11 @@ public class DevConsoleV2 implements DevConsole {
 
 		for (AppInfo app : apps) {
 			// Fetch remaining app statistics
-			// Latest stats object, and active/total installs is fetched
-			// in fetchAppInfos
+			// Latest stats object, and active/total installs is fetched in fetchAppInfos
 			AppStats stats = app.getLatestStats();
 			fetchRatings(app, stats);
-			stats.setNumberOfComments(fetchCommentsCount(app, Utils.getDisplayLocale()));
+               //TODO: obtain locale
+			stats.setNumberOfComments(fetchCommentsCount(app, "ES-es"));
 		}
 
 		return apps;
@@ -126,25 +131,24 @@ public class DevConsoleV2 implements DevConsole {
 	/**
 	 * Gets a list of comments for the given app based on the startIndex and
 	 * count
-	 * 
-	 * @param accountName
+	 *
 	 * @param packageName
 	 * @param startIndex
 	 * @param count
 	 * @return
 	 * @throws DevConsoleException
 	 */
-	public synchronized List<Comment> getComments(Activity activity, String packageName,
+	public synchronized List<Comment> getComments(String packageName,
 			String developerId, int startIndex, int count, String displayLocale)
 			throws DevConsoleException {
 		try {
-			if (!authenticateWithCachedCredentialas(activity)) {
+			if (!authenticateWithCachedCredentialas()) {
 				return new ArrayList<Comment>();
 			}
 
 			return fetchComments(packageName, developerId, startIndex, count, displayLocale);
 		} catch (AuthenticationException ex) {
-			if (!authenticateFromScratch(activity)) {
+			if (!authenticateFromScratch()) {
 				return new ArrayList<Comment>();
 			}
 
@@ -152,24 +156,7 @@ public class DevConsoleV2 implements DevConsole {
 		}
 	}
 
-	public synchronized Comment replyToComment(Activity activity, String packageName,
-			String developerId, String commentUniqueId, String reply) {
-		try {
-			if (!authenticateWithCachedCredentialas(activity)) {
-				return null;
-			}
-
-			return replyToComment(packageName, developerId, commentUniqueId, reply);
-		} catch (AuthenticationException ex) {
-			if (!authenticateFromScratch(activity)) {
-				return null;
-			}
-
-			return replyToComment(packageName, developerId, commentUniqueId, reply);
-		}
-	}
-
-	private Comment replyToComment(String packageName, String developerId, String commentUiqueId,
+	public Comment replyToComment(String packageName, String developerId, String commentUiqueId,
 			String reply) {
 		String response = post(protocol.createCommentsUrl(developerId),
 				protocol.createReplyToCommentRequest(packageName, commentUiqueId, reply),
@@ -184,26 +171,24 @@ public class DevConsoleV2 implements DevConsole {
 	 * @return combined list of apps
 	 * @throws DevConsoleException
 	 */
+        
 	private List<AppInfo> fetchAppInfos() throws DevConsoleException {
 		List<AppInfo> result = new ArrayList<AppInfo>();
 		for (DeveloperConsoleAccount consoleAccount : protocol.getSessionCredentials()
 				.getDeveloperConsoleAccounts()) {
 			String developerId = consoleAccount.getDeveloperId();
-			Log.d(TAG, "Getting apps for " + developerId);
+                        String developername = consoleAccount.getName();
+                        System.out.println("Getting apps for: " + developername + " - " + developerId );
+
 			String response = post(protocol.createFetchAppsUrl(developerId),
 					protocol.createFetchAppInfosRequest(), developerId);
 
 			// don't skip incomplete apps, so we can get the package list
-			List<AppInfo> apps = protocol.parseAppInfosResponse(response, accountName, false);
+			List<AppInfo> apps = protocol.parseAppInfosResponse(response, accountName, true);
 			if (apps.isEmpty()) {
 				continue;
 			}
-
-			for (AppInfo appInfo : apps) {
-				appInfo.setDeveloperId(developerId);
-				appInfo.setDeveloperName(consoleAccount.getName());
-			}
-
+                        
 			result.addAll(apps);
 			List<String> incompletePackages = new ArrayList<String>();
 			for (AppInfo app : apps) {
@@ -212,27 +197,31 @@ public class DevConsoleV2 implements DevConsole {
 					incompletePackages.add(app.getPackageName());
 				}
 			}
-			Log.d(TAG, String.format("Found %d apps for %s", apps.size(), developerId));
-			Log.d(TAG, String.format("Incomplete packages: %d", incompletePackages.size()));
+			System.out.println(String.format("Found %d apps for %s", apps.size(), developerId));
+			System.out.println(String.format("Incomplete packages: %d", incompletePackages.size()));
 
 			if (incompletePackages.isEmpty()) {
 				continue;
 			}
 
-			Log.d(TAG, String.format("Got %d incomplete apps, issuing details request",
-					incompletePackages.size()));
-			response = post(protocol.createFetchAppsUrl(developerId),
-					protocol.createFetchAppInfosRequest(incompletePackages), developerId);
-			// if info is not here, not much to do, skip
-			List<AppInfo> extraApps = protocol.parseAppInfosResponse(response, accountName, true);
-			Log.d(TAG, String.format("Got %d extra apps from details request", extraApps.size()));
-			for (AppInfo appInfo : extraApps) {
-				appInfo.setDeveloperId(developerId);
-				appInfo.setDeveloperName(consoleAccount.getName());
-			}
+                System.out.println(String.format("Got %d incomplete apps, issuing details request",
+                                incompletePackages.size()));
+                
+                response = post(protocol.createFetchAppsUrl(developerId),
+                                protocol.createFetchAppInfosRequest(incompletePackages), developerId);
+                        
+                // if info is not here, not much to do, skip
+                List<AppInfo> extraApps = protocol.parseAppInfosResponse(response, accountName, true);
+                System.out.println(String.format("Got %d extra apps from details request", extraApps.size()));
+                for (AppInfo appInfo : extraApps) {
+                        appInfo.setDeveloperId(developerId);
+                        appInfo.setDeveloperName(consoleAccount.getName());
+                }
 			result.addAll(extraApps);
+                        
 		}
-
+                
+                
 		return result;
 	}
 
@@ -242,12 +231,12 @@ public class DevConsoleV2 implements DevConsole {
 	 * 
 	 * This is not used as statistics can be fetched via fetchAppInfos Can use
 	 * it later to get historical etc data
-	 * 
-	 * @param packageName
+	 *
 	 * @param stats
 	 * @param statsType
 	 * @throws DevConsoleException
 	 */
+        
 	@SuppressWarnings("unused")
 	private void fetchStatistics(AppInfo appInfo, AppStats stats, int statsType)
 			throws DevConsoleException {
@@ -260,8 +249,7 @@ public class DevConsoleV2 implements DevConsole {
 
 	/**
 	 * Fetches ratings for the given packageName and adds them to the given {@link AppStats} object
-	 * 
-	 * @param packageName
+	 *
 	 *            The app to fetch ratings for
 	 * @param stats
 	 *            The AppStats object to add them to
@@ -276,8 +264,7 @@ public class DevConsoleV2 implements DevConsole {
 
 	/**
 	 * Fetches the number of comments for the given packageName
-	 * 
-	 * @param packageName
+	 *
 	 * @return
 	 * @throws DevConsoleException
 	 */
@@ -287,7 +274,7 @@ public class DevConsoleV2 implements DevConsole {
 		// emulate the console: fetch first 50, get approx num. comments,
 		// fetch last 50 (or so) to get exact number.
 		int finalNumComments = 0;
-		int pageSize = 50;
+		int pageSize = 100;
 
 		String developerId = appInfo.getDeveloperId();
 		String response = post(protocol.createCommentsUrl(developerId),
@@ -319,21 +306,20 @@ public class DevConsoleV2 implements DevConsole {
 		return comments;
 	}
 
-	private boolean authenticateWithCachedCredentialas(Activity activity) {
-		return authenticate(activity, false);
+	private boolean authenticateWithCachedCredentialas() {
+		return authenticate(false);
 	}
 
-	private boolean authenticateFromScratch(Activity activity) {
-		return authenticate(activity, true);
+	private boolean authenticateFromScratch() {
+		return authenticate(true);
 	}
 
 	/**
 	 * Logs into the Android Developer Console
-	 * 
-	 * @param reuseAuthentication
+	 *
 	 * @throws DevConsoleException
 	 */
-	private boolean authenticate(Activity activity, boolean invalidateCredentials)
+	private boolean authenticate(boolean invalidateCredentials)
 			throws DevConsoleException {
 		if (invalidateCredentials) {
 			protocol.invalidateSessionCredentials();
@@ -344,25 +330,24 @@ public class DevConsoleV2 implements DevConsole {
 			return true;
 		}
 
-		SessionCredentials sessionCredentials = activity == null ? authenticator
-				.authenticateSilently(invalidateCredentials) : authenticator.authenticate(activity,
-				invalidateCredentials);
+		SessionCredentials sessionCredentials = authenticator.authenticateSilently(invalidateCredentials);
 		protocol.setSessionCredentials(sessionCredentials);
 
 		return protocol.hasSessionCredentials();
 	}
 
-	private String post(String url, String postData, String developerId) {
+	public String post(String url, String postData, String developerId) {
 		try {
-			HttpPost post = new HttpPost(url);
-			protocol.addHeaders(post, developerId);
-			post.setEntity(new StringEntity(postData, "UTF-8"));
-
+                        HttpPost post = new HttpPost(url);
+                        protocol.addHeaders(post, developerId);
+                                                
+			post.setEntity(new StringEntity(postData, HTTP.UTF_8));
+                        
 			if (DEBUG) {
 				CookieStore cookieStore = httpClient.getCookieStore();
 				List<Cookie> cookies = cookieStore.getCookies();
 				for (Cookie c : cookies) {
-					Log.d(TAG, String.format("****Cookie**** %s=%s", c.getName(), c.getValue()));
+					System.out.println(String.format("****Cookie**** %s=%s", c.getName(), c.getValue()));
 				}
 			}
 
@@ -371,7 +356,6 @@ public class DevConsoleV2 implements DevConsole {
 			if (e.getStatusCode() == HttpStatus.SC_UNAUTHORIZED) {
 				throw new AuthenticationException(e);
 			}
-
 			throw new NetworkException(e);
 		} catch (IOException e) {
 			throw new NetworkException(e);

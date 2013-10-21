@@ -17,18 +17,12 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.os.Environment;
-import android.text.TextUtils;
-import android.util.Log;
 import au.com.bytecode.opencsv.CSVReader;
 import au.com.bytecode.opencsv.CSVWriter;
 
 import com.github.andlyticsproject.model.AppStats;
-import com.github.andlyticsproject.util.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
-@SuppressLint("SimpleDateFormat")
 public class StatsCsvReaderWriter {
 
 	private static final String TAG = StatsCsvReaderWriter.class.getSimpleName();
@@ -58,7 +52,7 @@ public class StatsCsvReaderWriter {
 	}
 
 	public static File getExportDir() {
-		return new File(Environment.getExternalStorageDirectory(), EXPORT_DIR);
+		return new File(EXPORT_DIR);
 	}
 
 	public static File getDefaultExportFile() {
@@ -79,7 +73,7 @@ public class StatsCsvReaderWriter {
 		return filename.substring(firstDashIdx + 1, suffixIdx);
 	}
 
-	public StatsCsvReaderWriter(Context context) {
+	public StatsCsvReaderWriter() {
 	}
 
 	public void writeStats(String packageName, List<AppStats> stats, ZipOutputStream zip)
@@ -135,7 +129,7 @@ public class StatsCsvReaderWriter {
 			}
 			return result;
 		} catch (IOException e) {
-			Log.e(TAG, "Error reading zip file: " + e.getMessage());
+			System.out.println("Error reading zip file: " + e.getMessage());
 
 			return new ArrayList<String>();
 		}
@@ -174,8 +168,6 @@ public class StatsCsvReaderWriter {
 			throw new ServiceException(e);
 		} catch (IOException e) {
 			throw new ServiceException(e);
-		} finally {
-			FileUtils.closeSilently(reader);
 		}
 
 		return false;
@@ -224,7 +216,7 @@ public class StatsCsvReaderWriter {
 
 					if (nextLine.length > 11) {
 						String numErrorsStr = nextLine[11];
-						stats.setNumberOfErrors(TextUtils.isEmpty(numErrorsStr) ? null : Integer
+						stats.setNumberOfErrors(StringUtils.isEmpty(numErrorsStr) ? null : Integer
 								.parseInt(numErrorsStr));
 					}
 

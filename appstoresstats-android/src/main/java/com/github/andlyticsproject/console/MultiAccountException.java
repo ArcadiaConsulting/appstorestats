@@ -2,9 +2,6 @@ package com.github.andlyticsproject.console;
 
 public class MultiAccountException extends DevConsoleException {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -3841472223599618789L;
 
 	public MultiAccountException(String message) {

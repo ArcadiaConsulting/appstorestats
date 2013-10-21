@@ -1,4 +1,3 @@
-
 package com.github.andlyticsproject.io;
 
 public class ServiceException extends Exception {

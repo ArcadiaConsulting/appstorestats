@@ -5,19 +5,15 @@ import java.util.List;
 import org.apache.http.client.methods.HttpPost;
 import org.json.JSONException;
 
-import android.annotation.SuppressLint;
-
 import com.github.andlyticsproject.console.DevConsoleProtocolException;
 import com.github.andlyticsproject.model.AppInfo;
 import com.github.andlyticsproject.model.AppStats;
 import com.github.andlyticsproject.model.Comment;
-import com.github.andlyticsproject.util.FileUtils;
 
-@SuppressLint("DefaultLocale")
 public class DevConsoleV2Protocol {
 
 	// Base urls
-	static final String URL_DEVELOPER_CONSOLE = "https://play.google.com/apps/publish";
+	static final String URL_DEVELOPER_CONSOLE = "https://play.google.com:443/apps/publish";
 	static final String URL_APPS = DevConsoleV2Protocol.URL_DEVELOPER_CONSOLE + "/androidapps";
 	static final String URL_STATISTICS = DevConsoleV2Protocol.URL_DEVELOPER_CONSOLE + "/statistics";
 	static final String URL_REVIEWS = DevConsoleV2Protocol.URL_DEVELOPER_CONSOLE + "/reviews";
@@ -36,7 +32,7 @@ public class DevConsoleV2Protocol {
 			+ "\"params\":{\"1\":[\"%1$s\"]},\"xsrf\":\"%2$s\"}";
 	// 1$: package name, 2$: start, 3$: num comments to fetch, 4$: display locale, 5$ XSRF
 	static final String GET_REVIEWS_TEMPLATE = "{\"method\":\"getReviews\","
-			+ "\"params\":{\"1\":\"%1$s\",\"2\":%2$d,\"3\":%3$d,\"8\":%4$s},\"xsrf\":\"%5$s\"}";
+			+ "\"params\":{\"1\":\"%1$s\",\"2\":%2$d,\"3\":%3$d,\"8\":\"%4$s\"},\"xsrf\":\"%5$s\"}";
 	// 1$: package name, 2$: stats type, 3$: stats by, 4$: XSRF
 	static final String GET_COMBINED_STATS_TEMPLATE = "{\"method\":\"getCombinedStats\","
 			+ "\"params\":{\"1\":\"%1$s\",\"2\":1,\"3\":%2$d,\"4\":[%3$d]},\"xsrf\":\"%4$s\"}";
@@ -46,8 +42,7 @@ public class DevConsoleV2Protocol {
 
 	static final String REPLY_TO_COMMENTS_FEATURE = "REPLY_TO_COMMENTS";
 
-	// Represents the different ways to break down statistics by e.g. by android
-	// version
+	// Represents the different ways to break down statistics by e.g. by android version
 	static final int STATS_BY_ANDROID_VERSION = 1;
 	static final int STATS_BY_DEVICE = 2;
 	static final int STATS_BY_COUNTRY = 3;
@@ -159,8 +154,10 @@ public class DevConsoleV2Protocol {
 	}
 
 	private static void saveDebugJson(String json) {
-		FileUtils.tryWriteToDebugDir(
-				String.format("console_reply_%d.json", System.currentTimeMillis()), json);
+        System.out.println("saveDebugJson on DevConsoleV2Protocol");
+        System.out.println("-------------------");
+        System.out.println(json);
+        System.out.println("-------------------");
 	}
 
 	String createFetchAppInfoRequest(String packageName) {

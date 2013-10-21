@@ -9,14 +9,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.util.Log;
-
 import com.github.andlyticsproject.console.DevConsoleException;
 import com.github.andlyticsproject.model.AppDetails;
 import com.github.andlyticsproject.model.AppInfo;
 import com.github.andlyticsproject.model.AppStats;
 import com.github.andlyticsproject.model.Comment;
-import com.github.andlyticsproject.util.FileUtils;
 
 /**
  * This class contains static methods used to parse JSON from {@link DevConsoleV2}
@@ -25,6 +22,7 @@ import com.github.andlyticsproject.util.FileUtils;
  * documentation
  * 
  */
+@SuppressWarnings("JavadocReference")
 public class JsonParser {
 
 	private static final String TAG = JsonParser.class.getSimpleName();
@@ -68,27 +66,12 @@ public class JsonParser {
 	static void parseStatistics(String json, AppStats stats, int statsType) throws JSONException {
 		// Extract the top level values array
 		JSONObject values = new JSONObject(json).getJSONObject("result").getJSONObject("1");
-		/*
-		 * null
-		 * Nested array [null, [null, Array containing historical data]]
-		 * null
-		 * null
-		 * null
-		 * Nested arrays containing summary and historical data broken down by dimension e.g.
-		 * Android version
-		 * null
-		 * null
-		 * App name
-		 */
+		
 		// For now we just care about todays value, later we may delve into the historical and
 		// dimensioned data
 		JSONArray historicalData = values.getJSONObject("1").getJSONArray("1");
 		JSONObject latestData = historicalData.getJSONObject(historicalData.length() - 1);
-		/*
-		 * null
-		 * Date
-		 * [null, value]
-		 */
+		
 		int latestValue = latestData.getJSONObject("2").getInt("1");
 
 		switch (statsType) {
@@ -134,7 +117,7 @@ public class JsonParser {
 		}
 
 		int numberOfApps = jsonApps.length();
-		Log.d(TAG, String.format("Found %d apps in JSON", numberOfApps));
+//		System.out.println(String.format("Found %d apps in JSON", numberOfApps));
 		for (int i = 0; i < numberOfApps; i++) {
 			AppInfo app = new AppInfo();
 			app.setAccount(accountName);
@@ -181,104 +164,66 @@ public class JsonParser {
 				pp("jsonAppInfo", jsonAppInfo);
 			}
 			String packageName = jsonAppInfo.getString("1");
-			// Look for "tmp.7238057230750432756094760456.235728507238057230542"
-			if (packageName == null
-					|| (packageName.startsWith("tmp.") && Character.isDigit(packageName.charAt(4)))) {
-				Log.d(TAG, String.format("Skipping draft app %d, package name=%s", i, packageName));
-				continue;
-				// Draft app
-			}
-
-			// Check number code and last updated date
-			// Published: 1
-			// Unpublished: 2
-			// Draft: 5
-			// Draft w/ in-app items?: 6
+                        
+                        
 			// TODO figure out the rest and add don't just skip, filter, etc. Cf. #223
 			int publishState = jsonAppInfo.optInt("7");
-			Log.d(TAG, String.format("%s: publishState=%d", packageName, publishState));
-			if (publishState != 1) {
-				// Not a published app, skipping
-				Log.d(TAG, String.format(
-						"Skipping app %d with state != 1: package name=%s: state=%d", i,
-						packageName, publishState));
-				continue;
-			}
+                        
 			app.setPublishState(publishState);
 			app.setPackageName(packageName);
 
-			/*
-			 * Per app details:
-			 * 1: Country code
-			 * 2: App Name
-			 * 3: Description
-			 * 4: Promo text
-			 * 5: Last what's new
-			 */
 			// skip if we can't get all the data
 			// XXX should we just let this crash so we know there is a problem?
-			if (!jsonAppInfo.has("2")) {
+                        if (!jsonAppInfo.has("2")) {
 				if (skipIncomplete) {
-					Log.d(TAG, String.format(
+					System.out.println(String.format(
 							"Skipping app %d because no app details found: package name=%s", i,
 							packageName));
 				} else {
-					Log.d(TAG, "Adding incomplete app: " + packageName);
+					System.out.println("Adding incomplete app: " + packageName);
 					apps.add(app);
 				}
 				continue;
 			}
 			if (!jsonAppInfo.has("4")) {
 				if (skipIncomplete) {
-					Log.d(TAG, String.format(
+					System.out.println(String.format(
 							"Skipping app %d because no versions info found: package name=%s", i,
 							packageName));
 				} else {
-					Log.d(TAG, "Adding incomplete app: " + packageName);
+					System.out.println("Adding incomplete app: " + packageName);
 					apps.add(app);
 				}
 				continue;
 			}
-
 			JSONObject appDetails = jsonAppInfo.getJSONObject("2").getJSONArray("1")
 					.getJSONObject(0);
 			if (DEBUG) {
 				pp("appDetails", appDetails);
 			}
 			app.setName(appDetails.getString("2"));
-
 			String description = appDetails.getString("3");
 			String changelog = appDetails.optString("5");
 			Long lastPlayStoreUpdate = jsonAppInfo.optLong("7");
 			AppDetails details = new AppDetails(description, changelog, lastPlayStoreUpdate);
 			app.setDetails(details);
-
-			/*
-			 * Per app version details:
-			 * null
-			 * null
-			 * packageName
-			 * versionNumber
-			 * versionName
-			 * null
-			 * Array with app icon [null,null,null,icon]
-			 */
-			// XXX
-			JSONArray appVersions = jsonAppInfo.optJSONObject("4").optJSONArray("1");
+                        
+                        JSONArray appVersions = jsonAppInfo.optJSONObject("4").optJSONArray("1");
 			if (DEBUG) {
 				pp("appVersions", appVersions);
 			}
 			if (appVersions == null) {
 				if (skipIncomplete) {
-					Log.d(TAG, String.format(
+					System.out.println(String.format(
 							"Skipping app %d because no versions info found: package name=%s", i,
 							packageName));
 				} else {
-					Log.d(TAG, "Adding incomplete app: " + packageName);
+					System.out.println("Adding incomplete app: " + packageName);
 					apps.add(app);
 				}
 				continue;
 			}
+                        
 			JSONObject lastAppVersionDetails = appVersions.getJSONObject(appVersions.length() - 1)
 					.getJSONObject("2");
 			if (DEBUG) {
@@ -287,15 +232,6 @@ public class JsonParser {
 			app.setVersionName(lastAppVersionDetails.getString("4"));
 			app.setIconUrl(lastAppVersionDetails.getJSONObject("6").getString("3"));
 
-			// App stats
-			/*
-			 * null,
-			 * Active installs
-			 * Total ratings
-			 * Average rating
-			 * Errors
-			 * Total installs
-			 */
 			// XXX this index might not be correct for all apps?
 			// 3 : { 1: active dnd, 2: # ratings, 3: avg rating, 4: #errors?, 5: total dnd }
 			JSONObject jsonAppStats = jsonApp.optJSONObject("3");
@@ -304,15 +240,16 @@ public class JsonParser {
 			}
 			if (jsonAppStats == null) {
 				if (skipIncomplete) {
-					Log.d(TAG, String.format(
+					System.out.println(String.format(
 							"Skipping app %d because no stats found: package name=%s", i,
 							packageName));
 				} else {
-					Log.d(TAG, "Adding incomplete app: " + packageName);
+					System.out.println("Adding incomplete app: " + packageName);
 					apps.add(app);
 				}
 				continue;
 			}
+                        
 			AppStats stats = new AppStats();
 			stats.setRequestDate(now);
 			if (jsonAppStats.length() < 4) {
@@ -320,15 +257,38 @@ public class JsonParser {
 				// TODO do we need differentiate?
 				stats.setActiveInstalls(0);
 				stats.setTotalDownloads(0);
-				stats.setNumberOfErrors(0);
+//				stats.setNumberOfErrors(0);
+                                stats.setAvgRatingDiff(0);
+                                
 			} else {
+                            /*
+                             * 1 = Active Installs
+                             * 2 = Number Rates
+                             * 3 = Average Rating
+                             * 4 = Errors
+                             * 5 = Total Downloads
+                             */
 				stats.setActiveInstalls(jsonAppStats.getInt("1"));
 				stats.setTotalDownloads(jsonAppStats.getInt("5"));
-				stats.setNumberOfErrors(jsonAppStats.optInt("4"));
+//				stats.setNumberOfErrors(jsonAppStats.optInt("4"));
+                                stats.setAvgRatingDiff(jsonAppStats.optInt("3"));
+                                
 			}
-			app.setLatestStats(stats);
-
+                        
+                        app.setLatestStats(stats);
+                                                
+                        System.out.println(
+                                app.getPackageName() + ", " +
+                                app.getAccount() + ", " +
+                                app.getName() + ", " +
+                                app.getVersionName() + ", " +
+                                stats.getTotalDownloads() + ", " +
+                                stats.getActiveInstalls() + ", " +
+                                stats.getAvgRatingDiff() + ", "
+                                );
+                        
 			apps.add(app);
+                        
 		}
 
 		return apps;
@@ -337,20 +297,26 @@ public class JsonParser {
 	private static void pp(String name, JSONArray jsonArr) {
 		try {
 			String pp = jsonArr == null ? "null" : jsonArr.toString(2);
-			Log.d(TAG, String.format("%s: %s", name, pp));
-			FileUtils.writeToDebugDir(name + "-pp.json", pp);
+			System.out.println(String.format("%s: %s", name, pp));
+            System.out.println("-------------------");
+            System.out.println("pp on JsonParser");
+            System.out.println(pp);
+            System.out.println("-------------------");
 		} catch (JSONException e) {
-			Log.w(TAG, "Error printing JSON: " + e.getMessage(), e);
+			System.out.println("Error printing JSON: " + e.getMessage() + e);
 		}
 	}
 
 	private static void pp(String name, JSONObject jsonObj) {
 		try {
 			String pp = jsonObj == null ? "null" : jsonObj.toString(2);
-			Log.d(TAG, String.format("%s: %s", name, pp));
-			FileUtils.writeToDebugDir(name + "-pp.json", pp);
+			System.out.println(String.format("%s: %s", name, pp));
+            System.out.println("-------------------");
+            System.out.println("pp on JsonParser");
+            System.out.println(pp);
+            System.out.println("-------------------");
 		} catch (JSONException e) {
-			Log.w(TAG, "Error printing JSON: " + e.getMessage(), e);
+			System.out.println("Error printing JSON: " + e.getMessage() + e);
 		}
 	}
 
@@ -415,7 +381,7 @@ public class JsonParser {
 			 * [
 			 * null,
 			 * "gaia:12824185113034449316:1:vm:18363775304595766012",
-			 * "Micka�l",
+			 * "Micka?l",
 			 * "1350333837326",
 			 * 1,
 			 * "",
@@ -431,7 +397,7 @@ public class JsonParser {
 			 * "fr_FR",
 			 * [
 			 * null,
-			 * "Prixing fonctionne pourtant bien sur Xperia X10. Essayez de prendre un minimum de recul, au moins 20 � 30cm, �vitez les ombres et les reflets. N'h�sitez pas � nous �crire sur contact@prixing.fr pour une assistance personnalis�e."
+			 * "Prixing fonctionne pourtant bien sur Xperia X10. Essayez de prendre un minimum de recul, au moins 20 ? 30cm, ?vitez les ombres et les reflets. N'h?sitez pas ? nous ?crire sur contact@prixing.fr pour une assistance personnalis?e."
 			 * ,
 			 * null,
 			 * "1350393460968"

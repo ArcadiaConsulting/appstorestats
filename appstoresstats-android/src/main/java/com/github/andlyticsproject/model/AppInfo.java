@@ -35,11 +35,6 @@ public class AppInfo {
 
 	private String versionName;
 
-	private Admob admobStats;
-
-	private String admobAccount;
-	private String admobSiteId;
-
 	private Date lastCommentsUpdate;
 
 	private AppDetails details;
@@ -175,30 +170,6 @@ public class AppInfo {
 		return versionName;
 	}
 
-	public void setAdmobStats(Admob admobStats) {
-		this.admobStats = admobStats;
-	}
-
-	public Admob getAdmobStats() {
-		return admobStats;
-	}
-
-	public String getAdmobAccount() {
-		return admobAccount;
-	}
-
-	public void setAdmobAccount(String admobAccount) {
-		this.admobAccount = admobAccount;
-	}
-
-	public String getAdmobSiteId() {
-		return admobSiteId;
-	}
-
-	public void setAdmobSiteId(String admobSiteId) {
-		this.admobSiteId = admobSiteId;
-	}
-
 	public Date getLastCommentsUpdate() {
 		return lastCommentsUpdate == null ? null : (Date) lastCommentsUpdate.clone();
 	}
@@ -247,8 +218,6 @@ public class AppInfo {
 		result = prime * result + ((latestStats == null) ? 0 : latestStats.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((packageName == null) ? 0 : packageName.hashCode());
-		result = prime * result + ((admobAccount == null) ? 0 : admobAccount.hashCode());
-		result = prime * result + ((admobSiteId == null) ? 0 : admobSiteId.hashCode());
 		result = prime * result
 				+ ((lastCommentsUpdate == null) ? 0 : lastCommentsUpdate.hashCode());
 		return result;
@@ -306,20 +275,6 @@ public class AppInfo {
 				return false;
 		} else if (!packageName.equals(other.packageName))
 			return false;
-		if (admobAccount == null) {
-			if (other.admobAccount != null) {
-				return false;
-			}
-		} else if (!admobAccount.equals(other.admobAccount)) {
-			return false;
-		}
-		if (admobSiteId == null) {
-			if (other.admobSiteId != null) {
-				return false;
-			}
-		} else if (!admobSiteId.equals(other.admobSiteId)) {
-			return false;
-		}
 		if (lastCommentsUpdate == null) {
 			if (other.lastCommentsUpdate != null) {
 				return false;

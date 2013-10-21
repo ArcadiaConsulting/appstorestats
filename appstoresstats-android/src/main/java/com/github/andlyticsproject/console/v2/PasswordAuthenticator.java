@@ -17,9 +17,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
-import android.app.Activity;
-import android.util.Log;
-
 import com.github.andlyticsproject.console.AuthenticationException;
 import com.github.andlyticsproject.model.DeveloperConsoleAccount;
 
@@ -49,7 +46,7 @@ public class PasswordAuthenticator extends BaseAuthenticator {
 	// (all needed cookies are in HttpClient's cookie jar at this point)
 
 	@Override
-	public SessionCredentials authenticate(Activity activity, boolean invalidate)
+	public SessionCredentials authenticate(boolean invalidate)
 			throws AuthenticationException {
 		return authenticate();
 	}
@@ -77,7 +74,7 @@ public class PasswordAuthenticator extends BaseAuthenticator {
 				}
 			}
 			if (DEBUG) {
-				Log.d(TAG, "GALX: " + galxValue);
+				System.out.println("GALX: " + galxValue);
 			}
 
 			HttpPost post = new HttpPost(AUTHENTICATE_URL);
@@ -90,18 +87,9 @@ public class PasswordAuthenticator extends BaseAuthenticator {
 				throw new AuthenticationException("Auth error: " + response.getStatusLine());
 			}
 
-			cookies = cookieStore.getCookies();
-			String adCookie = findAdCookie(cookies);
-			if (DEBUG) {
-				Log.d(TAG, "AD cookie " + adCookie);
-			}
-			if (adCookie == null) {
-				throw new AuthenticationException("Couldn't get AD cookie.");
-			}
-
 			String responseStr = EntityUtils.toString(response.getEntity());
 			if (DEBUG) {
-				Log.d(TAG, "Response: " + responseStr);
+				System.out.println("Response: " + responseStr);
 			}
 			DeveloperConsoleAccount[] developerAccounts = findDeveloperAccounts(responseStr);
 			if (developerAccounts == null) {
@@ -117,7 +105,7 @@ public class PasswordAuthenticator extends BaseAuthenticator {
 
 			SessionCredentials result = new SessionCredentials(accountName, xsrfToken,
 					developerAccounts);
-			result.addCookies(cookies);
+			result.addCookies(cookieStore.getCookies());
 			result.addWhitelistedFeatures(whitelistedFeatures);
 
 			return result;
