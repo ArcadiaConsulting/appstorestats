@@ -20,3 +20,8 @@ proguard/
 local.properties
 secure.properties
 /assets
+.idea
+*.iml
+appstoresstats-android/target
+appstoresstats-common/target
+appstoresstats-ios/target
