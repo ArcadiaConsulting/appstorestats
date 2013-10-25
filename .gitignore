@@ -26,3 +26,4 @@ appstoresstats-android/target
 appstoresstats-common/target
 appstoresstats-ios/target
 ?/
+.settings/
