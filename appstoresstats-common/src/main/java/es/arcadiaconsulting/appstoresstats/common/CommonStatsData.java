@@ -5,27 +5,31 @@ import java.util.List;
 
 public class CommonStatsData {
 	
+	/**
+	 * Current installations of application
+	 */
+	private int currentInstallationsNumber;
 
 	/**
 	 * Number of downloads for app between indicated dates
 	 */
-	int downloadsNumber;
+	private int downloadsNumber;
 	/**
 	 * App identification for Store
 	 */
-	String appId;
+	private String appId;
 	/**
 	 * Current platform (iOS or android)
 	 */
-	Platform platform;
+	private Platform platform;
 	/**
 	 * Date in which the app was first released
 	 */
-	Date firstDeploymentDate;
+	private Date firstDeploymentDate;
 	/**
 	 * Average rate for app
 	 */
-	float averageRate;
+	private float averageRate;
 	/**
 	 * Ratings data for app
 	 * 	int rate;
@@ -33,23 +37,23 @@ public class CommonStatsData {
 	 * 	String user;
 	 * 	String device;
 	 */
-	List<Rating> ratings;
+	private List<Rating> ratings;
 	/**
 	 * App name as shown in Stores
 	 */
-	String appName;
+	private String appName;
 	/**
 	 * Url for app download
 	 */
-	String downloadURL;
+	private String downloadURL;
 	/**
 	 * Initial Date for current stats
 	 */
-	Date initDate;
+	private Date initDate;
 	/**
 	 * 
 	 */
-	Date endDate;
+	private Date endDate;
 	public Date getInitDate() {
 		return initDate;
 	}
@@ -136,22 +140,36 @@ public class CommonStatsData {
 	public enum Platform {
 	    iOS, android 
 	}
-	
+	public  void setIOSPlatform()
+	{
+		this.platform=Platform.iOS;
+	}
+	public void setAndroidPlatform()
+	{
+		this.platform=Platform.android;
+	}
+	public int getCurrentInstallationsNumber() {
+		return currentInstallationsNumber;
+	}
+
+	public void setCurrentInstallationsNumber(int currentInstallationsNumber) {
+		this.currentInstallationsNumber = currentInstallationsNumber;
+	}
 	private class Rating
 	{
 
 		/**
 		 * User rating for current app
 		 */
-		int rate;
+		private int rate;
 		/**
 		 * User opinion for current app
 		 */
-		String opinion;
+		private String opinion;
 		/**
 		 * User name
 		 */
-		String user;
+		private String user;
 		/**
 		 * User device
 		 */

@@ -72,13 +72,8 @@ public class DevConsoleV2 implements DevConsole {
 	private ResponseHandler<String> responseHandler = HttpClientFactory.createResponseHandler();
 	//private ResponseHandler<byte[]> responseHandler = new ResponseHandler<byte[]>();
 
-        public static DevConsoleV2 createForAccount(String accountName, DefaultHttpClient httpClient) {
-		DevConsoleAuthenticator authenticator = new AccountManagerAuthenticator(accountName,
-				httpClient);
-
-		return new DevConsoleV2(httpClient, authenticator, new DevConsoleV2Protocol());
-	}
-
+ 
+	
 	public static DevConsoleV2 createForAccountAndPassword(String accountName, String password,
 			DefaultHttpClient httpClient) {
 		DevConsoleAuthenticator authenticator = new PasswordAuthenticator(accountName, password,
@@ -118,7 +113,45 @@ public class DevConsoleV2 implements DevConsole {
 			return fetchAppInfosAndStatistics();
 		}
 	}
+	/**
+	 * Gets a data for specific app for the given account
+	 * 
+	 * @param activity
+	 * @return
+	 * @throws DevConsoleException
+	 */
+	public synchronized AppInfo getAppInfo(String packageName) throws DevConsoleException {
+		try {
+			// the authenticator launched a sub-activity, bail out for now
+			if (!authenticateWithCachedCredentialas()) {
+				return null;
+			}
 
+			return fetchAppInfoAndStatistics(packageName);
+		} catch (AuthenticationException ex) {
+			if (!authenticateFromScratch()) {
+				return null;
+			}
+
+			return fetchAppInfoAndStatistics(packageName);
+		}
+	}
+	
+	private AppInfo fetchAppInfoAndStatistics(String packageName)
+	{
+		List<AppInfo> apps = fetchAppInfos();
+		
+		for(AppInfo app:apps)
+		{
+			if(app.getPackageName().equals(packageName))
+			{
+				
+				//fetchRatings(app, app.getLatestStats());
+				return app;
+			}
+		}
+		return null;
+	}
 	private List<AppInfo> fetchAppInfosAndStatistics() {
 		// Fetch a list of available apps
 		List<AppInfo> apps = fetchAppInfos();
@@ -127,9 +160,12 @@ public class DevConsoleV2 implements DevConsole {
 			// Fetch remaining app statistics
 			// Latest stats object, and active/total installs is fetched in fetchAppInfos
 			AppStats stats = app.getLatestStats();
-			fetchRatings(app, stats);
-               //TODO: obtain locale
-			stats.setNumberOfComments(fetchCommentsCount(app, "ES-es"));
+			
+			
+			 fetchRatings(app, stats);
+			 
+               //TODO: obtain locale fix implementation
+			//stats.setNumberOfComments(fetchCommentsCount(app, "es-Es"));
 		}
 
 		return apps;
@@ -171,7 +207,8 @@ public class DevConsoleV2 implements DevConsole {
 
 		return protocol.parseCommentReplyResponse(response);
 	}
-
+	
+	
 	/**
 	 * Fetches a combined list of apps for all avaiable console accounts
 	 * 
@@ -193,7 +230,7 @@ public class DevConsoleV2 implements DevConsole {
 					protocol.createFetchAppInfosRequest(), developerId);
 
 			// don't skip incomplete apps, so we can get the package list
-			List<AppInfo> apps = protocol.parseAppInfosResponse(response, accountName, true);
+			List<AppInfo> apps = protocol.parseAppInfosResponse(response, accountName,developerId, true);
 			if (apps.isEmpty()) {
 				continue;
 			}
@@ -223,7 +260,7 @@ public class DevConsoleV2 implements DevConsole {
                                 protocol.createFetchAppInfosRequest(incompletePackages), developerId);
                         
                 // if info is not here, not much to do, skip
-                List<AppInfo> extraApps = protocol.parseAppInfosResponse(response, accountName, true);
+                List<AppInfo> extraApps = protocol.parseAppInfosResponse(response, developerId,accountName, true);
 			if (logger.isDebugEnabled()) {
 				logger.debug("fetchAppInfos() - {}", String.format("Got %d extra apps from details request", extraApps.size())); //$NON-NLS-1$ //$NON-NLS-2$
 			}
@@ -386,5 +423,55 @@ public class DevConsoleV2 implements DevConsole {
 	public boolean hasSessionCredentials() {
 		return protocol.hasSessionCredentials();
 	}
+	private AppInfo fetchAppInfo(String packageName) throws DevConsoleException {
+		AppInfo result = null;
+		for (DeveloperConsoleAccount consoleAccount : protocol.getSessionCredentials()
+				.getDeveloperConsoleAccounts()) {
+			String developerId = consoleAccount.getDeveloperId();
+                        String developername = consoleAccount.getName();
+			if (logger.isDebugEnabled()) {
+				logger.debug("fetchAppInfos() - {}", "Getting apps for: " + developername + " - " + developerId); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			}
+
+			String response = post(protocol.createFetchAppsUrl(developerId),
+					protocol.createFetchAppInfoRequest(packageName), developerId);
+
+			// don't skip incomplete apps, so we can get the package list
+			AppInfo app = protocol.parseAppInfoResponse(response, accountName,developerId, true);
+			
+                        
+			result=app;
+			
+				if (app.isIncomplete()) {
+					result=null;
+					if (logger.isDebugEnabled()) {
+						logger.debug("fetchAppInfos() - {}", String.format("Incomplete apps, issuing details request")); //$NON-NLS-1$ //$NON-NLS-2$
+					}
+					
+					response = post(protocol.createFetchAppsUrl(developerId),
+                            protocol.createFetchAppInfoRequest(packageName), developerId);
+				      // if info is not here, not much to do, skip
+	                AppInfo extraApp = protocol.parseAppInfoResponse(response, developerId,accountName, true);
+				if (logger.isDebugEnabled()) {
+					logger.debug("fetchAppInfos() - {}", String.format("Got extra app from details request")); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+	              if(extraApp!=null)
+				result=extraApp;
+				}
+			
+			
+
+			
+                
+                
+                        
+          
+                        
+		}
+                
+                
+		return result;
+	}
+
 
 }

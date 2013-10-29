@@ -22,15 +22,5 @@ public class DevConsoleRegistry {
 		registry.put(accountName, devConsole);
 	}
 
-	public synchronized DevConsoleV2 get(String accountName) {
-		DevConsoleV2 result = registry.get(accountName);
-		if (result == null) {
-			DefaultHttpClient httpClient = HttpClientFactory
-					.createDevConsoleHttpClient(DevConsoleV2.TIMEOUT);
-			result = DevConsoleV2.createForAccount(accountName, httpClient);
-			registry.put(accountName, result);
-		}
-
-		return result;
-	}
+	
 }

@@ -28,6 +28,7 @@ public class DevConsoleV2Protocol {
 	// Templates for payloads used in POST requests
 	static final String FETCH_APPS_TEMPLATE = "{\"method\":\"fetch\","
 			+ "\"params\":{\"2\":1,\"3\":7},\"xsrf\":\"%s\"}";
+	
 	// 1$: comma separated list of package names
 	static final String FETCH_APPS_BY_PACKAGES_TEMPLATE = "{\"method\":\"fetch\","
 			+ "\"params\":{\"1\":[%1$s],\"3\":1},\"xsrf\":\"%2$s\"}";
@@ -151,15 +152,22 @@ public class DevConsoleV2Protocol {
 				sessionCredentials.getXsrfToken());
 	}
 
-	List<AppInfo> parseAppInfosResponse(String json, String accountName, boolean skipIncomplete) {
+	List<AppInfo> parseAppInfosResponse(String json, String accountName,String developerId, boolean skipIncomplete) {
 		try {
-			return JsonParser.parseAppInfos(json, accountName, skipIncomplete);
+			return JsonParser.parseAppInfos(json, accountName,developerId, skipIncomplete);
 		} catch (JSONException ex) {
 			saveDebugJson(json);
 			throw new DevConsoleProtocolException(json, ex);
 		}
 	}
-
+	AppInfo parseAppInfoResponse(String json, String accountName,String developerId, boolean skipIncomplete) {
+		try {
+			return JsonParser.parseAppInfo(json, accountName,developerId, skipIncomplete);
+		} catch (JSONException ex) {
+			saveDebugJson(json);
+			throw new DevConsoleProtocolException(json, ex);
+		}
+	}
 	private static void saveDebugJson(String json) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("saveDebugJson(String) - {}", "saveDebugJson on DevConsoleV2Protocol: {}", json); //$NON-NLS-1$ //$NON-NLS-2$
