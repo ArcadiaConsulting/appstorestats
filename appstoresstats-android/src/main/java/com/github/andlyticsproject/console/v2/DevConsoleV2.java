@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.http.HttpStatus;
@@ -15,8 +16,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-//import org.apache.http.HttpEntity;
-//import org.apache.http.HttpResponse;
 
 import com.github.andlyticsproject.console.AuthenticationException;
 import com.github.andlyticsproject.console.DevConsole;
@@ -26,6 +25,7 @@ import com.github.andlyticsproject.model.AppInfo;
 import com.github.andlyticsproject.model.AppStats;
 import com.github.andlyticsproject.model.Comment;
 import com.github.andlyticsproject.model.DeveloperConsoleAccount;
+
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.protocol.HTTP;
 //import org.apache.http.HttpEntity;
@@ -120,24 +120,24 @@ public class DevConsoleV2 implements DevConsole {
 	 * @return
 	 * @throws DevConsoleException
 	 */
-	public synchronized AppInfo getAppInfo(String packageName) throws DevConsoleException {
+	public synchronized AppInfo getAppInfoFromFullQuery(String packageName) throws DevConsoleException {
 		try {
 			// the authenticator launched a sub-activity, bail out for now
 			if (!authenticateWithCachedCredentialas()) {
 				return null;
 			}
 
-			return fetchAppInfoAndStatistics(packageName);
+			return fetchAppInfoAndStatisticsFromFullQuery(packageName);
 		} catch (AuthenticationException ex) {
 			if (!authenticateFromScratch()) {
 				return null;
 			}
 
-			return fetchAppInfoAndStatistics(packageName);
+			return fetchAppInfoAndStatisticsFromFullQuery(packageName);
 		}
 	}
 	
-	private AppInfo fetchAppInfoAndStatistics(String packageName)
+	private AppInfo fetchAppInfoAndStatisticsFromFullQuery(String packageName)
 	{
 		List<AppInfo> apps = fetchAppInfos();
 		
@@ -145,7 +145,7 @@ public class DevConsoleV2 implements DevConsole {
 		{
 			if(app.getPackageName().equals(packageName))
 			{
-				
+				fetchStatistics(app, app.getLatestStats(), 4);
 				//fetchRatings(app, app.getLatestStats());
 				return app;
 			}
@@ -287,7 +287,16 @@ public class DevConsoleV2 implements DevConsole {
 	 * @param statsType
 	 * @throws DevConsoleException
 	 */
-        
+       
+	@SuppressWarnings("unused")
+	private void fetchStatisticsForSingleApp(AppInfo appInfo, AppStats stats, int statsType)
+			throws DevConsoleException {
+		String developerId = appInfo.getDeveloperId();
+		String response = post(protocol.createFetchStatisticsUrl(developerId),
+				protocol.createFetchStatisticsRequest(appInfo.getPackageName(), statsType),
+				developerId);
+		protocol.parseStatisticsResponse(response, stats, statsType);
+	}	
 	@SuppressWarnings("unused")
 	private void fetchStatistics(AppInfo appInfo, AppStats stats, int statsType)
 			throws DevConsoleException {
@@ -442,7 +451,9 @@ public class DevConsoleV2 implements DevConsole {
                         
 			result=app;
 			
-				if (app.isIncomplete()) {
+				/*
+				 * When consulting a single app it will always be incomplete
+				 * if (app.isIncomplete()) {
 					result=null;
 					if (logger.isDebugEnabled()) {
 						logger.debug("fetchAppInfos() - {}", String.format("Incomplete apps, issuing details request")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -451,13 +462,13 @@ public class DevConsoleV2 implements DevConsole {
 					response = post(protocol.createFetchAppsUrl(developerId),
                             protocol.createFetchAppInfoRequest(packageName), developerId);
 				      // if info is not here, not much to do, skip
-	                AppInfo extraApp = protocol.parseAppInfoResponse(response, developerId,accountName, true);
+	                AppInfo extraApp = protocol.parseAppInfoResponse(response,accountName, developerId, true);
 				if (logger.isDebugEnabled()) {
 					logger.debug("fetchAppInfos() - {}", String.format("Got extra app from details request")); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 	              if(extraApp!=null)
 				result=extraApp;
-				}
+				}*/
 			
 			
 
@@ -471,6 +482,32 @@ public class DevConsoleV2 implements DevConsole {
                 
                 
 		return result;
+	}
+
+	protected AppInfo getAppInfo(String packageName) {
+		try {
+			// the authenticator launched a sub-activity, bail out for now
+			if (!authenticateWithCachedCredentialas()) {
+				return null;
+			}
+
+			return fetchAppInfoAndStatistics(packageName);
+		} catch (AuthenticationException ex) {
+			if (!authenticateFromScratch()) {
+				return null;
+			}
+
+			return fetchAppInfoAndStatistics(packageName);
+		}
+	}
+
+	private AppInfo fetchAppInfoAndStatistics(String packageName) {
+		// Fetch a list of available apps
+		AppInfo app = fetchAppInfo(packageName);
+		fetchStatistics(app, app.getLatestStats(), 4);
+		
+
+		return app;
 	}
 
 

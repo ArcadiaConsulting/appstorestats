@@ -1,10 +1,10 @@
 package com.github.andlyticsproject.console.v2;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -15,6 +15,7 @@ import org.apache.http.impl.conn.SchemeRegistryFactory;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.protocol.HttpContext;
 
+import com.github.andlyticsproject.model.AppHistoricalStatsElement;
 import com.github.andlyticsproject.model.AppInfo;
 import com.github.andlyticsproject.model.StatsDataAndroid;
 
@@ -52,17 +53,96 @@ public class IStoreStatsAndroid implements IStoreStats {
 		return result;
 		
 	}
+	
+	
+	private CommonStatsData getStatsDataAndroidBetweenDates(String packageName,Date initDate,Date endDate)
+	{
+		//AppInfo app=console.getAppInfo(packageName);
+		AppInfo app=console.getAppInfoFromFullQuery(packageName);
+		return buildStats(app,initDate,endDate);
+	}
+	
+	
+	
+	
 	/**
-	 * Basic android available stats such as: Name, average rating, total downloads for specified app.
+	 * Basic android available stats such as: Name, average rating, total downloads and active installations for specified app.
 	 * @param packageName
 	 * @return
 	 */
 	private CommonStatsData getBasicStatsDataAndroid(String packageName)
 	{
-		AppInfo app=console.getAppInfo(packageName);
+		AppInfo app=console.getAppInfoFromFullQuery(packageName);
 		return buildStats(app);
 		
 	}
+
+	private StatsDataAndroid parseInstallationsBetweenDates(StatsDataAndroid stats,AppInfo app)
+	{
+		if(app!=null&&app.getLatestStats()!=null&&app.getLatestStats().getHistoricalStats()!=null&&app.getLatestStats().getHistoricalStats().getDailyInstallsByDevice()!=null)
+		{
+			int installs=0;
+			Iterator<AppHistoricalStatsElement> it=app.getLatestStats().getHistoricalStats().getDailyInstallsByDevice().iterator();
+			while(it.hasNext())
+			{
+				AppHistoricalStatsElement el=it.next();
+				if(equalsOrHigerToInit(stats.getInitDate(),el.getDate()))
+				{
+					if(equalsOrLowerToEnd(stats.getEndDate(),el.getDate()))
+					{
+						installs+=Integer.parseInt(el.getNumber());
+					}
+					else
+					{
+						break;
+					}
+					
+				
+					
+				}
+			}
+			stats.setDownloadsNumber(installs);
+		}
+		return stats;
+	}
+	private boolean equalsOrHigerToInit(Date initDate,Date compareDate)
+	{
+		Calendar init=Calendar.getInstance();
+		init.setTime(initDate);
+
+		Calendar comp=Calendar.getInstance();
+		comp.setTime(compareDate);
+		
+		if(init.get(init.DAY_OF_YEAR)<=comp.get(comp.DAY_OF_YEAR))
+			return true;
+		return false;
+	}
+	private boolean equalsOrLowerToEnd(Date endDate,Date compareDate)
+	{
+		Calendar end=Calendar.getInstance();
+		end.setTime(endDate);
+		Calendar comp=Calendar.getInstance();
+		comp.setTime(compareDate);
+
+		if(end.get(end.DAY_OF_YEAR)>=comp.get(comp.DAY_OF_YEAR))
+			return true;
+		return false;
+	}
+	private StatsDataAndroid buildStats(AppInfo app,Date initDate,Date endDate)
+	{
+		StatsDataAndroid stats=buildStats(app);
+		if(initDate!=null)
+			stats.setInitDate(initDate);
+		if(endDate!=null)
+			stats.setEndDate(endDate);
+		stats=parseInstallationsBetweenDates(stats,app);
+		
+		return stats;
+		
+		
+		
+	}
+	
 	private StatsDataAndroid buildStats(AppInfo app)
 	{  StatsDataAndroid stats=null;
 		if(app!=null){
@@ -82,6 +162,7 @@ public class IStoreStatsAndroid implements IStoreStats {
 		return stats;
 	}
 
+	@SuppressWarnings("unused")
 	private IStoreStatsAndroid(DevConsoleV2 console) {
 		super();
 		this.console = console;
@@ -89,12 +170,13 @@ public class IStoreStatsAndroid implements IStoreStats {
 
 	@Override
 	public CommonStatsData getStatsForApp(String user, String password,
-			String appId, Date initDate, Date endDate) {
-		// TODO Auto-generated method stub
-		return null;
+			String appId, Date initDate, Date endDate,String vectorId) {
+		console=DevConsoleV2.createForAccountAndPassword(user, password, createDefaultHttpClient());
+
+		return getStatsDataAndroidBetweenDates(appId,initDate,endDate);
 	}
 
-	@Override
+	
 	public List<CommonStatsData> getStatsForAllApps(String user,
 			String password, Date initDate, Date endDate) {
 		// TODO Auto-generated method stub
@@ -102,14 +184,14 @@ public class IStoreStatsAndroid implements IStoreStats {
 	}
 
 	@Override
-	public synchronized CommonStatsData getFullStatsForApp(String user, String password,
-			String appId) {
+	public CommonStatsData getFullStatsForApp(String user, String password,
+			String appId,String vectorId) {
 		
 		console=DevConsoleV2.createForAccountAndPassword(user, password, createDefaultHttpClient());
 		return getBasicStatsDataAndroid(appId);
 	}
 
-	@Override
+	
 	public List<CommonStatsData> getFullStatsForAllApps(String user,
 			String password) {
 		console=DevConsoleV2.createForAccountAndPassword(user, password, createDefaultHttpClient());

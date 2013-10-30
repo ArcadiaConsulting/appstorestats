@@ -3,8 +3,12 @@ package com.github.andlyticsproject.console.v2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -14,6 +18,8 @@ import org.json.JSONObject;
 
 import com.github.andlyticsproject.console.DevConsoleException;
 import com.github.andlyticsproject.model.AppDetails;
+import com.github.andlyticsproject.model.AppHistoricalStats;
+import com.github.andlyticsproject.model.AppHistoricalStatsElement;
 import com.github.andlyticsproject.model.AppInfo;
 import com.github.andlyticsproject.model.AppStats;
 import com.github.andlyticsproject.model.Comment;
@@ -80,10 +86,15 @@ public class JsonParser {
 		JSONObject latestData = historicalData.getJSONObject(historicalData.length() - 1);
 		
 		int latestValue = latestData.getJSONObject("2").getInt("1");
-
+		if(stats.getHistoricalStats()==null)
+			stats.setHistoricalStats(new AppHistoricalStats());
 		switch (statsType) {
 			case DevConsoleV2Protocol.STATS_TYPE_TOTAL_USER_INSTALLS:
 				stats.setTotalDownloads(latestValue);
+				break;
+			case DevConsoleV2Protocol.STATS_TYPE_DAILY_DEVICE_INSTALLS:
+				
+				stats.getHistoricalStats().setDailyInstallsByDevice(parseStatisticsHistoricalData(historicalData));
 				break;
 			case DevConsoleV2Protocol.STATS_TYPE_ACTIVE_DEVICE_INSTALLS:
 				stats.setActiveInstalls(latestValue);
@@ -91,9 +102,27 @@ public class JsonParser {
 			default:
 				break;
 		}
+		
+		
 
 	}
+	static List<AppHistoricalStatsElement> parseStatisticsHistoricalData(JSONArray result) throws JSONException {
+		// Extract the top level values array
+		
+		// For now we just care about todays value, later we may delve into the historical and
+		// dimensioned data
+		List<AppHistoricalStatsElement> elements=new ArrayList<AppHistoricalStatsElement>();
+		for(int i=0;i<result.length();i++)
+		{
+			JSONObject obj=result.getJSONObject(i);
+			long date=obj.getLong("1");
+			String number=obj.getJSONObject("2").getString("1");			
+			elements.add(new AppHistoricalStatsElement(new Date(date), number));
+		}
+		return elements;
 
+	}
+	
 	/**
 	 * Parses the supplied JSON string and builds a list of apps from it
 	 * 
@@ -106,7 +135,7 @@ public class JsonParser {
 	static List<AppInfo> parseAppInfos(String json, String accountName,String developerId, boolean skipIncomplete)
 			throws JSONException {
 
-		Date now = new Date();
+		
 		List<AppInfo> apps = new ArrayList<AppInfo>();
 		// Extract the base array containing apps
 		JSONObject result = new JSONObject(json).getJSONObject("result");
@@ -126,188 +155,214 @@ public class JsonParser {
 		int numberOfApps = jsonApps.length();
 //		System.out.println(String.format("Found %d apps in JSON", numberOfApps));
 		for (int i = 0; i < numberOfApps; i++) {
-			AppInfo app = new AppInfo();
-			app.setDeveloperId(developerId);
-			app.setAccount(accountName);
-			app.setLastUpdate(now);
-			// Per app:
-			// 1 : { 1: package name,
-			// 2 : { 1: [{1 : lang, 2: name, 3: description, 4: ??, 5: what's new}], 2 : ?? },
-			// 3 : ??,
-			// 4 : update history,
-			// 5 : price,
-			// 6 : update date,
-			// 7 : state?
-			// }
-			// 2 : {}
-			// 3 : { 1: active dnd, 2: # ratings, 3: avg rating, 4: ???, 5: total dnd }
-
-			// arrays have changed to objects, with the index as the key
-			/*
-			 * Per app:
-			 * null
-			 * [ APP_INFO_ARRAY
-			 * * null
-			 * * packageName
-			 * * Nested array with details
-			 * * null
-			 * * Nested array with version details
-			 * * Nested array with price details
-			 * * Last update Date
-			 * * Number [1=published, 5 = draft?]
-			 * ]
-			 * null
-			 * [ APP_STATS_ARRAY
-			 * * null,
-			 * * Active installs
-			 * * Total ratings
-			 * * Average rating
-			 * * Errors
-			 * * Total installs
-			 * ]
-			 */
+		
 			JSONObject jsonApp = jsonApps.getJSONObject(i);
-			JSONObject jsonAppInfo = jsonApp.getJSONObject("1");
-			if (DEBUG) {
-				pp("jsonAppInfo", jsonAppInfo);
-			}
-			String packageName = jsonAppInfo.getString("1");
-                        
-                        
-			// TODO figure out the rest and add don't just skip, filter, etc. Cf. #223
-			int publishState = jsonAppInfo.optInt("7");
-                        
-			app.setPublishState(publishState);
-			app.setPackageName(packageName);
-
-			// skip if we can't get all the data
-			// XXX should we just let this crash so we know there is a problem?
-                        if (!jsonAppInfo.has("2")) {
-				if (skipIncomplete) {
-					if (logger.isDebugEnabled()) {
-						logger.debug("parseAppInfos(String, String, boolean) - {}", String.format("Skipping app %d because no app details found: package name=%s", i, packageName)); //$NON-NLS-1$ //$NON-NLS-2$
-					}
-				} else {
-					if (logger.isDebugEnabled()) {
-						logger.debug("parseAppInfos(String, String, boolean) - {}", "Adding incomplete app: " + packageName); //$NON-NLS-1$ //$NON-NLS-2$
-					}
-					apps.add(app);
-				}
-				continue;
-			}
-			if (!jsonAppInfo.has("4")) {
-				if (skipIncomplete) {
-					if (logger.isDebugEnabled()) {
-						logger.debug("parseAppInfos(String, String, boolean) - {}", String.format("Skipping app %d because no versions info found: package name=%s", i, packageName)); //$NON-NLS-1$ //$NON-NLS-2$
-					}
-				} else {
-					if (logger.isDebugEnabled()) {
-						logger.debug("parseAppInfos(String, String, boolean) - {}", "Adding incomplete app: " + packageName); //$NON-NLS-1$ //$NON-NLS-2$
-					}
-					apps.add(app);
-				}
-				continue;
-			}
-			JSONObject appDetails = jsonAppInfo.getJSONObject("2").getJSONArray("1")
-					.getJSONObject(0);
-			if (DEBUG) {
-				pp("appDetails", appDetails);
-			}
-			app.setName(appDetails.getString("2"));
-			String description = appDetails.getString("3");
-			String changelog = appDetails.optString("5");
-			Long lastPlayStoreUpdate = jsonAppInfo.optLong("7");
-			AppDetails details = new AppDetails(description, changelog, lastPlayStoreUpdate);
-			app.setDetails(details);
-                        
-                        JSONArray appVersions = jsonAppInfo.optJSONObject("4").optJSONArray("1");
-			if (DEBUG) {
-				pp("appVersions", appVersions);
-			}
-			if (appVersions == null) {
-				if (skipIncomplete) {
-					if (logger.isDebugEnabled()) {
-						logger.debug("parseAppInfos(String, String, boolean) - {}", String.format("Skipping app %d because no versions info found: package name=%s", i, packageName)); //$NON-NLS-1$ //$NON-NLS-2$
-					}
-				} else {
-					if (logger.isDebugEnabled()) {
-						logger.debug("parseAppInfos(String, String, boolean) - {}", "Adding incomplete app: " + packageName); //$NON-NLS-1$ //$NON-NLS-2$
-					}
-					apps.add(app);
-				}
-				continue;
-			}
-                        
-			JSONObject lastAppVersionDetails = appVersions.getJSONObject(appVersions.length() - 1)
-					.getJSONObject("2");
-			if (DEBUG) {
-				pp("lastAppVersionDetails", lastAppVersionDetails);
-			}
-			app.setVersionName(lastAppVersionDetails.getString("4"));
-			app.setIconUrl(lastAppVersionDetails.getJSONObject("6").getString("3"));
-
-			// XXX this index might not be correct for all apps?
-			// 3 : { 1: active dnd, 2: # ratings, 3: avg rating, 4: #errors?, 5: total dnd }
-			JSONObject jsonAppStats = jsonApp.optJSONObject("3");
-			if (DEBUG) {
-				pp("jsonAppStats", jsonAppStats);
-			}
-			if (jsonAppStats == null) {
-				if (skipIncomplete) {
-					if (logger.isDebugEnabled()) {
-						logger.debug("parseAppInfos(String, String, boolean) - {}", String.format("Skipping app %d because no stats found: package name=%s", i, packageName)); //$NON-NLS-1$ //$NON-NLS-2$
-					}
-				} else {
-					if (logger.isDebugEnabled()) {
-						logger.debug("parseAppInfos(String, String, boolean) - {}", "Adding incomplete app: " + packageName); //$NON-NLS-1$ //$NON-NLS-2$
-					}
-					apps.add(app);
-				}
-				continue;
-			}
-                        
-			AppStats stats = new AppStats();
-			stats.setRequestDate(now);
-			if (jsonAppStats.length() < 4) {
-				// no statistics (yet?) or weird format
-				// TODO do we need differentiate?
-				stats.setActiveInstalls(0);
-				stats.setTotalDownloads(0);
-//				stats.setNumberOfErrors(0);
-                                stats.setAvgRatingDiff(0);
-                                
-			} else {
-                            /*
-                             * 1 = Active Installs
-                             * 2 = Number Rates
-                             * 3 = Average Rating
-                             * 4 = Errors
-                             * 5 = Total Downloads
-                             */
-				stats.setActiveInstalls(jsonAppStats.getInt("1"));
-				stats.setTotalDownloads(jsonAppStats.getInt("5"));
-				stats.setNumberOfComments(jsonAppStats.getInt("2"));
-			stats.setNumberOfErrors(jsonAppStats.optInt("4"));
-                                stats.setAvgRatingDiff(Float.parseFloat(jsonAppStats.optString("3")));
-                                
-			}
-                        
-                        app.setLatestStats(stats);
-                                                
-			if (logger.isDebugEnabled()) {
-				logger.debug("parseAppInfos(String, String, boolean) - {}", app.getPackageName() + ", " + app.getAccount() + ", " + app.getName() + ", " + app.getVersionName() + ", " + stats.getTotalDownloads() + ", " + stats.getActiveInstalls() + ", " + stats.getAvgRatingDiff() + ", "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
-			}
-                        
+			AppInfo app=parseApp(jsonApp, skipIncomplete,developerId,accountName);      
+			if(app!=null)
 			apps.add(app);
                         
 		}
 
 		return apps;
 	}
+	
+	private static AppInfo parseApp(JSONObject jsonApp,boolean skipIncomplete,String developerId,String accountName) throws JSONException
+	{
+		Date now = new Date();
+		AppInfo app = new AppInfo();
+		app.setDeveloperId(developerId);
+		app.setAccount(accountName);
+		app.setLastUpdate(now);
+		// Per app:
+		// 1 : { 1: package name,
+		// 2 : { 1: [{1 : lang, 2: name, 3: description, 4: ??, 5: what's new}], 2 : ?? },
+		// 3 : ??,
+		// 4 : update history,
+		// 5 : price,
+		// 6 : update date,
+		// 7 : state?
+		// }
+		// 2 : {}
+		// 3 : { 1: active dnd, 2: # ratings, 3: avg rating, 4: ???, 5: total dnd }
+
+		// arrays have changed to objects, with the index as the key
+		/*
+		 * Per app:
+		 * null
+		 * [ APP_INFO_ARRAY
+		 * * null
+		 * * packageName
+		 * * Nested array with details
+		 * * null
+		 * * Nested array with version details
+		 * * Nested array with price details
+		 * * Last update Date
+		 * * Number [1=published, 5 = draft?]
+		 * ]
+		 * null
+		 * [ APP_STATS_ARRAY
+		 * * null,
+		 * * Active installs
+		 * * Total ratings
+		 * * Average rating
+		 * * Errors
+		 * * Total installs
+		 * ]
+		 */
+		JSONObject jsonAppInfo = jsonApp.getJSONObject("1");
+		if (DEBUG) {
+			pp("jsonAppInfo", jsonAppInfo);
+		}
+		String packageName = jsonAppInfo.getString("1");
+                    
+                    
+		// TODO figure out the rest and add don't just skip, filter, etc. Cf. #223
+		int publishState = jsonAppInfo.optInt("7");
+                    
+		app.setPublishState(publishState);
+		app.setPackageName(packageName);
+
+		// skip if we can't get all the data
+		// XXX should we just let this crash so we know there is a problem?
+                    if (!jsonAppInfo.has("2")) {
+			if (skipIncomplete) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("(JSONObject jsonApp,boolean skipIncomplete,String developerId,String accountName) - {}", String.format("Skipping app because no app details found: package name=%s", packageName)); //$NON-NLS-1$ //$NON-NLS-2$
+					return null;
+				}
+			} else {
+				if (logger.isDebugEnabled()) {
+					logger.debug("(JSONObject jsonApp,boolean skipIncomplete,String developerId,String accountName) - {}", "Adding incomplete app: " + packageName); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+	
+				
+			}
+			
+		}
+                    else{
+            			JSONObject appDetails = jsonAppInfo.getJSONObject("2").getJSONArray("1")
+        						.getJSONObject(0);
+        				if (DEBUG) {
+        					pp("appDetails", appDetails);
+        				}
+        				app.setName(appDetails.getString("2"));
+        				String description = appDetails.getString("3");
+        				String changelog = appDetails.optString("5");
+        				Long lastPlayStoreUpdate = jsonAppInfo.optLong("7");
+        				AppDetails details = new AppDetails(description, changelog, lastPlayStoreUpdate);
+        				app.setDetails(details);
+                    	
+                    }
+            		
+            		JSONArray appVersions =null;
+		if (!jsonAppInfo.has("4")) {
+			if (skipIncomplete) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("(JSONObject jsonApp,boolean skipIncomplete,String developerId,String accountName) - {}", String.format("Skipping app because no versions info found: package name=%s", packageName)); //$NON-NLS-1$ //$NON-NLS-2$
+					return null;
+				}
+			} else {
+				if (logger.isDebugEnabled()) {
+					logger.debug("(JSONObject jsonApp,boolean skipIncomplete,String developerId,String accountName) - {}", "Adding incomplete app: " + packageName); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+				
+				
+			}
+			
+		}
+		else{
+			//Check application is versioned
+			appVersions = jsonAppInfo.optJSONObject("4").optJSONArray("1");
+		}
+
+
+
+		if (DEBUG) {
+			pp("appVersions", appVersions);
+		}
+		if (appVersions == null) {
+			if (skipIncomplete) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("(JSONObject jsonApp,boolean skipIncomplete,String developerId,String accountName) - {}", String.format("Skipping app because no versions info found: package name=%s", packageName)); //$NON-NLS-1$ //$NON-NLS-2$
+					return null;
+				}
+			} else {
+				if (logger.isDebugEnabled()) {
+					logger.debug("(JSONObject jsonApp,boolean skipIncomplete,String developerId,String accountName) - {}", "Adding incomplete app: " + packageName); //$NON-NLS-1$ //$NON-NLS-2$
+					
+				}
+				JSONObject lastAppVersionDetails = appVersions.getJSONObject(appVersions.length() - 1)
+						.getJSONObject("2");
+				if (DEBUG) {
+					pp("lastAppVersionDetails", lastAppVersionDetails);
+				}
+				app.setVersionName(lastAppVersionDetails.getString("4"));
+				app.setIconUrl(lastAppVersionDetails.getJSONObject("6").getString("3"));
+				
+			}
+			
+		}
+                    
+		
+
+		// XXX this index might not be correct for all apps?
+		// 3 : { 1: active dnd, 2: # ratings, 3: avg rating, 4: #errors?, 5: total dnd }
+		JSONObject jsonAppStats = jsonApp.optJSONObject("3");
+		if (DEBUG) {
+			pp("jsonAppStats", jsonAppStats);
+		}
+		if (jsonAppStats == null) {
+			if (skipIncomplete) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("(JSONObject jsonApp,boolean skipIncomplete,String developerId,String accountName) - {}", String.format("Skipping app because no stats found: package name=%s", packageName)); //$NON-NLS-1$ //$NON-NLS-2$
+					return null;
+				}
+			} else {
+				if (logger.isDebugEnabled()) {
+					logger.debug("(JSONObject jsonApp,boolean skipIncomplete,String developerId,String accountName) - {}", "Adding incomplete app: " + packageName); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+				
+			}
+			
+		}
+                    
+		AppStats stats = new AppStats();
+		stats.setRequestDate(now);
+		if (jsonAppStats==null||jsonAppStats.length() < 4) {
+			// no statistics (yet?) or weird format
+			// TODO do we need differentiate?
+			stats.setActiveInstalls(0);
+			stats.setTotalDownloads(0);
+			stats.setNumberOfErrors(0);
+                            stats.setAvgRatingDiff(0);
+                            
+		} else {
+                        /*
+                         * 1 = Active Installs
+                         * 2 = Number Rates
+                         * 3 = Average Rating
+                         * 4 = Errors
+                         * 5 = Total Downloads
+                         */
+			stats.setActiveInstalls(jsonAppStats.getInt("1"));
+			stats.setTotalDownloads(jsonAppStats.getInt("5"));
+			stats.setNumberOfComments(jsonAppStats.getInt("2"));
+		stats.setNumberOfErrors(jsonAppStats.optInt("4"));
+                            stats.setAvgRatingDiff(Float.parseFloat(jsonAppStats.optString("3")));
+                            
+		}
+                    
+                    app.setLatestStats(stats);
+                                            
+		if (logger.isDebugEnabled()) {
+			logger.debug("(JSONObject jsonApp,boolean skipIncomplete,String developerId,String accountName) - {}", app.getPackageName() + ", " + app.getAccount() + ", " + app.getName() + ", " + app.getVersionName() + ", " + stats.getTotalDownloads() + ", " + stats.getActiveInstalls() + ", " + stats.getAvgRatingDiff() + ", "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
+		}
+		return app;
+	}
 	static AppInfo parseAppInfo(String json, String accountName,String developerId, boolean skipIncomplete)
 			throws JSONException {
 
-		Date now = new Date();
+		
 		AppInfo app = null;
 		// Extract the base array containing apps
 		JSONObject result = new JSONObject(json).getJSONObject("result");
@@ -315,198 +370,19 @@ public class JsonParser {
 			pp("result", result);
 		}
 
-		JSONArray jsonApp = result.optJSONArray("1");
+		JSONArray jsonArray = result.optJSONArray("1");
 		
 		if (DEBUG) {
-			pp("jsonApp", jsonApp);
+			pp("jsonArray", jsonArray);
 		}
-		if (jsonApp == null) {
+		if (jsonArray == null) {
 			// no apps yet?
 			return app;
 		}
+		JSONObject jsonApp=jsonArray.optJSONObject(0);
+		app=parseApp(jsonApp, false,developerId,accountName); 
 
-		//int numberOfApps = jsonApps.length();
-//		System.out.println(String.format("Found %d apps in JSON", numberOfApps));
-		
-			app = new AppInfo();
-			app.setDeveloperId(developerId);
-			app.setAccount(accountName);
-			app.setLastUpdate(now);
-			// Per app:
-			// 1 : { 1: package name,
-			// 2 : { 1: [{1 : lang, 2: name, 3: description, 4: ??, 5: what's new}], 2 : ?? },
-			// 3 : ??,
-			// 4 : update history,
-			// 5 : price,
-			// 6 : update date,
-			// 7 : state?
-			// }
-			// 2 : {}
-			// 3 : { 1: active dnd, 2: # ratings, 3: avg rating, 4: ???, 5: total dnd }
-
-			// arrays have changed to objects, with the index as the key
-			/*
-			 * Per app:
-			 * null
-			 * [ APP_INFO_ARRAY
-			 * * null
-			 * * packageName
-			 * * Nested array with details
-			 * * null
-			 * * Nested array with version details
-			 * * Nested array with price details
-			 * * Last update Date
-			 * * Number [1=published, 5 = draft?]
-			 * ]
-			 * null
-			 * [ APP_STATS_ARRAY
-			 * * null,
-			 * * Active installs
-			 * * Total ratings
-			 * * Average rating
-			 * * Errors
-			 * * Total installs
-			 * ]
-			 */
-			
-			JSONObject jsonAppInfo = jsonApp.getJSONObject(0);
-			
-			if (DEBUG) {
-				pp("jsonAppInfo", jsonAppInfo);
-			}
-			
-			JSONObject test=jsonAppInfo.getJSONObject("1");
-			String packageName = jsonAppInfo.getString("1");
-                        
-                        
-			// TODO figure out the rest and add don't just skip, filter, etc. Cf. #223
-			int publishState = jsonAppInfo.optInt("7");
-                        
-			app.setPublishState(publishState);
-			app.setPackageName(packageName);
-
-			// skip if we can't get all the data
-			// XXX should we just let this crash so we know there is a problem?
-                        if (!jsonAppInfo.has("2")) {
-				if (skipIncomplete) {
-					if (logger.isDebugEnabled()) {
-						logger.debug("parseAppInfo(String, String, boolean) - {}", String.format("Skipping app because no app details found: package name=%s", packageName)); //$NON-NLS-1$ //$NON-NLS-2$
-					}
-				} else {
-					if (logger.isDebugEnabled()) {
-						logger.debug("parseAppInfos(String, String, boolean) - {}", "Adding incomplete app: " + packageName); //$NON-NLS-1$ //$NON-NLS-2$
-					}
-					
-				}
-				
-			}
-			if (!jsonAppInfo.has("4")) {
-				if (skipIncomplete) {
-					if (logger.isDebugEnabled()) {
-						logger.debug("parseAppInfos(String, String, boolean) - {}", String.format("Skipping app because no versions info found: package name=%s",  packageName)); //$NON-NLS-1$ //$NON-NLS-2$
-					}
-				} else {
-					if (logger.isDebugEnabled()) {
-						logger.debug("parseAppInfos(String, String, boolean) - {}", "Adding incomplete app: " + packageName); //$NON-NLS-1$ //$NON-NLS-2$
-					}
-					
-				}
-				
-			}
-			JSONObject appDetails = jsonAppInfo.getJSONObject("2").getJSONArray("1")
-					.getJSONObject(0);
-			if (DEBUG) {
-				pp("appDetails", appDetails);
-			}
-			app.setName(appDetails.getString("2"));
-			String description = appDetails.getString("3");
-			String changelog = appDetails.optString("5");
-			Long lastPlayStoreUpdate = jsonAppInfo.optLong("7");
-			AppDetails details = new AppDetails(description, changelog, lastPlayStoreUpdate);
-			app.setDetails(details);
-                        
-                        JSONArray appVersions = jsonAppInfo.optJSONObject("4").optJSONArray("1");
-			if (DEBUG) {
-				pp("appVersions", appVersions);
-			}
-			if (appVersions == null) {
-				if (skipIncomplete) {
-					if (logger.isDebugEnabled()) {
-						logger.debug("parseAppInfos(String, String, boolean) - {}", String.format("Skipping app because no versions info found: package name=%s", packageName)); //$NON-NLS-1$ //$NON-NLS-2$
-					}
-				} else {
-					if (logger.isDebugEnabled()) {
-						logger.debug("parseAppInfos(String, String, boolean) - {}", "Adding incomplete app: " + packageName); //$NON-NLS-1$ //$NON-NLS-2$
-					}
-					
-				}
-				
-			}
-                        
-			JSONObject lastAppVersionDetails = appVersions.getJSONObject(appVersions.length() - 1)
-					.getJSONObject("2");
-			if (DEBUG) {
-				pp("lastAppVersionDetails", lastAppVersionDetails);
-			}
-			app.setVersionName(lastAppVersionDetails.getString("4"));
-			app.setIconUrl(lastAppVersionDetails.getJSONObject("6").getString("3"));
-
-			// XXX this index might not be correct for all apps?
-			// 3 : { 1: active dnd, 2: # ratings, 3: avg rating, 4: #errors?, 5: total dnd }
-			JSONObject jsonAppStats = jsonApp.optJSONObject(3);
-			if (DEBUG) {
-				pp("jsonAppStats", jsonAppStats);
-			}
-			if (jsonAppStats == null) {
-				if (skipIncomplete) {
-					if (logger.isDebugEnabled()) {
-						logger.debug("parseAppInfos(String, String, boolean) - {}", String.format("Skipping app because no stats found: package name=%s", packageName)); //$NON-NLS-1$ //$NON-NLS-2$
-					}
-				} else {
-					if (logger.isDebugEnabled()) {
-						logger.debug("parseAppInfos(String, String, boolean) - {}", "Adding incomplete app: " + packageName); //$NON-NLS-1$ //$NON-NLS-2$
-					}
-					
-				}
-				
-			}
-                        
-			AppStats stats = new AppStats();
-			stats.setRequestDate(now);
-			if (jsonAppStats.length() < 4) {
-				// no statistics (yet?) or weird format
-				// TODO do we need differentiate?
-				stats.setActiveInstalls(0);
-				stats.setTotalDownloads(0);
-//				stats.setNumberOfErrors(0);
-                                stats.setAvgRatingDiff(0);
-                                
-			} else {
-                            /*
-                             * 1 = Active Installs
-                             * 2 = Number Rates
-                             * 3 = Average Rating
-                             * 4 = Errors
-                             * 5 = Total Downloads
-                             */
-				stats.setActiveInstalls(jsonAppStats.getInt("1"));
-				stats.setTotalDownloads(jsonAppStats.getInt("5"));
-//				stats.setNumberOfErrors(jsonAppStats.optInt("4"));
-                                stats.setAvgRatingDiff(jsonAppStats.optInt("3"));
-                                
-			}
-                        
-                        app.setLatestStats(stats);
-                                                
-			if (logger.isDebugEnabled()) {
-				logger.debug("parseAppInfos(String, String, boolean) - {}", app.getPackageName() + ", " + app.getAccount() + ", " + app.getName() + ", " + app.getVersionName() + ", " + stats.getTotalDownloads() + ", " + stats.getActiveInstalls() + ", " + stats.getAvgRatingDiff() + ", "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
-			}
-                        
-		
-                        
-		
-
-		return app;
+			return app;
 	}
 
 	private static void pp(String name, JSONArray jsonArr) {

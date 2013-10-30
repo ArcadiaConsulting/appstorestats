@@ -61,6 +61,8 @@ public class DevConsoleV2Protocol {
 	// Represents the different types of statistics e.g. active device installs
 	static final int STATS_TYPE_ACTIVE_DEVICE_INSTALLS = 1;
 	static final int STATS_TYPE_TOTAL_USER_INSTALLS = 8;
+	static final int STATS_TYPE_DAILY_DEVICE_INSTALLS = 4;
+	
 
 	static final int COMMENT_REPLY_MAX_LENGTH = 350;
 

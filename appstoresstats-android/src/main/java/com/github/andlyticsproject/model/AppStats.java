@@ -51,7 +51,14 @@ public class AppStats {
 
 	// TODO -- do we support diffs for this?
 	private Integer numberOfErrors;
+	private AppHistoricalStats historicalStats;
+	public AppHistoricalStats getHistoricalStats() {
+		return historicalStats;
+	}
 
+	public void setHistoricalStats(AppHistoricalStats historicalStats) {
+		this.historicalStats = historicalStats;
+	}
 	public AppStats() {
 	}
 
