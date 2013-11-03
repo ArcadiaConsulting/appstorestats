@@ -127,6 +127,29 @@ public class DevConsoleV2 implements DevConsole {
 				return null;
 			}
 
+			return fetchAppInfoFromFullQuery(packageName);
+		} catch (AuthenticationException ex) {
+			if (!authenticateFromScratch()) {
+				return null;
+			}
+
+			return fetchAppInfoFromFullQuery(packageName);
+		}
+	}
+	/**
+	 * Gets a data and statistics for specific app for the given account
+	 * 
+	 * @param activity
+	 * @return
+	 * @throws DevConsoleException
+	 */
+	public synchronized AppInfo getAppInfoAndStatisticsFromFullQuery(String packageName) throws DevConsoleException {
+		try {
+			// the authenticator launched a sub-activity, bail out for now
+			if (!authenticateWithCachedCredentialas()) {
+				return null;
+			}
+
 			return fetchAppInfoAndStatisticsFromFullQuery(packageName);
 		} catch (AuthenticationException ex) {
 			if (!authenticateFromScratch()) {
@@ -136,8 +159,26 @@ public class DevConsoleV2 implements DevConsole {
 			return fetchAppInfoAndStatisticsFromFullQuery(packageName);
 		}
 	}
-	
 	private AppInfo fetchAppInfoAndStatisticsFromFullQuery(String packageName)
+	{
+		
+		AppInfo app=fetchAppInfoFromFullQuery(packageName);
+		if(app!=null){
+				fetchStatistics(app, app.getLatestStats(), 4);
+		}
+		else
+		{
+			if(logger.isDebugEnabled())
+			{
+				logger.debug(String.format("Statistics will not be fetched since app %s cannot be found",packageName));
+			}
+		}
+				return app;
+			
+		}
+		
+	
+	private AppInfo fetchAppInfoFromFullQuery(String packageName)
 	{
 		List<AppInfo> apps = fetchAppInfos();
 		
@@ -145,8 +186,7 @@ public class DevConsoleV2 implements DevConsole {
 		{
 			if(app.getPackageName().equals(packageName))
 			{
-				fetchStatistics(app, app.getLatestStats(), 4);
-				//fetchRatings(app, app.getLatestStats());
+				
 				return app;
 			}
 		}
@@ -300,11 +340,13 @@ public class DevConsoleV2 implements DevConsole {
 	@SuppressWarnings("unused")
 	private void fetchStatistics(AppInfo appInfo, AppStats stats, int statsType)
 			throws DevConsoleException {
+		if(appInfo!=null){
 		String developerId = appInfo.getDeveloperId();
 		String response = post(protocol.createFetchStatisticsUrl(developerId),
 				protocol.createFetchStatisticsRequest(appInfo.getPackageName(), statsType),
 				developerId);
 		protocol.parseStatisticsResponse(response, stats, statsType);
+		}
 	}
 
 	/**

@@ -86,8 +86,9 @@ public class JsonParser {
 		JSONObject latestData = historicalData.getJSONObject(historicalData.length() - 1);
 		
 		int latestValue = latestData.getJSONObject("2").getInt("1");
-		if(stats.getHistoricalStats()==null)
+		if(stats.getHistoricalStats()==null){
 			stats.setHistoricalStats(new AppHistoricalStats());
+		}
 		switch (statsType) {
 			case DevConsoleV2Protocol.STATS_TYPE_TOTAL_USER_INSTALLS:
 				stats.setTotalDownloads(latestValue);
@@ -158,8 +159,9 @@ public class JsonParser {
 		
 			JSONObject jsonApp = jsonApps.getJSONObject(i);
 			AppInfo app=parseApp(jsonApp, skipIncomplete,developerId,accountName);      
-			if(app!=null)
+			if(app!=null){
 			apps.add(app);
+			}
                         
 		}
 
@@ -291,16 +293,20 @@ public class JsonParser {
 					logger.debug("(JSONObject jsonApp,boolean skipIncomplete,String developerId,String accountName) - {}", "Adding incomplete app: " + packageName); //$NON-NLS-1$ //$NON-NLS-2$
 					
 				}
-				JSONObject lastAppVersionDetails = appVersions.getJSONObject(appVersions.length() - 1)
-						.getJSONObject("2");
-				if (DEBUG) {
-					pp("lastAppVersionDetails", lastAppVersionDetails);
-				}
-				app.setVersionName(lastAppVersionDetails.getString("4"));
-				app.setIconUrl(lastAppVersionDetails.getJSONObject("6").getString("3"));
+				
 				
 			}
 			
+		}
+		else
+		{
+			JSONObject lastAppVersionDetails = appVersions.getJSONObject(appVersions.length() - 1)
+					.getJSONObject("2");
+			if (DEBUG) {
+				pp("lastAppVersionDetails", lastAppVersionDetails);
+			}
+			app.setVersionName(lastAppVersionDetails.getString("4"));
+			app.setIconUrl(lastAppVersionDetails.getJSONObject("6").getString("3"));
 		}
                     
 		

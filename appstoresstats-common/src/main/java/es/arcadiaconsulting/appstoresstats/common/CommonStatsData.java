@@ -173,7 +173,7 @@ public class CommonStatsData {
 		/**
 		 * User device
 		 */
-		String device;
+		private String device;
 		@SuppressWarnings("unused")
 		public Rating(int rate, String opinion, String user, String device) {
 			super();

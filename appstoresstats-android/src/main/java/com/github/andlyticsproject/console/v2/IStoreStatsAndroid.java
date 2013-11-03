@@ -13,7 +13,12 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.conn.SchemeRegistryFactory;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.HttpContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.andlyticsproject.model.AppHistoricalStatsElement;
 import com.github.andlyticsproject.model.AppInfo;
@@ -26,7 +31,12 @@ import es.arcadiaconsulting.appstoresstats.common.NumberHelper;
 public class IStoreStatsAndroid implements IStoreStats {
 
 	DevConsoleV2 console=null;
-	
+	private final int CONNECTION_TIMEOUT=10000;
+	/**
+	 * Logger for this class
+	 */
+	private static final Logger logger = LoggerFactory.getLogger(IStoreStatsAndroid.class);
+
 
 	
 /*	public static IStoreStatsAndroid createForAccountAndPassword(String accountName, String password,
@@ -39,7 +49,7 @@ public class IStoreStatsAndroid implements IStoreStats {
 	 * @param packageName
 	 * @return
 	 */
-	private List<CommonStatsData> getBasicStatsDataAndroid()
+	protected List<CommonStatsData> getBasicStatsDataAndroid()
 	{
 		List<CommonStatsData> result=null;
 		List<AppInfo> apps=console.getAppInfo();
@@ -55,10 +65,15 @@ public class IStoreStatsAndroid implements IStoreStats {
 	}
 	
 	
-	private CommonStatsData getStatsDataAndroidBetweenDates(String packageName,Date initDate,Date endDate)
+	protected CommonStatsData getStatsDataAndroidBetweenDates(String packageName,Date initDate,Date endDate)
 	{
-		//AppInfo app=console.getAppInfo(packageName);
-		AppInfo app=console.getAppInfoFromFullQuery(packageName);
+		/*
+		 * CUrrently obtaining full app list because ratings, downloads... etc are not visible from detailed app view
+		 * AppInfo app=console.getAppInfo(packageName);
+		 */
+		if(logger.isDebugEnabled())
+			logger.debug("getStatsDataAndroidBetweenDates() - {}", String.format("Getting statistics for %d", packageName));
+		AppInfo app=console.getAppInfoAndStatisticsFromFullQuery(packageName);
 		return buildStats(app,initDate,endDate);
 	}
 	
@@ -70,14 +85,14 @@ public class IStoreStatsAndroid implements IStoreStats {
 	 * @param packageName
 	 * @return
 	 */
-	private CommonStatsData getBasicStatsDataAndroid(String packageName)
+	protected CommonStatsData getBasicStatsDataAndroid(String packageName)
 	{
 		AppInfo app=console.getAppInfoFromFullQuery(packageName);
 		return buildStats(app);
 		
 	}
 
-	private StatsDataAndroid parseInstallationsBetweenDates(StatsDataAndroid stats,AppInfo app)
+	protected StatsDataAndroid parseInstallationsBetweenDates(StatsDataAndroid stats,AppInfo app)
 	{
 		if(app!=null&&app.getLatestStats()!=null&&app.getLatestStats().getHistoricalStats()!=null&&app.getLatestStats().getHistoricalStats().getDailyInstallsByDevice()!=null)
 		{
@@ -105,45 +120,58 @@ public class IStoreStatsAndroid implements IStoreStats {
 		}
 		return stats;
 	}
-	private boolean equalsOrHigerToInit(Date initDate,Date compareDate)
+	protected boolean equalsOrHigerToInit(Date initDate,Date compareDate)
 	{
 		Calendar init=Calendar.getInstance();
 		init.setTime(initDate);
 
 		Calendar comp=Calendar.getInstance();
 		comp.setTime(compareDate);
-		
-		if(init.get(init.DAY_OF_YEAR)<=comp.get(comp.DAY_OF_YEAR))
+		if(init.get(Calendar.YEAR)==comp.get(Calendar.YEAR)){
+		if(init.get(Calendar.DAY_OF_YEAR)<=comp.get(Calendar.DAY_OF_YEAR)){
 			return true;
+		}
+		}
+		else{
+			if(init.get(Calendar.YEAR)<comp.get(Calendar.YEAR)){
+				return true;
+			}
+		}
 		return false;
 	}
-	private boolean equalsOrLowerToEnd(Date endDate,Date compareDate)
+	protected boolean equalsOrLowerToEnd(Date endDate,Date compareDate)
 	{
 		Calendar end=Calendar.getInstance();
 		end.setTime(endDate);
 		Calendar comp=Calendar.getInstance();
 		comp.setTime(compareDate);
 
-		if(end.get(end.DAY_OF_YEAR)>=comp.get(comp.DAY_OF_YEAR))
+		if(end.get(Calendar.YEAR)==comp.get(Calendar.YEAR)){
+		if(end.get(Calendar.DAY_OF_YEAR)>=comp.get(Calendar.DAY_OF_YEAR))
 			return true;
+		}
+		else if(end.get(Calendar.YEAR)>comp.get(Calendar.YEAR)){
+			return true;
+		}
 		return false;
 	}
-	private StatsDataAndroid buildStats(AppInfo app,Date initDate,Date endDate)
+	protected StatsDataAndroid buildStats(AppInfo app,Date initDate,Date endDate)
 	{
 		StatsDataAndroid stats=buildStats(app);
+		if(stats!=null){
 		if(initDate!=null)
 			stats.setInitDate(initDate);
 		if(endDate!=null)
 			stats.setEndDate(endDate);
 		stats=parseInstallationsBetweenDates(stats,app);
-		
+		}
 		return stats;
 		
 		
 		
 	}
 	
-	private StatsDataAndroid buildStats(AppInfo app)
+	protected StatsDataAndroid buildStats(AppInfo app)
 	{  StatsDataAndroid stats=null;
 		if(app!=null){
 		stats=new StatsDataAndroid();
@@ -163,7 +191,7 @@ public class IStoreStatsAndroid implements IStoreStats {
 	}
 
 	@SuppressWarnings("unused")
-	private IStoreStatsAndroid(DevConsoleV2 console) {
+	protected IStoreStatsAndroid(DevConsoleV2 console) {
 		super();
 		this.console = console;
 	}
@@ -172,7 +200,6 @@ public class IStoreStatsAndroid implements IStoreStats {
 	public CommonStatsData getStatsForApp(String user, String password,
 			String appId, Date initDate, Date endDate,String vectorId) {
 		console=DevConsoleV2.createForAccountAndPassword(user, password, createDefaultHttpClient());
-
 		return getStatsDataAndroidBetweenDates(appId,initDate,endDate);
 	}
 
@@ -198,12 +225,15 @@ public class IStoreStatsAndroid implements IStoreStats {
 		return getBasicStatsDataAndroid();
 	}
 
-	private DefaultHttpClient createDefaultHttpClient()
+	protected DefaultHttpClient createDefaultHttpClient()
 	{
 		ThreadSafeClientConnManager cxMgr = new ThreadSafeClientConnManager( SchemeRegistryFactory.createDefault());
 		cxMgr.setMaxTotal(100);
 		cxMgr.setDefaultMaxPerRoute(20);
 		DefaultHttpClient defHttp=new DefaultHttpClient(cxMgr);
+		HttpParams params = new BasicHttpParams();
+		defHttp.setParams(params);
+		HttpConnectionParams.setConnectionTimeout(params, CONNECTION_TIMEOUT);
 		defHttp.setRedirectStrategy(new DefaultRedirectStrategy() {                
 	        public boolean isRedirected(HttpRequest request, HttpResponse response, HttpContext context)  {
 	            boolean isRedirect=false;
