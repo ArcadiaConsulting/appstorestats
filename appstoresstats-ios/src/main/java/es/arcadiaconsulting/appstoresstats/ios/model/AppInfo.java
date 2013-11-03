@@ -9,6 +9,16 @@ public class AppInfo {
 	private String id;
 	
 	private Date releaseDate;
+	
+	private String appName;
+
+	public String getAppName() {
+		return appName;
+	}
+
+	public void setAppName(String appName) {
+		this.appName = appName;
+	}
 
 	public boolean isDeployed() {
 		return isDeployed;
