@@ -14,4 +14,6 @@ public class Constants {
 	public static final java.lang.String HTTP_URL_APPLE_APP_GET ="https://itunes.apple.com/lookup";
 	
 	public static final java.lang.String ID_NAME ="id";
+	
+	public static final java.lang.String[] UPDATE_PRODUCT_TYPE_IDENTIFYER = new String[]{"7", "7F", "7T", "F7"};
 }

@@ -1,5 +1,6 @@
 package es.arcadiaconsulting.appstoresstats.ios.io;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -27,11 +28,12 @@ public class JSONParser {
 				logger.error("There are more than one app with same id");
 				return null;
 			}else{
-				JSONObject result = jsonObject.getJSONObject("results");
-				String releaseDate = result.getString("releaseDate");
+				JSONArray result = jsonObject.getJSONArray("results");
+				String releaseDate = result.getJSONObject(0).getString("releaseDate");
+				String trakName = result.getJSONObject(0).getString("trackName");
 				appInfo.setDeployed(true);
 				appInfo.setId(appleID);
-				
+				appInfo.setAppName(trakName);
 				//TODO get more parameters
 				appInfo.setReleaseDate(DateHelper.buildDateFromUTCString(releaseDate));
 				return appInfo;

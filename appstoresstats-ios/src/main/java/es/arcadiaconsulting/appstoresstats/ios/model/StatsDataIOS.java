@@ -24,12 +24,13 @@ public class StatsDataIOS extends CommonStatsData{
 		// TODO Auto-generated constructor stub
 	}
 	
-	public StatsDataIOS(String sku, Date endDate, Date initDate){
+	public StatsDataIOS(String sku, Date endDate, Date initDate, String appName){
 		super();
 		
 		setAppId(sku);
 		setEndDate(endDate);
 		setInitDate(initDate);
+		setAppName(appName);
 	}
 	
 

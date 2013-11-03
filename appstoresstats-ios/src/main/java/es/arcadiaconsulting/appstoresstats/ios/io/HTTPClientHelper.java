@@ -20,13 +20,17 @@ public class HTTPClientHelper {
 
 	public static String executeHttpGetWithParams(String url,
 			String[] nameValueParam) {
+		String finalURL = "";
 		if (nameValueParam.length > 1) {
-			String finalURL = url + "?";
+			finalURL = url + "?";
 			for (int i = 0; i < nameValueParam.length; i++) {
-				finalURL = finalURL + nameValueParam[i]+ nameValueParam[i++];
+				finalURL = finalURL + nameValueParam[i]+ "=" + nameValueParam[i+1];
+				i=i+1;
+				if(i<nameValueParam.length-1)
+						finalURL = finalURL+"&";
 			}
 		}
-		return executeHttpGet(url);
+		return executeHttpGet(finalURL);
 	}
 
 	public static String executeHttpGet(String url) {
