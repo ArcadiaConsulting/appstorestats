@@ -551,7 +551,7 @@ public class DateHelper {
 		case USE_CASE_0:
 			//
 			iteratorFirst = (GregorianCalendar)firstDateCalendar.clone();
-				while(iteratorFirst.get(Calendar.DAY_OF_YEAR)+6<=secondDateCalendar.get(Calendar.DAY_OF_YEAR)){
+				while(iteratorFirst.get(Calendar.DAY_OF_YEAR)+7<=secondDateCalendar.get(Calendar.DAY_OF_YEAR)){
 					List<UnitData> dayUnitData = Autoingestion.getUnitsByDate(
 							/**propertiesFile,*/ user, password, vendorId,
 							Constants.REPORT_TYPE_SALES, Constants.DATE_TYPE_WEEDLY,
@@ -563,7 +563,7 @@ public class DateHelper {
 								"Problem getting day sales. Please see log for more information");
 					}
 					unitDataList.addAll(dayUnitData);
-					if(iteratorFirst.get(Calendar.DAY_OF_YEAR)+6==secondDateCalendar.get(Calendar.DAY_OF_YEAR))
+					if(iteratorFirst.get(Calendar.DAY_OF_YEAR)+7==secondDateCalendar.get(Calendar.DAY_OF_YEAR))
 						return cleanUnitDataList(unitDataList);
 					iteratorFirst.add(Calendar.DATE, 7);
 					
@@ -579,7 +579,7 @@ public class DateHelper {
 				while(iteratorSecond.get(Calendar.DAY_OF_WEEK)!=Calendar.SUNDAY){
 					iteratorSecond.add(Calendar.DATE, 1);
 				}
-				while(iteratorFirst.get(Calendar.DAY_OF_YEAR)+6<=iteratorSecond.get(Calendar.DAY_OF_YEAR)){
+				while(iteratorFirst.get(Calendar.DAY_OF_YEAR)+7<=iteratorSecond.get(Calendar.DAY_OF_YEAR)){
 					List<UnitData> dayUnitData = Autoingestion.getUnitsByDate(
 							/**propertiesFile,*/ user, password, vendorId,
 							Constants.REPORT_TYPE_SALES, Constants.DATE_TYPE_WEEDLY,
@@ -591,7 +591,7 @@ public class DateHelper {
 								"Problem getting day sales. Please see log for more information");
 					}
 					unitDataList.addAll(dayUnitData);
-					if(iteratorFirst.get(Calendar.DAY_OF_YEAR)+6==iteratorSecond.get(Calendar.DAY_OF_YEAR))
+					if(iteratorFirst.get(Calendar.DAY_OF_YEAR)+7==iteratorSecond.get(Calendar.DAY_OF_YEAR))
 						return cleanUnitDataList(unitDataList);
 					iteratorFirst.add(Calendar.DATE, 7);
 					
@@ -609,7 +609,7 @@ public class DateHelper {
 			while(iteratorFirst.get(Calendar.DAY_OF_WEEK)!=Calendar.SUNDAY){
 				iteratorFirst.add(Calendar.DATE, -1);
 			}
-			while(iteratorFirst.get(Calendar.DAY_OF_YEAR)+6<=secondDateCalendar.get(Calendar.DAY_OF_YEAR)){
+			while(iteratorFirst.get(Calendar.DAY_OF_YEAR)+7<=secondDateCalendar.get(Calendar.DAY_OF_YEAR)){
 				List<UnitData> dayUnitData = Autoingestion.getUnitsByDate(
 						/**propertiesFile,*/ user, password, vendorId,
 						Constants.REPORT_TYPE_SALES, Constants.DATE_TYPE_WEEDLY,
@@ -621,7 +621,7 @@ public class DateHelper {
 							"Problem getting day sales. Please see log for more information");
 				}
 				unitDataList.addAll(dayUnitData);
-				if(iteratorFirst.get(Calendar.DAY_OF_YEAR)+6==secondDateCalendar.get(Calendar.DAY_OF_YEAR))
+				if(iteratorFirst.get(Calendar.DAY_OF_YEAR)+7==secondDateCalendar.get(Calendar.DAY_OF_YEAR))
 					return cleanUnitDataList(unitDataList);
 				iteratorFirst.add(Calendar.DATE, 7);
 				
@@ -640,7 +640,7 @@ public class DateHelper {
 			while(iteratorSecond.get(Calendar.DAY_OF_WEEK)!=Calendar.SUNDAY){
 				iteratorSecond.add(Calendar.DATE, 1);
 			}
-			while(iteratorFirst.get(Calendar.DAY_OF_YEAR)+6<=secondDateCalendar.get(Calendar.DAY_OF_YEAR)){
+			while(iteratorFirst.get(Calendar.DAY_OF_YEAR)+7<=secondDateCalendar.get(Calendar.DAY_OF_YEAR)){
 				List<UnitData> dayUnitData = Autoingestion.getUnitsByDate(
 						/**propertiesFile,*/ user, password, vendorId,
 						Constants.REPORT_TYPE_SALES, Constants.DATE_TYPE_WEEDLY,
@@ -652,7 +652,7 @@ public class DateHelper {
 							"Problem getting day sales. Please see log for more information");
 				}
 				unitDataList.addAll(dayUnitData);
-				if(iteratorFirst.get(Calendar.DAY_OF_YEAR)+6==iteratorSecond.get(Calendar.DAY_OF_YEAR))
+				if(iteratorFirst.get(Calendar.DAY_OF_YEAR)+7==iteratorSecond.get(Calendar.DAY_OF_YEAR))
 					return cleanUnitDataList(unitDataList);
 				iteratorFirst.add(Calendar.DATE, 7);
 				
@@ -663,7 +663,7 @@ public class DateHelper {
 		// consulta fecha inicio entre 1 y 6 meses lunes, fecha fin menos de un mes
 		case USE_CASE_4:
 			iteratorFirst = (GregorianCalendar)firstDateCalendar.clone();
-			while(iteratorFirst.get(Calendar.DAY_OF_YEAR)+6<=secondDateCalendar.get(Calendar.DAY_OF_YEAR)){
+			while(iteratorFirst.get(Calendar.DAY_OF_YEAR)+7<=secondDateCalendar.get(Calendar.DAY_OF_YEAR)){
 				List<UnitData> dayUnitData = Autoingestion.getUnitsByDate(
 						/**propertiesFile,*/ user, password, vendorId,
 						Constants.REPORT_TYPE_SALES, Constants.DATE_TYPE_WEEDLY,
@@ -675,7 +675,7 @@ public class DateHelper {
 							"Problem getting day sales. Please see log for more information");
 				}
 				unitDataList.addAll(dayUnitData);
-				if(iteratorFirst.get(Calendar.DAY_OF_YEAR)+6==secondDateCalendar.get(Calendar.DAY_OF_YEAR)){
+				if(iteratorFirst.get(Calendar.DAY_OF_YEAR)+7==secondDateCalendar.get(Calendar.DAY_OF_YEAR)){
 					return cleanUnitDataList(unitDataList);
 				}else if(iteratorFirst.get(Calendar.DAY_OF_YEAR)+12<=secondDateCalendar.get(Calendar.DAY_OF_YEAR)){
 					iteratorFirst.add(Calendar.DATE, 7);
@@ -712,7 +712,7 @@ public class DateHelper {
 			while(iteratorFirst.get(Calendar.DAY_OF_WEEK)!=Calendar.SUNDAY){
 				iteratorFirst.add(Calendar.DATE, -1);
 			}
-			while(iteratorFirst.get(Calendar.DAY_OF_YEAR)+6<=secondDateCalendar.get(Calendar.DAY_OF_YEAR)){
+			while(iteratorFirst.get(Calendar.DAY_OF_YEAR)+7<=secondDateCalendar.get(Calendar.DAY_OF_YEAR)){
 				List<UnitData> dayUnitData = Autoingestion.getUnitsByDate(
 						/**propertiesFile,*/ user, password, vendorId,
 						Constants.REPORT_TYPE_SALES, Constants.DATE_TYPE_WEEDLY,
@@ -724,7 +724,7 @@ public class DateHelper {
 							"Problem getting day sales. Please see log for more information");
 				}
 				unitDataList.addAll(dayUnitData);
-				if(iteratorFirst.get(Calendar.DAY_OF_YEAR)+6==secondDateCalendar.get(Calendar.DAY_OF_YEAR)){
+				if(iteratorFirst.get(Calendar.DAY_OF_YEAR)+7==secondDateCalendar.get(Calendar.DAY_OF_YEAR)){
 					return cleanUnitDataList(unitDataList);
 				}else if(iteratorFirst.get(Calendar.DAY_OF_YEAR)+12<=secondDateCalendar.get(Calendar.DAY_OF_YEAR)){
 					iteratorFirst.add(Calendar.DATE, 7);
