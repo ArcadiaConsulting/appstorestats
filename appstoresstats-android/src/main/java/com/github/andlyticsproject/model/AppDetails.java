@@ -1,3 +1,4 @@
+
 package com.github.andlyticsproject.model;
 
 import java.util.ArrayList;

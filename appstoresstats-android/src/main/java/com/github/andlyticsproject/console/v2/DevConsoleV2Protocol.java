@@ -1,12 +1,11 @@
 package com.github.andlyticsproject.console.v2;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.List;
 
 import org.apache.http.client.methods.HttpPost;
 import org.json.JSONException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.andlyticsproject.console.DevConsoleProtocolException;
 import com.github.andlyticsproject.model.AppInfo;
@@ -75,7 +74,7 @@ public class DevConsoleV2Protocol {
 		this.sessionCredentials = sessionCredentials;
 	}
 
-	SessionCredentials getSessionCredentials() {
+	public SessionCredentials getSessionCredentials() {
 		return sessionCredentials;
 	}
 
@@ -83,7 +82,7 @@ public class DevConsoleV2Protocol {
 		this.sessionCredentials = sessionCredentials;
 	}
 
-	boolean hasSessionCredentials() {
+	public boolean hasSessionCredentials() {
 		return sessionCredentials != null;
 	}
 
@@ -117,11 +116,11 @@ public class DevConsoleV2Protocol {
 		return String.format("%s?dev_acc=%s", baseUrl, developerId);
 	}
 
-	String createFetchAppsUrl(String developerId) {
+	public String createFetchAppsUrl(String developerId) {
 		return createDeveloperUrl(URL_APPS, developerId);
 	}
 
-	String createFetchStatisticsUrl(String developerId) {
+	public String createFetchStatisticsUrl(String developerId) {
 		return createDeveloperUrl(URL_STATISTICS, developerId);
 	}
 
@@ -129,7 +128,7 @@ public class DevConsoleV2Protocol {
 		return createDeveloperUrl(URL_REVIEWS, developerId);
 	}
 
-	String createFetchAppInfosRequest() {
+	public String createFetchAppInfosRequest() {
 		checkState();
 
 		// TODO Check the remaining possible parameters to see if they are
@@ -154,7 +153,7 @@ public class DevConsoleV2Protocol {
 				sessionCredentials.getXsrfToken());
 	}
 
-	List<AppInfo> parseAppInfosResponse(String json, String accountName,String developerId, boolean skipIncomplete) {
+	public List<AppInfo> parseAppInfosResponse(String json, String accountName,String developerId, boolean skipIncomplete) {
 		try {
 			return JsonParser.parseAppInfos(json, accountName,developerId, skipIncomplete);
 		} catch (JSONException ex) {
@@ -182,7 +181,7 @@ public class DevConsoleV2Protocol {
 		return String.format(FETCH_APP_TEMPLATE, packageName, sessionCredentials.getXsrfToken());
 	}
 
-	String createFetchStatisticsRequest(String packageName, int statsType) {
+	public String createFetchStatisticsRequest(String packageName, int statsType) {
 		checkState();
 
 		// Don't care about the breakdown at the moment:
@@ -191,7 +190,7 @@ public class DevConsoleV2Protocol {
 				STATS_BY_ANDROID_VERSION, sessionCredentials.getXsrfToken());
 	}
 
-	void parseStatisticsResponse(String json, AppStats stats, int statsType) {
+	public void parseStatisticsResponse(String json, AppStats stats, int statsType) {
 		try {
 			JsonParser.parseStatistics(json, stats, statsType);
 		} catch (JSONException ex) {

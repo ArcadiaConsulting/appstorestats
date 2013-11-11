@@ -1,4 +1,19 @@
-package com.github.andlyticsproject.console.v2;
+/**
+* Copyright 2013 Arcadia Consulting C.B.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+* 
+*     http://www.apache.org/licenses/LICENSE-2.0
+* 
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+**/
+package es.arcadiaconsulting.appstoresstats.android.console;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -20,22 +35,23 @@ import org.apache.http.protocol.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.andlyticsproject.console.v2.DevConsoleV2;
 import com.github.andlyticsproject.model.AppHistoricalStatsElement;
 import com.github.andlyticsproject.model.AppInfo;
-import com.github.andlyticsproject.model.StatsDataAndroid;
 
+import es.arcadiaconsulting.appstoresstats.android.model.StatsDataAndroid;
 import es.arcadiaconsulting.appstoresstats.common.CommonStatsData;
 import es.arcadiaconsulting.appstoresstats.common.IStoreStats;
 import es.arcadiaconsulting.appstoresstats.common.NumberHelper;
 
-public class IStoreStatsAndroid implements IStoreStats {
+public class AndroidStoreStats implements IStoreStats {
 
 	DevConsoleV2 console=null;
 	private final int CONNECTION_TIMEOUT=10000;
 	/**
 	 * Logger for this class
 	 */
-	private static final Logger logger = LoggerFactory.getLogger(IStoreStatsAndroid.class);
+	private static final Logger logger = LoggerFactory.getLogger(AndroidStoreStats.class);
 
 
 	
@@ -190,8 +206,7 @@ public class IStoreStatsAndroid implements IStoreStats {
 		return stats;
 	}
 
-	@SuppressWarnings("unused")
-	protected IStoreStatsAndroid(DevConsoleV2 console) {
+	protected AndroidStoreStats(DevConsoleV2 console) {
 		super();
 		this.console = console;
 	}
@@ -254,7 +269,7 @@ public class IStoreStatsAndroid implements IStoreStats {
 	    });
 		return defHttp;
 	}
-	public IStoreStatsAndroid() {
+	public AndroidStoreStats() {
 		super();
 		// TODO Auto-generated constructor stub
 	}

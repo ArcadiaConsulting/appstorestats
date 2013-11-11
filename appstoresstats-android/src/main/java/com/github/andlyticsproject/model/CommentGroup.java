@@ -1,4 +1,3 @@
-
 package com.github.andlyticsproject.model;
 
 import java.text.SimpleDateFormat;

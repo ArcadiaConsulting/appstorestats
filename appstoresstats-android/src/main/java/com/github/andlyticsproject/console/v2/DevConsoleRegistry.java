@@ -3,8 +3,6 @@ package com.github.andlyticsproject.console.v2;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.impl.client.DefaultHttpClient;
-
 public class DevConsoleRegistry {
 
 	private Map<String, DevConsoleV2> registry = new HashMap<String, DevConsoleV2>();

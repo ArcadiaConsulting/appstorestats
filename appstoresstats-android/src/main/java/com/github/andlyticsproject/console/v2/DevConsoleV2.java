@@ -1,11 +1,7 @@
 package com.github.andlyticsproject.console.v2;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.http.HttpStatus;
@@ -16,6 +12,9 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.HTTP;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.andlyticsproject.console.AuthenticationException;
 import com.github.andlyticsproject.console.DevConsole;
@@ -25,9 +24,6 @@ import com.github.andlyticsproject.model.AppInfo;
 import com.github.andlyticsproject.model.AppStats;
 import com.github.andlyticsproject.model.Comment;
 import com.github.andlyticsproject.model.DeveloperConsoleAccount;
-
-import org.apache.http.entity.ByteArrayEntity;
-import org.apache.http.protocol.HTTP;
 //import org.apache.http.HttpEntity;
 //import org.apache.http.HttpResponse;
 //import org.apache.http.client.ClientProtocolException;
@@ -59,8 +55,6 @@ public class DevConsoleV2 implements DevConsole {
 
 	// 30 seconds -- for both socket and connection
 	public static final int TIMEOUT = 30 * 1000;
-
-	private static final String TAG = DevConsoleV2.class.getSimpleName();
 
 	private static final boolean DEBUG = false;
 
@@ -337,7 +331,7 @@ public class DevConsoleV2 implements DevConsole {
 				developerId);
 		protocol.parseStatisticsResponse(response, stats, statsType);
 	}	
-	@SuppressWarnings("unused")
+
 	private void fetchStatistics(AppInfo appInfo, AppStats stats, int statsType)
 			throws DevConsoleException {
 		if(appInfo!=null){

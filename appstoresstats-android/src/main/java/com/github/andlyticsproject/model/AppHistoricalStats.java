@@ -1,6 +1,5 @@
 package com.github.andlyticsproject.model;
 
-import java.util.Date;
 import java.util.List;
 
 public class AppHistoricalStats {

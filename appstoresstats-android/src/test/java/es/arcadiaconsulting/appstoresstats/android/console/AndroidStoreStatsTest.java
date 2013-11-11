@@ -1,4 +1,13 @@
-package com.github.andlyticsproject.console.v2;
+package es.arcadiaconsulting.appstoresstats.android.console;
+
+import static com.github.andlyticsproject.console.v2.Constants.*;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.util.Date;
@@ -8,31 +17,24 @@ import junit.framework.TestCase;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Matchers.isA;
-import static org.mockito.Mockito.*;
-
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static com.github.andlyticsproject.console.v2.Constants.*;
-import static com.github.andlyticsproject.console.v2.CommonMatchers.*;
-
+import com.github.andlyticsproject.console.v2.CommonMatchers;
+import com.github.andlyticsproject.console.v2.DevConsoleV2;
+import com.github.andlyticsproject.console.v2.DevConsoleV2Protocol;
+import com.github.andlyticsproject.console.v2.PasswordAuthenticator;
+import com.github.andlyticsproject.console.v2.CommonMatchers.HttpPostAppInfosArgumentMatcher;
+import com.github.andlyticsproject.console.v2.CommonMatchers.HttpPostAppStatsArgumentMatcher;
 import com.github.andlyticsproject.model.AppStats;
-import com.github.andlyticsproject.model.DeveloperConsoleAccount;
-import com.github.andlyticsproject.model.StatsDataAndroid;
 
-import es.arcadiaconsulting.appstoresstats.common.IStoreStats;
+import es.arcadiaconsulting.appstoresstats.android.console.AndroidStoreStats;
+import es.arcadiaconsulting.appstoresstats.android.model.StatsDataAndroid;
 @RunWith(MockitoJUnitRunner.class)
-public class IStoreStatsAndroidTest extends TestCase{
+public class AndroidStoreStatsTest extends TestCase{
   
 	@Mock
     private DevConsoleV2Protocol protocol;
@@ -76,7 +78,7 @@ public class IStoreStatsAndroidTest extends TestCase{
 	    }
 	@Test
 	public void testGetStatsDataAndroidBetweenDates() throws ClientProtocolException, IOException
-	{	IStoreStatsAndroid stats=new IStoreStatsAndroid();
+	{	AndroidStoreStats stats=new AndroidStoreStats();
 		stats.console=console;
 		when(protocol.hasSessionCredentials()).thenReturn(true);
 		when(protocol.getSessionCredentials()).thenReturn(CREDENTIALS_OK);
@@ -113,7 +115,7 @@ public class IStoreStatsAndroidTest extends TestCase{
 	}
 	@Test
 	public void testGetBasicStatsDataAndroid() throws ClientProtocolException, IOException
-	{	IStoreStatsAndroid stats=new IStoreStatsAndroid();
+	{	AndroidStoreStats stats=new AndroidStoreStats();
 		stats.console=console;
 		when(protocol.hasSessionCredentials()).thenReturn(true);
 		when(protocol.getSessionCredentials()).thenReturn(CREDENTIALS_OK);

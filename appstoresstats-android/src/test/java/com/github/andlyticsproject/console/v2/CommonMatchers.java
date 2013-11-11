@@ -1,7 +1,6 @@
 package com.github.andlyticsproject.console.v2;
 
-import static com.github.andlyticsproject.console.v2.Constants.FETCH_APP_INFOS_URL;
-import static com.github.andlyticsproject.console.v2.Constants.FETCH_APP_STATS_URL;
+import static com.github.andlyticsproject.console.v2.Constants.*;
 
 import org.apache.http.client.methods.HttpPost;
 import org.mockito.ArgumentMatcher;
