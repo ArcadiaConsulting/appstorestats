@@ -9,7 +9,7 @@
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>appstoresstats-common</artifactId>
-	<name>Java App Store Stasts client - Common elements</name>
+	<name>App Stores statistics Java API - Common elements</name>
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>

@@ -6,7 +6,78 @@
 	<artifactId>appstorestats-parent</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>Java App Store Stasts client - Parent</name>
+	<name>App Stores statistics Java API - Parent</name>
+	<description>Java API for accession App Stores statistics. Current implementation supports Google Play and Apple App Store statistics</description>
+	<url>https://github.com/ArcadiaConsulting/appstorestats</url>
+	<inceptionYear>2013</inceptionYear>
+	<organization>
+	    <name>Arcadia Consulting</name>
+	    <url>http://www.arcadiaconsulting.es</url>
+	</organization>
+	<developers>
+	    <developer>
+	        <id>jgalonso</id>
+	        <name>Javier Gutiérrez</name>
+	        <url>https://github.com/jgalonso</url>
+	        <organization>Arcadia Consulting</organization>
+	        <organizationUrl>http://www.arcadiaconsulting.es</organizationUrl>
+	        <roles>
+	            <role>developer</role>
+	        </roles>
+	        <timezone>GTM+1</timezone>
+	    </developer>
+	    <developer>
+	        <id>lorenaGA</id>
+	        <name>Lorena González</name>
+	        <url>https://github.com/lorenaGA</url>
+	        <organization>Arcadia Consulting</organization>
+	        <organizationUrl>http://www.arcadiaconsulting.es</organizationUrl>
+	        <roles>
+	            <role>developer</role>
+	        </roles>
+	        <timezone>GTM+1</timezone>
+	    </developer>
+	    <developer>
+	        <id>sabadow</id>
+	        <name>Carlos Pérez</name>
+	        <url>https://github.com/sabadow</url>
+	        <organization>Arcadia Consulting</organization>
+	        <organizationUrl>http://www.arcadiaconsulting.es</organizationUrl>
+	        <roles>
+	            <role>developer</role>
+	        </roles>
+	        <timezone>GTM+1</timezone>
+	    </developer>
+	    <developer>
+	        <id>nvelasco</id>
+	        <name>Noelia Velasco</name>
+	        <organization>Arcadia Consulting</organization>
+	        <organizationUrl>http://www.arcadiaconsulting.es</organizationUrl>
+	        <roles>
+	            <role>developer</role>
+	        </roles>
+	        <timezone>GTM+1</timezone>
+	    </developer>
+	    <developer>
+	        <id>gonzalogomezgarcia</id>
+	        <name>Gonzalo Gómez</name>
+	        <url>https://github.com/gonzalogomezgarcia</url>
+	        <organization>Arcadia Consulting</organization>
+	        <organizationUrl>http://www.arcadiaconsulting.es</organizationUrl>
+	        <roles>
+	            <role>developer</role>
+	        </roles>
+	        <timezone>GTM+1</timezone>
+	    </developer>
+	</developers>
+	<licenses>
+	    <license>
+	        <name>Apache License, Version 2.0</name>
+	        <distribution>repo</distribution>
+	        <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+	        <comments>Copyright 2013 Arcadia Consulting C.B.</comments>
+	    </license>
+	</licenses>
 	<scm>
 		<connection>scm:svn:https://github.com/ArcadiaConsulting/appstorestats/trunk</connection>
 		<developerConnection>scm:svn:https://github.com/ArcadiaConsulting/appstorestats/trunk</developerConnection>

@@ -9,9 +9,8 @@
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>appstoresstats-ios</artifactId>
-	<name>Java App Store Stasts client - iOS App Store</name>
+	<name>App Stores statistics Java API - iOS App Store</name>
 	<dependencies>
-
 		<dependency>
 			<groupId>es.arcadiaconsulting.appstorestats</groupId>
 			<artifactId>appstoresstats-common</artifactId>
