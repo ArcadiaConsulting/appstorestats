@@ -1,82 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>es.arcadiaconsulting.appstorestats</groupId>
 	<artifactId>appstorestats-parent</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>App Stores statistics Java API - Parent</name>
-	<description>Java API for accession App Stores statistics. Current implementation supports Google Play and Apple App Store statistics</description>
+	<description>Java API for accessing App Stores statistics. Current implementation supports Google Play and Apple App Store statistics</description>
 	<url>https://github.com/ArcadiaConsulting/appstorestats</url>
 	<inceptionYear>2013</inceptionYear>
 	<organization>
-	    <name>Arcadia Consulting</name>
-	    <url>http://www.arcadiaconsulting.es</url>
+		<name>Arcadia Consulting</name>
+		<url>http://www.arcadiaconsulting.es</url>
 	</organization>
 	<developers>
-	    <developer>
-	        <id>jgalonso</id>
-	        <name>Javier Gutiérrez</name>
-	        <url>https://github.com/jgalonso</url>
-	        <organization>Arcadia Consulting</organization>
-	        <organizationUrl>http://www.arcadiaconsulting.es</organizationUrl>
-	        <roles>
-	            <role>developer</role>
-	        </roles>
-	        <timezone>GTM+1</timezone>
-	    </developer>
-	    <developer>
-	        <id>lorenaGA</id>
-	        <name>Lorena González</name>
-	        <url>https://github.com/lorenaGA</url>
-	        <organization>Arcadia Consulting</organization>
-	        <organizationUrl>http://www.arcadiaconsulting.es</organizationUrl>
-	        <roles>
-	            <role>developer</role>
-	        </roles>
-	        <timezone>GTM+1</timezone>
-	    </developer>
-	    <developer>
-	        <id>sabadow</id>
-	        <name>Carlos Pérez</name>
-	        <url>https://github.com/sabadow</url>
-	        <organization>Arcadia Consulting</organization>
-	        <organizationUrl>http://www.arcadiaconsulting.es</organizationUrl>
-	        <roles>
-	            <role>developer</role>
-	        </roles>
-	        <timezone>GTM+1</timezone>
-	    </developer>
-	    <developer>
-	        <id>nvelasco</id>
-	        <name>Noelia Velasco</name>
-	        <organization>Arcadia Consulting</organization>
-	        <organizationUrl>http://www.arcadiaconsulting.es</organizationUrl>
-	        <roles>
-	            <role>developer</role>
-	        </roles>
-	        <timezone>GTM+1</timezone>
-	    </developer>
-	    <developer>
-	        <id>gonzalogomezgarcia</id>
-	        <name>Gonzalo Gómez</name>
-	        <url>https://github.com/gonzalogomezgarcia</url>
-	        <organization>Arcadia Consulting</organization>
-	        <organizationUrl>http://www.arcadiaconsulting.es</organizationUrl>
-	        <roles>
-	            <role>developer</role>
-	        </roles>
-	        <timezone>GTM+1</timezone>
-	    </developer>
+		<developer>
+			<id>jgalonso</id>
+			<name>Javier Gutiérrez</name>
+			<url>https://github.com/jgalonso</url>
+			<organization>Arcadia Consulting</organization>
+			<organizationUrl>http://www.arcadiaconsulting.es</organizationUrl>
+			<roles>
+				<role>developer</role>
+			</roles>
+			<timezone>GTM+1</timezone>
+		</developer>
+		<developer>
+			<id>lorenaGA</id>
+			<name>Lorena González</name>
+			<url>https://github.com/lorenaGA</url>
+			<organization>Arcadia Consulting</organization>
+			<organizationUrl>http://www.arcadiaconsulting.es</organizationUrl>
+			<roles>
+				<role>developer</role>
+			</roles>
+			<timezone>GTM+1</timezone>
+		</developer>
+		<developer>
+			<id>sabadow</id>
+			<name>Carlos Pérez</name>
+			<url>https://github.com/sabadow</url>
+			<organization>Arcadia Consulting</organization>
+			<organizationUrl>http://www.arcadiaconsulting.es</organizationUrl>
+			<roles>
+				<role>developer</role>
+			</roles>
+			<timezone>GTM+1</timezone>
+		</developer>
+		<developer>
+			<id>nvelasco</id>
+			<name>Noelia Velasco</name>
+			<organization>Arcadia Consulting</organization>
+			<organizationUrl>http://www.arcadiaconsulting.es</organizationUrl>
+			<roles>
+				<role>developer</role>
+			</roles>
+			<timezone>GTM+1</timezone>
+		</developer>
+		<developer>
+			<id>gonzalogomezgarcia</id>
+			<name>Gonzalo Gómez</name>
+			<url>https://github.com/gonzalogomezgarcia</url>
+			<organization>Arcadia Consulting</organization>
+			<organizationUrl>http://www.arcadiaconsulting.es</organizationUrl>
+			<roles>
+				<role>developer</role>
+			</roles>
+			<timezone>GTM+1</timezone>
+		</developer>
 	</developers>
 	<licenses>
-	    <license>
-	        <name>Apache License, Version 2.0</name>
-	        <distribution>repo</distribution>
-	        <url>http://www.apache.org/licenses/LICENSE-2.0</url>
-	        <comments>Copyright 2013 Arcadia Consulting C.B.</comments>
-	    </license>
+		<license>
+			<name>Apache License, Version 2.0</name>
+			<distribution>repo</distribution>
+			<url>http://www.apache.org/licenses/LICENSE-2.0</url>
+			<comments>Copyright 2013 Arcadia Consulting C.B.</comments>
+		</license>
 	</licenses>
 	<scm>
 		<connection>scm:svn:https://github.com/ArcadiaConsulting/appstorestats/trunk</connection>
@@ -88,7 +93,7 @@
 	</properties>
 	<dependencyManagement>
 		<dependencies>
-		
+
 			<!-- Project elements -->
 			<dependency>
 				<groupId>es.arcadiaconsulting.appstorestats</groupId>
@@ -166,6 +171,35 @@
 			</plugins>
 		</pluginManagement>
 	</build>
+	<profiles>
+		<profile>
+			<id>release-sign-artifacts</id>
+			<activation>
+				<property>
+					<name>performRelease</name>
+					<value>true</value>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.1</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 	<modules>
 		<module>appstoresstats-android</module>
 		<module>appstoresstats-ios</module>

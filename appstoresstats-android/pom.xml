@@ -9,7 +9,7 @@
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>appstoresstats-android</artifactId>
-	<name>App Stores statistics Java API - Android Play Store</name>
+	<name>Java API for accessing App Stores statistics - Android Play Store</name>
 	<dependencies>
 		<dependency>
 			<groupId>es.arcadiaconsulting.appstorestats</groupId>
