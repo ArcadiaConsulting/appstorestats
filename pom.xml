@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
 		<groupId>org.sonatype.oss</groupId>
 		<artifactId>oss-parent</artifactId>
@@ -9,7 +8,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>es.arcadiaconsulting.appstorestats</groupId>
 	<artifactId>appstorestats-parent</artifactId>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>pom</packaging>
 	<name>App Stores statistics Java API - Parent</name>
 	<description>Java API for accessing App Stores statistics. Current implementation supports Google Play and Apple App Store statistics</description>
@@ -84,9 +83,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:svn:https://github.com/ArcadiaConsulting/appstorestats/trunk</connection>
-		<developerConnection>scm:svn:https://github.com/ArcadiaConsulting/appstorestats/trunk</developerConnection>
-		<url>https://github.com/ArcadiaConsulting/appstorestats/trunk</url>
+		<connection>scm:svn:https://github.com/ArcadiaConsulting/appstorestats/tags/appstorestats-parent-1.0.0</connection>
+		<developerConnection>scm:svn:https://github.com/ArcadiaConsulting/appstorestats/tags/appstorestats-parent-1.0.0</developerConnection>
+		<url>https://github.com/ArcadiaConsulting/appstorestats/tags/appstorestats-parent-1.0.0</url>
 	</scm>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
