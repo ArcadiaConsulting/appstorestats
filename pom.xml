@@ -8,7 +8,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>es.arcadiaconsulting.appstorestats</groupId>
 	<artifactId>appstorestats-parent</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>App Stores statistics Java API - Parent</name>
 	<description>Java API for accessing App Stores statistics. Current implementation supports Google Play and Apple App Store statistics</description>
@@ -83,9 +83,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:svn:https://github.com/ArcadiaConsulting/appstorestats/tags/appstorestats-parent-1.0.0</connection>
-		<developerConnection>scm:svn:https://github.com/ArcadiaConsulting/appstorestats/tags/appstorestats-parent-1.0.0</developerConnection>
-		<url>https://github.com/ArcadiaConsulting/appstorestats/tags/appstorestats-parent-1.0.0</url>
+		<connection>scm:svn:https://github.com/ArcadiaConsulting/appstorestats/trunk</connection>
+		<developerConnection>scm:svn:https://github.com/ArcadiaConsulting/appstorestats/trunk</developerConnection>
+		<url>https://github.com/ArcadiaConsulting/appstorestats/trunk</url>
 	</scm>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
