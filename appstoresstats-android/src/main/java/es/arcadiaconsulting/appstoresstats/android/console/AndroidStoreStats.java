@@ -38,11 +38,14 @@ import org.slf4j.LoggerFactory;
 import com.github.andlyticsproject.console.v2.DevConsoleV2;
 import com.github.andlyticsproject.model.AppHistoricalStatsElement;
 import com.github.andlyticsproject.model.AppInfo;
+import com.github.andlyticsproject.model.Comment;
 
+import es.arcadiaconsulting.appstoresstats.android.model.StarsRate;
 import es.arcadiaconsulting.appstoresstats.android.model.StatsDataAndroid;
 import es.arcadiaconsulting.appstoresstats.common.CommonStatsData;
 import es.arcadiaconsulting.appstoresstats.common.IStoreStats;
 import es.arcadiaconsulting.appstoresstats.common.NumberHelper;
+import es.arcadiaconsulting.appstoresstats.common.Rating;
 
 public class AndroidStoreStats implements IStoreStats {
 
@@ -55,6 +58,7 @@ public class AndroidStoreStats implements IStoreStats {
 
 
 	
+	
 /*	public static IStoreStatsAndroid createForAccountAndPassword(String accountName, String password,
 			DefaultHttpClient httpClient) {
 
@@ -65,12 +69,12 @@ public class AndroidStoreStats implements IStoreStats {
 	 * @param packageName
 	 * @return
 	 */
-	protected List<CommonStatsData> getBasicStatsDataAndroid()
+	protected List<StatsDataAndroid> getBasicStatsDataAndroid()
 	{
-		List<CommonStatsData> result=null;
+		List<StatsDataAndroid> result=null;
 		List<AppInfo> apps=console.getAppInfo();
 		if(apps!=null){
-		result=new ArrayList<CommonStatsData>();
+		result=new ArrayList<StatsDataAndroid>();
 		for(AppInfo app:apps)
 		{
 			result.add(buildStats(app));
@@ -90,6 +94,7 @@ public class AndroidStoreStats implements IStoreStats {
 		if(logger.isDebugEnabled())
 			logger.debug("getStatsDataAndroidBetweenDates() - {}", String.format("Getting statistics for %d", packageName));
 		AppInfo app=console.getAppInfoAndStatisticsFromFullQuery(packageName);
+		
 		return buildStats(app,initDate,endDate);
 	}
 	
@@ -101,11 +106,16 @@ public class AndroidStoreStats implements IStoreStats {
 	 * @param packageName
 	 * @return
 	 */
-	protected CommonStatsData getBasicStatsDataAndroid(String packageName)
+	protected StatsDataAndroid getBasicStatsDataAndroid(String packageName)
 	{
 		AppInfo app=console.getAppInfoFromFullQuery(packageName);
 		return buildStats(app);
 		
+	}
+	protected StatsDataAndroid getCommentForApp(StatsDataAndroid stats)
+	{
+ List<Comment> comments=console.getComments(stats.getAppId(), stats.getDeveloperId(), 0, 50, "es");
+ return buildComments(stats, comments);
 	}
 
 	protected StatsDataAndroid parseInstallationsBetweenDates(StatsDataAndroid stats,AppInfo app)
@@ -186,6 +196,19 @@ public class AndroidStoreStats implements IStoreStats {
 		
 		
 	}
+	protected StatsDataAndroid buildComments(StatsDataAndroid stats,List<Comment> comments)
+	{
+		if(comments!=null)
+		{
+			List <Rating> rates=new ArrayList<Rating>();
+			for(Comment com:comments)
+			{
+				rates.add(new Rating(com.getRating(),com.getText(),com.getUser(),com.getDate(),com.getAppVersion()));
+			}
+			stats.setRatings(rates);
+		}
+		return stats;
+	}
 	
 	protected StatsDataAndroid buildStats(AppInfo app)
 	{  StatsDataAndroid stats=null;
@@ -201,11 +224,19 @@ public class AndroidStoreStats implements IStoreStats {
 		stats.setCurrentInstallationsNumber(app.getLatestStats().getActiveInstalls());
 		stats.setRatingNumber(app.getLatestStats().getNumberOfComments());
 		stats.setErrorNumber(app.getLatestStats().getNumberOfErrors());
+		if(app.getLatestStats().getRating1()==null)app.getLatestStats().setRating1(0);
+		if(app.getLatestStats().getRating2()==null)app.getLatestStats().setRating2(0);
+		if(app.getLatestStats().getRating3()==null)app.getLatestStats().setRating3(0);
+		if(app.getLatestStats().getRating4()==null)app.getLatestStats().setRating4(0);
+		if(app.getLatestStats().getRating5()==null)app.getLatestStats().setRating5(0);
+		stats.setStarsRate(new StarsRate(app.getLatestStats().getRating1(),app.getLatestStats().getRating2(),app.getLatestStats().getRating3(),app.getLatestStats().getRating4(),app.getLatestStats().getRating5()));
 		}
+		
 		}
 		return stats;
 	}
 
+	@SuppressWarnings("unused")
 	protected AndroidStoreStats(DevConsoleV2 console) {
 		super();
 		this.console = console;
@@ -215,6 +246,7 @@ public class AndroidStoreStats implements IStoreStats {
 	public CommonStatsData getStatsForApp(String user, String password,
 			String appId, Date initDate, Date endDate,String vectorId) {
 		console=DevConsoleV2.createForAccountAndPassword(user, password, createDefaultHttpClient());
+		
 		return getStatsDataAndroidBetweenDates(appId,initDate,endDate);
 	}
 
@@ -226,15 +258,17 @@ public class AndroidStoreStats implements IStoreStats {
 	}
 
 	@Override
-	public CommonStatsData getFullStatsForApp(String user, String password,
+	public StatsDataAndroid getFullStatsForApp(String user, String password,
 			String appId,String vectorId) {
 		
 		console=DevConsoleV2.createForAccountAndPassword(user, password, createDefaultHttpClient());
-		return getBasicStatsDataAndroid(appId);
+		StatsDataAndroid stats =getBasicStatsDataAndroid(appId);
+		stats=this.getCommentForApp(stats);
+		return stats;
 	}
 
 	
-	public List<CommonStatsData> getFullStatsForAllApps(String user,
+	public List<StatsDataAndroid> getFullStatsForAllApps(String user,
 			String password) {
 		console=DevConsoleV2.createForAccountAndPassword(user, password, createDefaultHttpClient());
 		return getBasicStatsDataAndroid();
@@ -273,6 +307,7 @@ public class AndroidStoreStats implements IStoreStats {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+
 
 
 	
