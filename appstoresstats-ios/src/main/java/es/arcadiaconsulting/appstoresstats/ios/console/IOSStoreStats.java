@@ -29,11 +29,13 @@ import org.slf4j.LoggerFactory;
 import es.arcadiaconsulting.appstoresstats.common.CommonStatsData;
 import es.arcadiaconsulting.appstoresstats.common.CommonStatsData.Platform;
 import es.arcadiaconsulting.appstoresstats.common.IStoreStats;
+import es.arcadiaconsulting.appstoresstats.common.Rating;
 import es.arcadiaconsulting.appstoresstats.ios.io.Autoingestion;
 import es.arcadiaconsulting.appstoresstats.ios.io.DateHelper;
 import es.arcadiaconsulting.appstoresstats.ios.io.DateHelperException;
 import es.arcadiaconsulting.appstoresstats.ios.io.HTTPClientHelper;
 import es.arcadiaconsulting.appstoresstats.ios.io.JSONParser;
+import es.arcadiaconsulting.appstoresstats.ios.io.RSSHelper;
 import es.arcadiaconsulting.appstoresstats.ios.model.AppInfo;
 import es.arcadiaconsulting.appstoresstats.ios.model.Constants;
 import es.arcadiaconsulting.appstoresstats.ios.model.StatsDataIOS;
@@ -53,10 +55,12 @@ public class IOSStoreStats implements IStoreStats{
 		GregorianCalendar enddateCalendar = new GregorianCalendar();
 		enddateCalendar.setTime(current);
 		enddateCalendar.add(Calendar.DATE, -1);
+		GregorianCalendar initDateGregorian = new GregorianCalendar();
+		initDateGregorian.setTime(initDate);
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 		String appleId;
 		try {
-			appleId = Autoingestion.getAppleIDBySKU(user, password, vendorId, Constants.REPORT_TYPE_SALES, Constants.DATE_TYPE_DAILY, Constants.REPORT_SUBTYPE_SUMMARY_NAME, sdf.format(enddateCalendar.getTime()), appId);
+			appleId = Autoingestion.getAppleIDBySKU(user, password, vendorId, Constants.REPORT_TYPE_SALES, Constants.DATE_TYPE_MONTHLY, Constants.REPORT_SUBTYPE_SUMMARY_NAME, sdf.format(initDateGregorian.getTime()), appId);
 		} catch (IOException e1) {
 			logger.error("error getting appleid",e1);
 			return null;
@@ -69,9 +73,26 @@ public class IOSStoreStats implements IStoreStats{
 StatsDataIOS statsData= new StatsDataIOS(appId,endDate,releaseDate,appName);
 		GregorianCalendar releasecalendar = new GregorianCalendar();
 		releasecalendar.setTime(releaseDate);
-		GregorianCalendar initDateGregorian = new GregorianCalendar();
-		initDateGregorian.setTime(initDate);
+		
 
+		//get rating
+		String downloadURL = RSSHelper.getItunesURL(appleId);
+		if(downloadURL!=null){
+			statsData.setDownloadURL(downloadURL);
+			List<Rating> ratingList = RSSHelper.getItunesRating(appleId);
+			int ratingPlus = 0;
+			for (Iterator iterator = ratingList.iterator(); iterator.hasNext();) {
+				Rating rating = (Rating) iterator.next();
+				ratingPlus = ratingPlus +rating.getRate();
+			}
+			
+			statsData.setRatings(ratingList);
+			statsData.setAverageRate(ratingPlus/ratingList.size());
+		}else{
+			logger.info("There are not rate information we cant get downloadURL or rating");
+		}
+		
+		
 		if(initDate.before(releaseDate))
 			initDate = (Date)releaseDate.clone();
 		
@@ -96,6 +117,11 @@ StatsDataIOS statsData= new StatsDataIOS(appId,endDate,releaseDate,appName);
 	}
 
 	@Override
+	/*
+	 * (non-Javadoc)
+	 * @see es.arcadiaconsulting.appstoresstats.common.IStoreStats#getFullStatsForApp(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+	 * en la fecha actual debe haber habido alguna descarga en el mes ultimo
+	 */
 	public CommonStatsData getFullStatsForApp(String user, String password,
 			String appId, String vendorId) {
 		Date endDate = new Date(System.currentTimeMillis());
@@ -105,18 +131,35 @@ StatsDataIOS statsData= new StatsDataIOS(appId,endDate,releaseDate,appName);
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 		String appleId;
 		try {
-			appleId = Autoingestion.getAppleIDBySKU(user, password, vendorId, Constants.REPORT_TYPE_SALES, Constants.DATE_TYPE_DAILY, Constants.REPORT_SUBTYPE_SUMMARY_NAME, sdf.format(enddateCalendar.getTime()), appId);
+			appleId = Autoingestion.getAppleIDBySKU(user, password, vendorId, Constants.REPORT_TYPE_SALES, Constants.DATE_TYPE_MONTHLY, Constants.REPORT_SUBTYPE_SUMMARY_NAME, sdf.format(enddateCalendar.getTime()), appId);
 		} catch (IOException e1) {
 			logger.error("error getting appleid",e1);
 			return null;
 			
 		}
 		
+		
 		AppInfo appInfo = JSONParser.getAPPInfoByID(appleId);
 		Date initDate = appInfo.getReleaseDate();
 		String appName = appInfo.getAppName();
 StatsDataIOS statsData= new StatsDataIOS(appId,endDate,initDate,appName);
 		
+//get rating
+		String downloadURL = RSSHelper.getItunesURL(appleId);
+		if(downloadURL!=null){
+			statsData.setDownloadURL(downloadURL);
+			List<Rating> ratingList = RSSHelper.getItunesRating(appleId);
+			int ratingPlus = 0;
+			for (Iterator iterator = ratingList.iterator(); iterator.hasNext();) {
+				Rating rating = (Rating) iterator.next();
+				ratingPlus = ratingPlus +rating.getRate();
+			}
+			
+			statsData.setRatings(ratingList);
+			statsData.setAverageRate(ratingPlus/ratingList.size());
+		}else{
+			logger.info("There are not rate information we cant get downloadURL or rating");
+		}
 		try {
 			List<UnitData> unitData = DateHelper.getFullUnitData(initDate, endDate, appId, user, password, vendorId);
 			statsData.setUnitDataList(unitData);

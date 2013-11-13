@@ -114,7 +114,7 @@ public class DateHelper {
 			
 			//if query is on first day of year return response
 			if(dateIterator.get(Calendar.MONTH)==1&&dateIterator.get(Calendar.DAY_OF_MONTH)==1)
-				return unitDataList;
+				return cleanUnitDataList(unitDataList);
 			
 		}
 		
@@ -178,7 +178,7 @@ public class DateHelper {
 			}
 			unitDataList.addAll(dayUnitData);
 			if(dateIterator.get(Calendar.DAY_OF_MONTH)==7)
-				return unitDataList;
+				return cleanUnitDataList(unitDataList);
 			weekIterator.add(Calendar.DATE, 7);
 			
 		}else{
@@ -202,7 +202,7 @@ public class DateHelper {
 				if(weekIterator.get(Calendar.YEAR)==dateIterator.get(Calendar.YEAR)&&
 						weekIterator.get(Calendar.MONTH)==dateIterator.get(Calendar.MONTH)&&
 						weekIterator.get(Calendar.DAY_OF_MONTH)==dateIterator.get(Calendar.DAY_OF_MONTH))
-						return unitDataList;
+						return cleanUnitDataList(unitDataList);
 				
 				weekIterator.add(Calendar.DATE, 1);
 				
@@ -211,8 +211,8 @@ public class DateHelper {
 		}
 		//hacemos la consulta de semanas mientras el dia del iterador mas 6 sea menor o igual que la fecha de la query
 		//la consulta debe hacerse por domingos asi que hay que sumar los seis dias
-		while(weekIterator.get(Calendar.DAY_OF_MONTH)+6<=dateIterator.get(Calendar.DAY_OF_MONTH)){
-			weekIterator.add(Calendar.DAY_OF_MONTH, 6);
+		while(weekIterator.get(Calendar.DAY_OF_MONTH)+7<=dateIterator.get(Calendar.DAY_OF_MONTH)){
+			weekIterator.add(Calendar.DAY_OF_MONTH, 7);
 			List<UnitData> dayUnitData = Autoingestion.getUnitsByDate(
 					/**propertiesFile,*/ user, password, vendorId,
 					Constants.REPORT_TYPE_SALES, Constants.DATE_TYPE_WEEDLY,
@@ -221,11 +221,11 @@ public class DateHelper {
 			if (dayUnitData == null) {
 				logger.error("Error Getting week units");
 				throw new DateHelperException(
-						"Problem getting day sales. Please see log for more information");
+						"Problem getting week sales. Please see log for more information");
 			}
 			unitDataList.addAll(dayUnitData);
-			if(weekIterator.get(Calendar.DAY_OF_MONTH)+6==dateIterator.get(Calendar.DAY_OF_MONTH))
-				return unitDataList;
+			if(weekIterator.get(Calendar.DAY_OF_MONTH)+7==dateIterator.get(Calendar.DAY_OF_MONTH))
+				return cleanUnitDataList(unitDataList);
 			weekIterator.add(Calendar.DAY_OF_MONTH, 1);
 		}
 		//hacemos por ultimo la consulta hasta llegar al dia de la consulta

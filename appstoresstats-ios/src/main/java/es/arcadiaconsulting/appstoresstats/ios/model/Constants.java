@@ -31,4 +31,6 @@ public class Constants {
 	public static final java.lang.String ID_NAME ="id";
 	
 	public static final java.lang.String[] UPDATE_PRODUCT_TYPE_IDENTIFYER = new String[]{"7", "7F", "7T", "F7"};
+	
+	public static final java.lang.String HTTP_RSS_APP_INFO = "https://itunes.apple.com/es/rss/customerreviews/id={0}/sortBy=mostRecent/xml";
 }
