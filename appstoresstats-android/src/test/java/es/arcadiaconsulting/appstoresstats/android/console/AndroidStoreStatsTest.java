@@ -27,6 +27,7 @@ import com.github.andlyticsproject.console.v2.CommonMatchers;
 import com.github.andlyticsproject.console.v2.DevConsoleV2;
 import com.github.andlyticsproject.console.v2.DevConsoleV2Protocol;
 import com.github.andlyticsproject.console.v2.PasswordAuthenticator;
+import com.github.andlyticsproject.console.v2.CommonMatchers.HttpPostAppCommentsArgumentMatcher;
 import com.github.andlyticsproject.console.v2.CommonMatchers.HttpPostAppInfosArgumentMatcher;
 import com.github.andlyticsproject.console.v2.CommonMatchers.HttpPostAppStatsArgumentMatcher;
 import com.github.andlyticsproject.model.AppStats;
@@ -86,11 +87,20 @@ public class AndroidStoreStatsTest extends TestCase{
 		when(protocol.createFetchAppInfosRequest()).thenReturn(FETCH_APP_INFOS_POST);
 		when(httpClient.execute(argThat(new HttpPostAppInfosArgumentMatcher()),isA(ResponseHandler.class) )).thenReturn(APP_INFOS_JSON);
 		when(httpClient.execute(argThat(new HttpPostAppStatsArgumentMatcher()),isA(ResponseHandler.class) )).thenReturn(APP_STATS_JSON);
-
-		when(protocol.parseAppInfosResponse(anyString(), anyString(),anyString(), anyBoolean())).thenCallRealMethod();
+		when(protocol.createFetchAppInfoRequest(anyString())).thenReturn(FETCH_APP_INFOS_POST);
+		when(protocol.createCommentsUrl(DEVELOPERID)).thenReturn(COMMENTS_URL);
+		when(protocol.createFetchCommentsRequest(PACKAGE_NAME_OK, 0, 50, "es")).thenReturn(COMMENTS_POST);
+	
+		when(protocol.parseAppInfoResponse(anyString(), anyString(),anyString(), anyBoolean())).thenCallRealMethod();
 		when(protocol.createFetchStatisticsUrl(DEVELOPERID)).thenReturn(FETCH_APP_STATS_URL);
 		when(protocol.createFetchStatisticsRequest(anyString(), anyInt())).thenReturn(FETCH_APP_STATS_POST);
-		doCallRealMethod().when(protocol).parseStatisticsResponse(anyString(), isA(AppStats.class), anyInt());
+		when(protocol.createFetchRatingsRequest(PACKAGE_NAME_OK)).thenReturn(RATINGS_POST);
+		when(protocol.createFetchStatisticsRequest(anyString(), anyInt())).thenReturn(FETCH_APP_STATS_POST);
+
+	 doCallRealMethod().when(protocol).parseStatisticsResponse(anyString(),isA(AppStats.class),anyInt());
+		doCallRealMethod().when(protocol).parseRatingsResponse(anyString(),isA(AppStats.class));
+	when(httpClient.execute(argThat(new HttpPostAppCommentsArgumentMatcher()),isA(ResponseHandler.class) )).thenReturn(APP_RATINGS_JSON);
+
 		
 		
 	
@@ -100,16 +110,14 @@ public class AndroidStoreStatsTest extends TestCase{
 		    Date initDate=new Date(1381442400000L);
 		endDate.setTime(1381788000000L);
 
-		StatsDataAndroid inf=(StatsDataAndroid) stats.getStatsDataAndroidBetweenDates("abc", initDate, endDate);
-		assertNull(inf);
-		inf=(StatsDataAndroid) stats.getStatsDataAndroidBetweenDates(PACKAGE_NAME_OK, initDate, endDate);
+		StatsDataAndroid inf=(StatsDataAndroid) stats.getStatsDataAndroidBetweenDates(PACKAGE_NAME_OK, initDate, endDate);
 		assertNotNull(inf);
 		assertEquals(inf.getAppId(), PACKAGE_NAME_OK);
 		assertEquals(inf.getAppName(),APP_OK_NAME);
-		assertEquals(inf.getAverageRate(), Float.parseFloat("5.0"));
-		assertEquals(inf.getCurrentInstallationsNumber(), 12);
-		assertEquals(inf.getErrorNumber(),0);
-		assertEquals(inf.getRatingNumber(),1);
+		assertEquals(inf.getAverageRate(), Float.parseFloat("4.79"));
+		assertEquals(inf.getCurrentInstallationsNumber(), 290);
+		assertEquals(inf.getErrorNumber(),6);
+		assertEquals(inf.getRatingNumber(),52);
 		assertEquals(inf.getDownloadsNumber(),2);
 		
 	}
@@ -123,11 +131,20 @@ public class AndroidStoreStatsTest extends TestCase{
 		when(protocol.createFetchAppInfosRequest()).thenReturn(FETCH_APP_INFOS_POST);
 		when(httpClient.execute(argThat(new HttpPostAppInfosArgumentMatcher()),isA(ResponseHandler.class) )).thenReturn(APP_INFOS_JSON);
 		when(httpClient.execute(argThat(new HttpPostAppStatsArgumentMatcher()),isA(ResponseHandler.class) )).thenReturn(APP_STATS_JSON);
-
-		when(protocol.parseAppInfosResponse(anyString(), anyString(),anyString(), anyBoolean())).thenCallRealMethod();
+		when(protocol.createFetchAppInfoRequest(anyString())).thenReturn(FETCH_APP_INFOS_POST);
+		when(protocol.createCommentsUrl(DEVELOPERID)).thenReturn(COMMENTS_URL);
+		when(protocol.createFetchCommentsRequest(PACKAGE_NAME_OK, 0, 50, "es")).thenReturn(COMMENTS_POST);
+	
+		when(protocol.parseAppInfoResponse(anyString(), anyString(),anyString(), anyBoolean())).thenCallRealMethod();
 		when(protocol.createFetchStatisticsUrl(DEVELOPERID)).thenReturn(FETCH_APP_STATS_URL);
 		when(protocol.createFetchStatisticsRequest(anyString(), anyInt())).thenReturn(FETCH_APP_STATS_POST);
-		doCallRealMethod().when(protocol).parseStatisticsResponse(anyString(), isA(AppStats.class), anyInt());
+		when(protocol.createFetchRatingsRequest(PACKAGE_NAME_OK)).thenReturn(RATINGS_POST);
+		when(protocol.createFetchStatisticsRequest(anyString(), anyInt())).thenReturn(FETCH_APP_STATS_POST);
+
+	 doCallRealMethod().when(protocol).parseStatisticsResponse(anyString(),isA(AppStats.class),anyInt());
+		doCallRealMethod().when(protocol).parseRatingsResponse(anyString(),isA(AppStats.class));
+	when(httpClient.execute(argThat(new HttpPostAppCommentsArgumentMatcher()),isA(ResponseHandler.class) )).thenReturn(APP_RATINGS_JSON);
+
 		
 		
 	
@@ -137,17 +154,15 @@ public class AndroidStoreStatsTest extends TestCase{
 		    Date initDate=new Date(1381442400000L);
 		endDate.setTime(1381788000000L);
 		
-		StatsDataAndroid inf=(StatsDataAndroid) stats.getStatsDataAndroidBetweenDates("abc", initDate, endDate);
-		assertNull(inf);
-		inf=(StatsDataAndroid) stats.getBasicStatsDataAndroid(PACKAGE_NAME_OK);
+		StatsDataAndroid inf=(StatsDataAndroid) stats.getBasicStatsDataAndroid(PACKAGE_NAME_OK);
 		assertNotNull(inf);
 		assertEquals(inf.getAppId(), PACKAGE_NAME_OK);
 		assertEquals(inf.getAppName(),APP_OK_NAME);
-		assertEquals(inf.getAverageRate(), Float.parseFloat("5.0"));
-		assertEquals(inf.getCurrentInstallationsNumber(), 12);
-		assertEquals(inf.getErrorNumber(),0);
-		assertEquals(inf.getRatingNumber(),1);
-		assertEquals(inf.getDownloadsNumber(),70);
+		assertEquals(inf.getAverageRate(), Float.parseFloat("4.79"));
+		assertEquals(inf.getCurrentInstallationsNumber(), 290);
+		assertEquals(inf.getErrorNumber(),6);
+		assertEquals(inf.getRatingNumber(),52);
+		assertEquals(inf.getDownloadsNumber(),4148);
 		initDate=new Date(1381788000000L);
 		endDate.setTime(System.currentTimeMillis());
 		inf=(StatsDataAndroid) stats.getStatsDataAndroidBetweenDates("abc", initDate, endDate);

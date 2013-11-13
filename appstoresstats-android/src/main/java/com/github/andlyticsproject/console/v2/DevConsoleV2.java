@@ -56,6 +56,8 @@ public class DevConsoleV2 implements DevConsole {
 	// 30 seconds -- for both socket and connection
 	public static final int TIMEOUT = 30 * 1000;
 
+	private static final String TAG = DevConsoleV2.class.getSimpleName();
+
 	private static final boolean DEBUG = false;
 
 	private DefaultHttpClient httpClient;
@@ -159,6 +161,9 @@ public class DevConsoleV2 implements DevConsole {
 		AppInfo app=fetchAppInfoFromFullQuery(packageName);
 		if(app!=null){
 				fetchStatistics(app, app.getLatestStats(), 4);
+				fetchRatings(app, app.getLatestStats());
+				
+				
 		}
 		else
 		{
@@ -174,7 +179,7 @@ public class DevConsoleV2 implements DevConsole {
 	
 	private AppInfo fetchAppInfoFromFullQuery(String packageName)
 	{
-		List<AppInfo> apps = fetchAppInfos();
+		/*List<AppInfo> apps = fetchAppInfos();
 		
 		for(AppInfo app:apps)
 		{
@@ -184,7 +189,8 @@ public class DevConsoleV2 implements DevConsole {
 				return app;
 			}
 		}
-		return null;
+		return null;*/
+		return fetchAppInfo(packageName);
 	}
 	private List<AppInfo> fetchAppInfosAndStatistics() {
 		// Fetch a list of available apps
@@ -331,7 +337,7 @@ public class DevConsoleV2 implements DevConsole {
 				developerId);
 		protocol.parseStatisticsResponse(response, stats, statsType);
 	}	
-
+	@SuppressWarnings("unused")
 	private void fetchStatistics(AppInfo appInfo, AppStats stats, int statsType)
 			throws DevConsoleException {
 		if(appInfo!=null){

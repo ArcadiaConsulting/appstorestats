@@ -18,10 +18,22 @@ package es.arcadiaconsulting.appstoresstats.android.model;
 import es.arcadiaconsulting.appstoresstats.common.CommonStatsData;
 
 public class StatsDataAndroid extends CommonStatsData {
+	private String developerId;
 	/**
 	 * Indicates the number of errors reported by users
 	 */
 	private int errorNumber;
+	
+	/**
+	 * Number of votes on each star category (one to five)
+	 */
+	private StarsRate starsRate;
+	public StarsRate getStarsRate() {
+		return starsRate;
+	}
+	public void setStarsRate(StarsRate starsRate) {
+		this.starsRate = starsRate;
+	}
 	/**
 	 * Indicates the total number of comments
 	 */
@@ -41,6 +53,12 @@ public class StatsDataAndroid extends CommonStatsData {
 	}
 	public void setRatingNumber(int ratingNumber) {
 		this.ratingNumber = ratingNumber;
+	}
+	public String getDeveloperId() {
+		return developerId;
+	}
+	public void setDeveloperId(String developerId) {
+		this.developerId = developerId;
 	}
 
 }

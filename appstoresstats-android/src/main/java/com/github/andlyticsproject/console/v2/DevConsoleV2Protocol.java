@@ -32,8 +32,8 @@ public class DevConsoleV2Protocol {
 	static final String FETCH_APPS_BY_PACKAGES_TEMPLATE = "{\"method\":\"fetch\","
 			+ "\"params\":{\"1\":[%1$s],\"3\":1},\"xsrf\":\"%2$s\"}";
 	// 1$: package name, 2$: XSRF
-	static final String FETCH_APP_TEMPLATE = "{\"method\":\"fetch\","
-			+ "\"params\":{\"1\":[\"%1$s\"],\"3\":0},\"xsrf\":\"%2$s\"}";
+		static final String FETCH_APP_TEMPLATE = "{\"method\":\"fetch\","
+				+ "\"params\":{\"1\":[\"%1$s\"],\"3\":1},\"xsrf\":\"%2$s\"}";
 	// 1$: package name, 2$: XSRF
 	static final String GET_RATINGS_TEMPLATE = "{\"method\":\"getRatings\","
 			+ "\"params\":{\"1\":[\"%1$s\"]},\"xsrf\":\"%2$s\"}";
@@ -124,7 +124,7 @@ public class DevConsoleV2Protocol {
 		return createDeveloperUrl(URL_STATISTICS, developerId);
 	}
 
-	String createCommentsUrl(String developerId) {
+	public String createCommentsUrl(String developerId) {
 		return createDeveloperUrl(URL_REVIEWS, developerId);
 	}
 
@@ -161,7 +161,7 @@ public class DevConsoleV2Protocol {
 			throw new DevConsoleProtocolException(json, ex);
 		}
 	}
-	AppInfo parseAppInfoResponse(String json, String accountName,String developerId, boolean skipIncomplete) {
+	public AppInfo parseAppInfoResponse(String json, String accountName,String developerId, boolean skipIncomplete) {
 		try {
 			return JsonParser.parseAppInfo(json, accountName,developerId, skipIncomplete);
 		} catch (JSONException ex) {
@@ -175,7 +175,7 @@ public class DevConsoleV2Protocol {
 		}
 	}
 
-	String createFetchAppInfoRequest(String packageName) {
+	public String createFetchAppInfoRequest(String packageName) {
 		checkState();
 
 		return String.format(FETCH_APP_TEMPLATE, packageName, sessionCredentials.getXsrfToken());
@@ -199,13 +199,13 @@ public class DevConsoleV2Protocol {
 		}
 	}
 
-	String createFetchRatingsRequest(String packageName) {
+	public String createFetchRatingsRequest(String packageName) {
 		checkState();
 
 		return String.format(GET_RATINGS_TEMPLATE, packageName, sessionCredentials.getXsrfToken());
 	}
 
-	void parseRatingsResponse(String json, AppStats stats) {
+	public void parseRatingsResponse(String json, AppStats stats) {
 		try {
 			JsonParser.parseRatings(json, stats);
 		} catch (JSONException ex) {
@@ -214,7 +214,7 @@ public class DevConsoleV2Protocol {
 		}
 	}
 
-	String createFetchCommentsRequest(String packageName, int start, int pageSize,
+	public String createFetchCommentsRequest(String packageName, int start, int pageSize,
 			String displayLocale) {
 		checkState();
 
