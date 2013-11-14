@@ -83,7 +83,8 @@ StatsDataIOS statsData= new StatsDataIOS(appId,endDate,releaseDate,appName);
 			int ratingPlus = 0;
 			for (Iterator iterator = ratingList.iterator(); iterator.hasNext();) {
 				Rating rating = (Rating) iterator.next();
-				ratingPlus = ratingPlus +rating.getRate();
+				if(initDate.before(rating.getDate())&&endDate.after(rating.getDate()))
+					ratingPlus = ratingPlus +rating.getRate();
 			}
 			
 			statsData.setRatings(ratingList);
