@@ -216,7 +216,7 @@ public class AndroidStoreStats implements IStoreStats {
 		stats=new StatsDataAndroid();
 		stats.setAndroidPlatform();
 		stats.setAppId(app.getPackageName());
-		
+		stats.setDeveloperId(app.getDeveloperId());
 		stats.setAppName(app.getName());
 		if(app.getLatestStats()!=null){
 		stats.setAverageRate(NumberHelper.round(app.getLatestStats().getAvgRatingDiff(),2));
