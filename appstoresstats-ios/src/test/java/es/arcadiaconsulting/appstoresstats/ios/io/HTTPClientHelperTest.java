@@ -16,45 +16,20 @@
 package es.arcadiaconsulting.appstoresstats.ios.io;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.Reader;
-import java.io.StringReader;
-import java.net.URI;
-import java.util.Iterator;
 
-import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.transform.Source;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
-import javax.xml.xquery.XQConnection;
-import javax.xml.xquery.XQConstants;
-import javax.xml.xquery.XQDataSource;
-import javax.xml.xquery.XQException;
-import javax.xml.xquery.XQExpression;
-import javax.xml.xquery.XQItem;
-import javax.xml.xquery.XQItemType;
-import javax.xml.xquery.XQMetaData;
-import javax.xml.xquery.XQPreparedExpression;
-import javax.xml.xquery.XQSequence;
-import javax.xml.xquery.XQSequenceType;
-import javax.xml.xquery.XQStaticContext;
 
-import net.sf.saxon.xqj.SaxonXQDataSource;
+import junit.framework.TestCase;
 
 import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-
-import com.sun.syndication.io.SAXBuilder;
 
 import es.arcadiaconsulting.appstoresstats.ios.model.Constants;
-import junit.framework.TestCase;
 
 public class HTTPClientHelperTest extends TestCase {
 	
