@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<document>
+   <properties>
+      <title>App Store Stats</title>
+      <author email="gonzalo@arcadiaconsulting.es">Gonzalo Gómez Garcñia</author>
+   </properties>
+   <body>
+
+		<release version="1.0.0" date="2013-11-11" description="Initial release">   
+			<action dev="ggomez" type="add">
+				Google Play Store stats support including total installations, current installations, ratings and reviews
+			</action>                      
+			<action dev="ggomez" type="add">
+				Itunes Connect Store stats support with total installation and current installation
+			</action>                      
+		</release>
+		
+		<release version="1.0.1" date="2013-11-15" description="Release including fixes and new features">   
+			<action dev="ggomez" type="fix">
+				All apps query in Goolge Play implementation is not working 
+			</action>                      
+			<action dev="ggomez" type="add">
+				Added support for reviews and  ratings for Itunes connect
+			</action>                      
+		</release>     
+
+</document>
