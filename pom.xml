@@ -83,9 +83,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:svn:https://github.com/ArcadiaConsulting/appstorestats/branches/1.0.0-ios-ratings-opinions</connection>
-		<developerConnection>scm:svn:https://github.com/ArcadiaConsulting/appstorestats/branches/1.0.0-ios-ratings-opinions</developerConnection>
-		<url>https://github.com/ArcadiaConsulting/appstorestats/branches/1.0.0-ios-ratings-opinions</url>
+		<connection>scm:svn:https://github.com/ArcadiaConsulting/appstorestats/trunk</connection>
+		<developerConnection>scm:svn:https://github.com/ArcadiaConsulting/appstorestats/trunk</developerConnection>
+		<url>https://github.com/ArcadiaConsulting/appstorestats/trunk</url>
 	</scm>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
