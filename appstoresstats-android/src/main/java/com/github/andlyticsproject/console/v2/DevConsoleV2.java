@@ -399,6 +399,10 @@ public class DevConsoleV2 implements DevConsole {
 
 	private List<Comment> fetchComments(String packageName, String developerId, int startIndex,
 			int count, String displayLocale) throws DevConsoleException {
+		if(logger.isDebugEnabled())
+		{
+			logger.debug("Fetching Comments for app: %s",packageName);
+		}
 		List<Comment> comments = new ArrayList<Comment>();
 		String response = post(protocol.createCommentsUrl(developerId),
 				protocol.createFetchCommentsRequest(packageName, startIndex, count, displayLocale),

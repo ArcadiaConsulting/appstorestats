@@ -435,7 +435,13 @@ public class JsonParser {
 	 * @throws JSONException
 	 */
 	static List<Comment> parseComments(String json) throws JSONException {
-		List<Comment> comments = new ArrayList<Comment>();
+		List<Comment> comments = new ArrayList<Comment>();;
+		if(parseCommentsCount(json)>0){
+			if(logger.isDebugEnabled())
+			{
+				logger.debug("Parsing JSON for comments");
+			}
+		
 		/*
 		 * null
 		 * Array containing arrays of comments
@@ -546,8 +552,17 @@ public class JsonParser {
 
 			comments.add(comment);
 		}
+		}
+		else
+		{
+			if(logger.isDebugEnabled())
+			{
+				logger.debug("No comments were found");
+			}
+		}
 
 		return comments;
+		
 	}
 
 	static Comment parseCommentReplyResponse(String json) throws JSONException {
