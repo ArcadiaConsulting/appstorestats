@@ -435,7 +435,7 @@ public class JsonParser {
 	 * @throws JSONException
 	 */
 	static List<Comment> parseComments(String json) throws JSONException {
-		List<Comment> comments = new ArrayList<Comment>();;
+		List<Comment> comments = new ArrayList<Comment>();
 		if(parseCommentsCount(json)>0){
 			if(logger.isDebugEnabled())
 			{
