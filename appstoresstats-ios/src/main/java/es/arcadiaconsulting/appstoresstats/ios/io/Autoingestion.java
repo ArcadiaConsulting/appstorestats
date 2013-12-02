@@ -34,6 +34,7 @@ import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -73,17 +74,80 @@ public class Autoingestion
 	  
   }
   
-  public static String getAppleIDBySKU(/**String propertiesFile,*/ String user,String password,String vendorId, String reportType, String dateType, String reportSubType, String date, String sku) throws IOException{
+  public static String getAppleIDBySKU(/**String propertiesFile,*/ String user,String password,String vendorId, String reportType, String reportSubType, GregorianCalendar date, String sku) throws IOException{
 	  String line = new String();
-	  List<AutoingestionBean> salesOutputReader = getSalesOutput(new String[]{/**propertiesFile,*/user,password,vendorId,reportType,dateType,reportSubType,date});
-	  for (Iterator iterator = salesOutputReader.iterator(); iterator.hasNext();) {
-		AutoingestionBean autoingestionBean = (AutoingestionBean) iterator
-				.next();
-		if(autoingestionBean.getSku().equals(sku)){
-			 return autoingestionBean.getAppleIdentifier();
-		 }
-		
-	}
+	  SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+	  GregorianCalendar dateIterator = (GregorianCalendar)date.clone();
+	  
+	  //buscamos por dias hasta la semana
+	  for (int i = 0; i < 6; i++) {
+		  List<AutoingestionBean> salesOutputReader = getSalesOutput(new String[]{/**propertiesFile,*/user,password,vendorId,reportType,Constants.DATE_TYPE_DAILY,reportSubType,sdf.format(dateIterator.getTime())});
+		  if(salesOutputReader!= null){
+			  for (Iterator iterator = salesOutputReader.iterator(); iterator.hasNext();) {
+				  AutoingestionBean autoingestionBean = (AutoingestionBean) iterator
+					.next();
+				  if(autoingestionBean.getSku().equals(sku)){
+					  return autoingestionBean.getAppleIdentifier();
+				  }
+			
+			  }
+		  }
+		  dateIterator.add(Calendar.DATE, -1);
+	  }
+	  
+	//buscamos por semanas  hasta el mes
+	  for (int i = 0; i < 4; i++) {
+		  List<AutoingestionBean> salesOutputReader = getSalesOutput(new String[]{/**propertiesFile,*/user,password,vendorId,reportType,Constants.DATE_TYPE_WEEDLY,reportSubType,sdf.format(dateIterator.getTime())});
+		  if(salesOutputReader!= null){
+		  for (Iterator iterator = salesOutputReader.iterator(); iterator.hasNext();) {
+			AutoingestionBean autoingestionBean = (AutoingestionBean) iterator
+					.next();
+			if(autoingestionBean.getSku().equals(sku)){
+				 return autoingestionBean.getAppleIdentifier();
+			 }
+			
+		  }
+		  }
+		  dateIterator.add(Calendar.WEEK_OF_YEAR, -1);
+	  }
+	//buscamos por meses  hasta el año
+	  for (int i = 0; i < 12; i++) {
+		  List<AutoingestionBean> salesOutputReader = getSalesOutput(new String[]{/**propertiesFile,*/user,password,vendorId,reportType,Constants.DATE_TYPE_MONTHLY,reportSubType,sdf.format(dateIterator.getTime())});
+		  if(salesOutputReader!= null){
+		  for (Iterator iterator = salesOutputReader.iterator(); iterator.hasNext();) {
+			AutoingestionBean autoingestionBean = (AutoingestionBean) iterator
+					.next();
+			if(autoingestionBean.getSku().equals(sku)){
+				 return autoingestionBean.getAppleIdentifier();
+			 }
+			
+		  }
+		  }
+		  dateIterator.add(Calendar.MONTH, -1);
+	  }
+	  
+	  
+	  
+	  //buscamos por año hasta 2010
+	  for (int i = 0; i < 12; i++) {
+		  List<AutoingestionBean> salesOutputReader = getSalesOutput(new String[]{/**propertiesFile,*/user,password,vendorId,reportType,Constants.DATE_TYPE_YEARLY,reportSubType,sdf.format(dateIterator.getTime())});
+		  if(salesOutputReader!= null){
+		  for (Iterator iterator = salesOutputReader.iterator(); iterator.hasNext();) {
+			AutoingestionBean autoingestionBean = (AutoingestionBean) iterator
+					.next();
+			if(autoingestionBean.getSku().equals(sku)){
+				 return autoingestionBean.getAppleIdentifier();
+			 }
+			
+		  }
+		  }
+		  dateIterator.add(Calendar.YEAR, -1);
+		  if(dateIterator.get(Calendar.YEAR)<=2010){
+			  logger.error("Not found apple id by sku since 2010");
+			  return null;
+		  }
+	  }
+	  
 	  return null;
 	   
 	  /**
