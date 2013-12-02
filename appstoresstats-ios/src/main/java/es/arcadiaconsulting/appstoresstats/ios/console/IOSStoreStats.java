@@ -60,7 +60,7 @@ public class IOSStoreStats implements IStoreStats{
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 		String appleId;
 		try {
-			appleId = Autoingestion.getAppleIDBySKU(user, password, vendorId, Constants.REPORT_TYPE_SALES, Constants.DATE_TYPE_MONTHLY, Constants.REPORT_SUBTYPE_SUMMARY_NAME, sdf.format(initDateGregorian.getTime()), appId);
+			appleId = Autoingestion.getAppleIDBySKU(user, password, vendorId, Constants.REPORT_TYPE_SALES,  Constants.REPORT_SUBTYPE_SUMMARY_NAME, initDateGregorian, appId);
 		} catch (IOException e1) {
 			logger.error("error getting appleid",e1);
 			return null;
@@ -132,7 +132,7 @@ StatsDataIOS statsData= new StatsDataIOS(appId,endDate,releaseDate,appName);
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
 		String appleId;
 		try {
-			appleId = Autoingestion.getAppleIDBySKU(user, password, vendorId, Constants.REPORT_TYPE_SALES, Constants.DATE_TYPE_MONTHLY, Constants.REPORT_SUBTYPE_SUMMARY_NAME, sdf.format(enddateCalendar.getTime()), appId);
+			appleId = Autoingestion.getAppleIDBySKU(user, password, vendorId, Constants.REPORT_TYPE_SALES,  Constants.REPORT_SUBTYPE_SUMMARY_NAME, enddateCalendar, appId);
 		} catch (IOException e1) {
 			logger.error("error getting appleid",e1);
 			return null;
