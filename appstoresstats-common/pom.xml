@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>es.arcadiaconsulting.appstorestats</groupId>
 		<artifactId>appstorestats-parent</artifactId>
-		<version>1.0.2</version>
+		<version>1.0.3-SNAPSHOT</version>
 	</parent>
 	<artifactId>appstoresstats-common</artifactId>
 	<name>Java API for accessing App Stores statistics - Common elements</name>
