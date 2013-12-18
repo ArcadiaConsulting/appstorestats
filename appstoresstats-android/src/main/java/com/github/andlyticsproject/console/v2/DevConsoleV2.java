@@ -24,6 +24,8 @@ import com.github.andlyticsproject.model.AppInfo;
 import com.github.andlyticsproject.model.AppStats;
 import com.github.andlyticsproject.model.Comment;
 import com.github.andlyticsproject.model.DeveloperConsoleAccount;
+
+import es.arcadiaconsulting.appstoresstats.common.AppNotPublishedException;
 //import org.apache.http.HttpEntity;
 //import org.apache.http.HttpResponse;
 //import org.apache.http.client.ClientProtocolException;
@@ -398,7 +400,7 @@ public class DevConsoleV2 implements DevConsole {
 	}
 
 	private List<Comment> fetchComments(String packageName, String developerId, int startIndex,
-			int count, String displayLocale) throws DevConsoleException {
+			int count, String displayLocale) throws DevConsoleException,AppNotPublishedException {
 		if(logger.isDebugEnabled())
 		{
 			logger.debug("Fetching Comments for app: %s",packageName);
