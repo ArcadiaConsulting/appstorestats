@@ -26,6 +26,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import es.arcadiaconsulting.appstoresstats.common.AppNotPublishedException;
 import es.arcadiaconsulting.appstoresstats.common.CommonStatsData;
 import es.arcadiaconsulting.appstoresstats.common.CommonStatsData.Platform;
 import es.arcadiaconsulting.appstoresstats.common.IStoreStats;
@@ -135,7 +136,7 @@ StatsDataIOS statsData= new StatsDataIOS(appId,endDate,releaseDate,appName);
 			appleId = Autoingestion.getAppleIDBySKU(user, password, vendorId, Constants.REPORT_TYPE_SALES,  Constants.REPORT_SUBTYPE_SUMMARY_NAME, enddateCalendar, appId);
 		} catch (IOException e1) {
 			logger.error("error getting appleid",e1);
-			return null;
+			throw new AppNotPublishedException("error getting appleid", e1);
 			
 		}
 		
@@ -176,7 +177,7 @@ StatsDataIOS statsData= new StatsDataIOS(appId,endDate,initDate,appName);
 			
 		} catch (DateHelperException e) {
 			logger.error("Error getting units");
-			return null;
+			throw new AppNotPublishedException("error getting units", e);
 		}
 		
 		return statsData;
