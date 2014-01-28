@@ -1,6 +1,8 @@
 package es.arcadiaconsulting.appstoresstats.common;
 
 public class AppNotPublishedException extends RuntimeException {
+	
+	public String message;
 
 	/**
 	 * 
@@ -14,7 +16,13 @@ public class AppNotPublishedException extends RuntimeException {
 	
 	public AppNotPublishedException(String message,Throwable t)
 	{
-		super(message,t);
+		super(t);
+		this.message= message;
+		
+	}
+
+	public AppNotPublishedException(String message) {
+		this.message=message;
 	}
 	
 }
