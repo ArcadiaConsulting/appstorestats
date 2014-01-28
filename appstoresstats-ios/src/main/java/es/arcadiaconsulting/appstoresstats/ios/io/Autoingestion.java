@@ -45,6 +45,7 @@ import java.util.zip.GZIPInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import es.arcadiaconsulting.appstoresstats.common.AppNotPublishedException;
 import es.arcadiaconsulting.appstoresstats.ios.model.AutoingestionBean;
 import es.arcadiaconsulting.appstoresstats.ios.model.Constants;
 import es.arcadiaconsulting.appstoresstats.ios.model.UnitData;
@@ -155,7 +156,7 @@ public class Autoingestion
 		  dateIterator.add(Calendar.YEAR, -1);
 		  if(dateIterator.get(Calendar.YEAR)<=2010){
 			  logger.error("Not found apple id by sku since 2010");
-			  return null;
+			  throw new AppNotPublishedException("Not found apple id by sku since 2010");
 		  }
 	  }
 	  

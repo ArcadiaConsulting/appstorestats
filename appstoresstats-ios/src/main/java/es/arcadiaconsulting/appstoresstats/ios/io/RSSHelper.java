@@ -89,7 +89,7 @@ public class RSSHelper {
 			Document doc = builder.parse(new ByteArrayInputStream(getResponse.getBytes()));
 			NodeList entryList = doc.getDocumentElement().getElementsByTagName("entry");
 			if(entryList==null || entryList.getLength()<=0){
-				logger.error("getItunesUrl - There are not rating comments we couldnt get the itunes url");
+				logger.info("getItunesUrl - There are not rating comments we couldnt get the itunes url");
 				return null;
 			}else{
 				return entryList.item(0).getChildNodes().item(1).getTextContent();
@@ -117,7 +117,7 @@ public class RSSHelper {
 			Document doc = builder.parse(new ByteArrayInputStream(getResponse.getBytes()));
 			NodeList entryList = doc.getDocumentElement().getElementsByTagName("entry");
 			if(entryList==null || entryList.getLength()<=0){
-				logger.error("getItunesRating - There are not rating comments we couldnt get the itunes url");
+				logger.info("getItunesRating - There are not rating comments we couldnt get the itunes url");
 				return null;
 			}else{
 				List<Rating> ratingList = new Vector<Rating>();
