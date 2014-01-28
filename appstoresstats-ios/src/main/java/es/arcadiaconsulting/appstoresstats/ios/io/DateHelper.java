@@ -131,9 +131,8 @@ public class DateHelper {
 						Constants.REPORT_SUBTYPE_SUMMARY_NAME,
 						sdf.format(dayIterator.getTime()), sku);
 				if (dayUnitData == null) {
-					logger.error("Error Getting day units");
-					throw new DateHelperException(
-							"Problem getting day sales. Please see log for more information");
+					logger.info("Error Getting day units day: " + dayIterator.getTime());
+					return cleanUnitDataList(unitDataList);
 				}
 				unitDataList.addAll(dayUnitData);
 				dayIterator.add(Calendar.DATE, 1);
