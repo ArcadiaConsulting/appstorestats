@@ -12,6 +12,8 @@ import com.github.andlyticsproject.model.AppInfo;
 import com.github.andlyticsproject.model.AppStats;
 import com.github.andlyticsproject.model.Comment;
 
+import es.arcadiaconsulting.appstoresstats.common.AppNotPublishedException;
+
 public class DevConsoleV2Protocol {
 	/**
 	 * Logger for this class
@@ -166,6 +168,9 @@ public class DevConsoleV2Protocol {
 			return JsonParser.parseAppInfo(json, accountName,developerId, skipIncomplete);
 		} catch (JSONException ex) {
 			saveDebugJson(json);
+		if(ex.getMessage()!=null &&ex.getMessage().contains("JSONObject[\"result\"] not found"))
+				throw new AppNotPublishedException("App has not been published",ex);
+			else
 			throw new DevConsoleProtocolException(json, ex);
 		}
 	}
@@ -261,8 +266,11 @@ public class DevConsoleV2Protocol {
 	List<Comment> parseCommentsResponse(String json) {
 		try {
 			return JsonParser.parseComments(json);
-		} catch (JSONException ex) {
+		} 
+		catch (JSONException ex) {
 			saveDebugJson(json);
+	
+			
 			throw new DevConsoleProtocolException(json, ex);
 		}
 	}

@@ -35,6 +35,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
@@ -44,6 +45,7 @@ import java.util.zip.GZIPInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import es.arcadiaconsulting.appstoresstats.common.AppNotPublishedException;
 import es.arcadiaconsulting.appstoresstats.ios.model.AutoingestionBean;
 import es.arcadiaconsulting.appstoresstats.ios.model.Constants;
 import es.arcadiaconsulting.appstoresstats.ios.model.UnitData;
@@ -51,6 +53,13 @@ import es.arcadiaconsulting.appstoresstats.ios.model.UnitData;
 public class Autoingestion
 {
 
+//TODO: Add map  of autoingestionbean with date and check in getunitsbydate si se ha buscado antes por esa fecha
+  private static HashMap<String, List<AutoingestionBean>> autoingestionMap = new HashMap<String, List<AutoingestionBean>>();	
+
+  public static void clearAutoingestionMap(){
+	  autoingestionMap = new HashMap<String, List<AutoingestionBean>>();
+  }
+	
   private static final Logger logger = LoggerFactory.getLogger(Autoingestion.class);
 	
   public static List<UnitData> getUnitsByDate(/**String propertiesFile,*/ String user,String password,String vendorId, String reportType, String dateType, String reportSubType, String date, String sku){
@@ -58,12 +67,15 @@ public class Autoingestion
 	  
 	  try{
 		  
-		  
+		  if(autoingestionMap!=null && autoingestionMap.containsKey(date+dateType)){
+			  return getUnits(autoingestionMap.get(date+dateType),sku);
+		  }
 		  List<AutoingestionBean> is=	getSalesOutput(new String[]{/**propertiesFile,*/user,password,vendorId,reportType,dateType,reportSubType,date});
 		  if(is==null){
 			  logger.error("Problem getting Autoingestion");
 			  return null;
 		  }
+		  autoingestionMap.put(date+dateType, is);
 		  return getUnits(is,sku);
 	  }catch(IOException e){
 		  logger.error("Exception on getUnits method");
@@ -144,7 +156,7 @@ public class Autoingestion
 		  dateIterator.add(Calendar.YEAR, -1);
 		  if(dateIterator.get(Calendar.YEAR)<=2010){
 			  logger.error("Not found apple id by sku since 2010");
-			  return null;
+			  throw new AppNotPublishedException("Not found apple id by sku since 2010");
 		  }
 	  }
 	  
@@ -281,7 +293,7 @@ public class Autoingestion
       }
       if (!bool1)
       {
-        logger.error("The username and password parameters have been deprecated. Please use the properties file for user credentials.");
+        logger.info("The username and password parameters have been deprecated. Please use the properties file for user credentials.");
 
         if ((paramArrayOfString.length < 6) || (paramArrayOfString.length > 7)) {
           logger.error("Please enter all the required parameters.  For help, please download the latest User Guide from the Sales and Trends module in iTunes Connect.");
