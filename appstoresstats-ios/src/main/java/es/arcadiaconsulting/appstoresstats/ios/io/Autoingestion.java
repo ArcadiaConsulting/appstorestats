@@ -155,7 +155,7 @@ public class Autoingestion
 		  }
 		  dateIterator.add(Calendar.YEAR, -1);
 		  if(dateIterator.get(Calendar.YEAR)<=2010){
-			  logger.error("Not found apple id by sku since 2010");
+			  logger.warn("Not found apple id by sku since 2010");
 			  throw new AppNotPublishedException("Not found apple id by sku since 2010");
 		  }
 	  }
@@ -364,8 +364,12 @@ public class Autoingestion
       localOutputStreamWriter.flush();
       localOutputStreamWriter.close();
 
-      if (((HttpURLConnection)localObject1).getHeaderField("ERRORMSG") != null)
-        logger.error(((HttpURLConnection)localObject1).getHeaderField("ERRORMSG"));
+      if (((HttpURLConnection)localObject1).getHeaderField("ERRORMSG") != null){
+       if(isError(((HttpURLConnection)localObject1).getHeaderField("ERRORMSG")))
+    	  logger.error(((HttpURLConnection)localObject1).getHeaderField("ERRORMSG"));
+       else
+    	   logger.warn(((HttpURLConnection)localObject1).getHeaderField("ERRORMSG"));
+      }
       else if (((HttpURLConnection)localObject1).getHeaderField("filename") != null)
          return getFile((HttpURLConnection)localObject1);
     }
@@ -509,6 +513,11 @@ public class Autoingestion
 		
 		return bean;
 	}
-  
+  private static boolean isError(String error)
+  {
+	  if(error.startsWith(Constants.NOT_DAILY_STATS_ERROR)||error.startsWith(Constants.NOT_PUBLISHED_ERROR)||error.startsWith(Constants.NOT_WEEKLY_STATS_ERROR))
+		  return false;
+	  return true;
+  }
   
 }
