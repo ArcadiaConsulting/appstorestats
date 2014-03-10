@@ -525,7 +525,7 @@ public class JsonParser {
 			if (translation != null) {
 				String displayLanguage = Locale.getDefault().getLanguage();
 				String translationLang = translation.getString("1");
-				String translationText = translation.getString("3");
+				String translationText = translation.optString("3");
 				if (translationLang.contains(displayLanguage)) {
 					comment.setText(translationText);
 				}
