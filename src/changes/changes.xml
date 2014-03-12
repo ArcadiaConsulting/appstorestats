@@ -38,6 +38,14 @@
 				Enhance performance on iOS stasts resolution
 			</action>                      
 		</release>     
+		
+		<release version="1.0.4" date="2014-02-7" description="Release including new features">   
+		</release>     
 		     
-
+		<release version="1.0.5" date="2014-03-13" description="Release including fixes">   
+			<action dev="ggomez" type="fix" issue="#7">
+				While getting translated comments exception is thrown  
+			</action>                      
+		</release>
+	</body>     
 </document>
