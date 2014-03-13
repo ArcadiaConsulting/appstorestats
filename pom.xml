@@ -83,9 +83,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:svn:https://github.com/ArcadiaConsulting/appstorestats/trunk</connection>
-		<developerConnection>scm:svn:https://github.com/ArcadiaConsulting/appstorestats/trunk</developerConnection>
-		<url>https://github.com/ArcadiaConsulting/appstorestats/trunk</url>
+		<connection>scm:git:git@github.com:ArcadiaConsulting/appstorestats.git</connection>
+		<developerConnection>scm:git:git@github.com:ArcadiaConsulting/appstorestats.git</developerConnection>
+		<url>git@github.com:ArcadiaConsulting/appstorestats.git</url>
 	</scm>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
