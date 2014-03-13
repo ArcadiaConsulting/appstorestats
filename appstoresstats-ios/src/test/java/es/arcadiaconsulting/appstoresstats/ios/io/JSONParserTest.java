@@ -30,7 +30,7 @@ public class JSONParserTest extends TestCase {
 		assertTrue(appInfo.isDeployed());
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 		String s = formatter.format(appInfo.getReleaseDate());
-		assertEquals("2013-06-21T08:32:43Z",s);
+		assertEquals("2013-06-21T20:32:43Z",s);
 		
 		appInfo = JSONParser.getAPPInfoByID("548280988");
 		assertEquals("548280988", appInfo.getId());
