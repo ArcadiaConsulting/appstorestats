@@ -8,7 +8,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>es.arcadiaconsulting.appstorestats</groupId>
 	<artifactId>appstorestats-parent</artifactId>
-	<version>1.0.5-SNAPSHOT</version>
+	<version>1.0.5</version>
 	<packaging>pom</packaging>
 	<name>App Stores statistics Java API - Parent</name>
 	<description>Java API for accessing App Stores statistics. Current implementation supports Google Play and Apple App Store statistics</description>
