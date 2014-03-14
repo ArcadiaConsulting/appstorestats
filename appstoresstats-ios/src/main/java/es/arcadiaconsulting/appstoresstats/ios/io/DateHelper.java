@@ -78,8 +78,8 @@ public class DateHelper {
 		if(deploymentDateCalendar.get(Calendar.YEAR)>dateIterator.get(Calendar.YEAR) || 
 				(deploymentDateCalendar.get(Calendar.YEAR)==dateIterator.get(Calendar.YEAR) && deploymentDateCalendar.get(Calendar.DAY_OF_YEAR)>dateIterator.get(Calendar.DAY_OF_YEAR))){
 			
-			logger.error("Incorrect Dates, First date must be 2 days previous to final date");
-			throw new DateHelperException("Incorrect Dates, First date must be 2 days previous to final date");
+			logger.error("Incorrect Dates, First date must be 2 days previous to final date "+sku);
+			throw new DateHelperException("Incorrect Dates, First date must be 2 days previous to final date "+sku);
 			
 		}
 		
@@ -87,7 +87,7 @@ public class DateHelper {
 		// if iterator is less or equal to deployment date we cant check units
 		if (dateIterator.before(deploymentDateCalendar)) {
 
-			logger.error("Incorrect date");
+			logger.error("Incorrect date  "+sku);
 			throw new DateHelperException(
 					"We cant get Results. There are not sales too. Wait some days");
 
@@ -104,7 +104,7 @@ public class DateHelper {
 					Constants.REPORT_SUBTYPE_SUMMARY_NAME,
 					sdf.format(yearIterator.getTime()), sku);
 			if (dayUnitData == null) {
-				logger.error("Error Getting year units");
+				logger.error("Error Getting year units "+sku);
 				throw new DateHelperException(
 						"Problem getting day sales. Please see log for more information");
 			}
@@ -131,7 +131,7 @@ public class DateHelper {
 						Constants.REPORT_SUBTYPE_SUMMARY_NAME,
 						sdf.format(dayIterator.getTime()), sku);
 				if (dayUnitData == null) {
-					logger.info("Error Getting day units day: " + dayIterator.getTime());
+					logger.info("Error Getting day units day: " + dayIterator.getTime()+": "+sku);
 					return cleanUnitDataList(unitDataList);
 				}
 				unitDataList.addAll(dayUnitData);
@@ -149,7 +149,7 @@ public class DateHelper {
 					Constants.REPORT_SUBTYPE_SUMMARY_NAME,
 					sdf.format(monthIterator.getTime()), sku);
 			if (dayUnitData == null) {
-				logger.error("Error Getting month units");
+				logger.error("Error Getting month units for app: "+sku);
 				throw new DateHelperException(
 						"Problem getting day sales. Please see log for more information");
 			}
@@ -171,7 +171,7 @@ public class DateHelper {
 					Constants.REPORT_SUBTYPE_SUMMARY_NAME,
 					sdf.format(weekIterator.getTime()), sku);
 			if (dayUnitData == null) {
-				logger.error("Error Getting week units");
+				logger.error("Error Getting week units for app: "+sku);
 				throw new DateHelperException(
 						"Problem getting day sales. Please see log for more information");
 			}
@@ -191,7 +191,7 @@ public class DateHelper {
 						Constants.REPORT_SUBTYPE_SUMMARY_NAME,
 						sdf.format(weekIterator.getTime()), sku);
 				if (dayUnitData == null) {
-					logger.error("Error Getting week units");
+					logger.error("Error Getting week units for app "+sku);
 					throw new DateHelperException(
 							"Problem getting day sales. Please see log for more information");
 				}
@@ -206,19 +206,23 @@ public class DateHelper {
 				weekIterator.add(Calendar.DATE, 1);
 				
 			
-		}while(weekIterator.get(Calendar.DAY_OF_WEEK)!=Calendar.SUNDAY);
+		}while(weekIterator.get(Calendar.DAY_OF_WEEK)!=Calendar.MONDAY);
 		}
 		//hacemos la consulta de semanas mientras el dia del iterador mas 6 sea menor o igual que la fecha de la query
 		//la consulta debe hacerse por domingos asi que hay que sumar los seis dias
 		while(weekIterator.get(Calendar.DAY_OF_MONTH)+7<=dateIterator.get(Calendar.DAY_OF_MONTH)){
-			weekIterator.add(Calendar.DAY_OF_MONTH, 6);
+			if(weekIterator.get(Calendar.DAY_OF_WEEK)==Calendar.MONDAY){
+				weekIterator.add(Calendar.DAY_OF_MONTH, 6);
+			}else{
+				weekIterator.add(Calendar.DAY_OF_MONTH, 7);
+			}
 			List<UnitData> dayUnitData = Autoingestion.getUnitsByDate(
 					/**propertiesFile,*/ user, password, vendorId,
 					Constants.REPORT_TYPE_SALES, Constants.DATE_TYPE_WEEDLY,
 					Constants.REPORT_SUBTYPE_SUMMARY_NAME,
 					sdf.format(weekIterator.getTime()), sku);
 			if (dayUnitData == null) {
-				logger.error("Error Getting week units");
+				logger.info("Problem getting week sales for app: "+sku);
 				//throw new DateHelperException("Problem getting week sales. Please see log for more information");
 				
 				//hacemos por ultimo la consulta hasta llegar al dia de la consulta ya que no se ha encontrado estadisticas de alguna semana aun
@@ -230,7 +234,7 @@ public class DateHelper {
 							Constants.REPORT_SUBTYPE_SUMMARY_NAME,
 							sdf.format(weekIterator.getTime()), sku);
 					if (dayUnitData == null) {
-						logger.error("there are not day sales; " +  sdf.format(weekIterator.getTime()));
+						logger.info("there are not day sales; " +  sdf.format(weekIterator.getTime())+" "+sku);
 						return cleanUnitDataList(unitDataList);
 					}
 					unitDataList.addAll(dayUnitData);
@@ -257,7 +261,7 @@ public class DateHelper {
 					Constants.REPORT_SUBTYPE_SUMMARY_NAME,
 					sdf.format(weekIterator.getTime()), sku);
 			if (dayUnitData == null) {
-				logger.error("there are not day sales; " +  sdf.format(weekIterator.getTime()));
+				logger.info("there are not day sales; " +  sdf.format(weekIterator.getTime()));
 				return cleanUnitDataList(unitDataList);
 			}
 			unitDataList.addAll(dayUnitData);

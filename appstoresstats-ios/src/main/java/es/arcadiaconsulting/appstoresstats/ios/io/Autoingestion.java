@@ -72,13 +72,13 @@ public class Autoingestion
 		  }
 		  List<AutoingestionBean> is=	getSalesOutput(new String[]{/**propertiesFile,*/user,password,vendorId,reportType,dateType,reportSubType,date});
 		  if(is==null){
-			  logger.error("Problem getting Autoingestion");
+			  logger.info("Problem getting Autoingestion for app: "+sku);
 			  return null;
 		  }
 		  autoingestionMap.put(date+dateType, is);
 		  return getUnits(is,sku);
 	  }catch(IOException e){
-		  logger.error("Exception on getUnits method");
+		  logger.error("Exception on getUnits method for app: " + sku);
 		  return null;
 	  }
 		  
