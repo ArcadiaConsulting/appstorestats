@@ -2,7 +2,7 @@ package es.arcadiaconsulting.appstoresstats.common;
 
 public class AppNotPublishedException extends RuntimeException {
 	
-	public String message;
+	private String message;
 
 	/**
 	 * 

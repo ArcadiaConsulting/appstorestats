@@ -1,9 +1,15 @@
 package com.github.andlyticsproject.console.v2;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.github.andlyticsproject.console.AuthenticationException;
+import com.github.andlyticsproject.console.DevConsole;
+import com.github.andlyticsproject.console.DevConsoleException;
+import com.github.andlyticsproject.console.NetworkException;
+import com.github.andlyticsproject.model.AppInfo;
+import com.github.andlyticsproject.model.AppStats;
+import com.github.andlyticsproject.model.Comment;
+import com.github.andlyticsproject.model.DeveloperConsoleAccount;
+import es.arcadiaconsulting.appstoresstats.common.AppNotPublishedException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpResponseException;
@@ -16,16 +22,9 @@ import org.apache.http.protocol.HTTP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.andlyticsproject.console.AuthenticationException;
-import com.github.andlyticsproject.console.DevConsole;
-import com.github.andlyticsproject.console.DevConsoleException;
-import com.github.andlyticsproject.console.NetworkException;
-import com.github.andlyticsproject.model.AppInfo;
-import com.github.andlyticsproject.model.AppStats;
-import com.github.andlyticsproject.model.Comment;
-import com.github.andlyticsproject.model.DeveloperConsoleAccount;
-
-import es.arcadiaconsulting.appstoresstats.common.AppNotPublishedException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 //import org.apache.http.HttpEntity;
 //import org.apache.http.HttpResponse;
 //import org.apache.http.client.ClientProtocolException;
@@ -91,7 +90,6 @@ public class DevConsoleV2 implements DevConsole {
 	/**
 	 * Gets a list of available apps for the given account
 	 * 
-	 * @param activity
 	 * @return
 	 * @throws DevConsoleException
 	 */
@@ -114,53 +112,55 @@ public class DevConsoleV2 implements DevConsole {
 	/**
 	 * Gets a data for specific app for the given account
 	 * 
-	 * @param activity
+	 * @param packageName
+     * @param store
 	 * @return
 	 * @throws DevConsoleException
 	 */
-	public synchronized AppInfo getAppInfoFromFullQuery(String packageName) throws DevConsoleException {
+	public synchronized AppInfo getAppInfoFromFullQuery(String packageName,String store) throws DevConsoleException {
 		try {
 			// the authenticator launched a sub-activity, bail out for now
 			if (!authenticateWithCachedCredentialas()) {
 				return null;
 			}
 
-			return fetchAppInfoFromFullQuery(packageName);
+			return fetchAppInfoFromFullQuery(packageName,store);
 		} catch (AuthenticationException ex) {
 			if (!authenticateFromScratch()) {
 				return null;
 			}
 
-			return fetchAppInfoFromFullQuery(packageName);
+			return fetchAppInfoFromFullQuery(packageName,store);
 		}
 	}
 	/**
 	 * Gets a data and statistics for specific app for the given account
 	 * 
-	 * @param activity
+	 * @param packageName
+     * @param store
 	 * @return
 	 * @throws DevConsoleException
 	 */
-	public synchronized AppInfo getAppInfoAndStatisticsFromFullQuery(String packageName) throws DevConsoleException {
+	public synchronized AppInfo getAppInfoAndStatisticsFromFullQuery(String packageName,String store) throws DevConsoleException {
 		try {
 			// the authenticator launched a sub-activity, bail out for now
 			if (!authenticateWithCachedCredentialas()) {
 				return null;
 			}
 
-			return fetchAppInfoAndStatisticsFromFullQuery(packageName);
+			return fetchAppInfoAndStatisticsFromFullQuery(packageName,store);
 		} catch (AuthenticationException ex) {
 			if (!authenticateFromScratch()) {
 				return null;
 			}
 
-			return fetchAppInfoAndStatisticsFromFullQuery(packageName);
+			return fetchAppInfoAndStatisticsFromFullQuery(packageName,store);
 		}
 	}
-	private AppInfo fetchAppInfoAndStatisticsFromFullQuery(String packageName)
+	private AppInfo fetchAppInfoAndStatisticsFromFullQuery(String packageName,String store)
 	{
 		
-		AppInfo app=fetchAppInfoFromFullQuery(packageName);
+		AppInfo app=fetchAppInfoFromFullQuery(packageName,store);
 		if(app!=null){
 				fetchStatistics(app, app.getLatestStats(), 4);
 				fetchRatings(app, app.getLatestStats());
@@ -179,7 +179,7 @@ public class DevConsoleV2 implements DevConsole {
 		}
 		
 	
-	private AppInfo fetchAppInfoFromFullQuery(String packageName)
+	private AppInfo fetchAppInfoFromFullQuery(String packageName,String store)
 	{
 		/*List<AppInfo> apps = fetchAppInfos();
 		
@@ -192,7 +192,7 @@ public class DevConsoleV2 implements DevConsole {
 			}
 		}
 		return null;*/
-		return fetchAppInfo(packageName);
+		return fetchAppInfo(packageName,store);
 	}
 	private List<AppInfo> fetchAppInfosAndStatistics() {
 		// Fetch a list of available apps
@@ -480,10 +480,17 @@ public class DevConsoleV2 implements DevConsole {
 	public boolean hasSessionCredentials() {
 		return protocol.hasSessionCredentials();
 	}
-	private AppInfo fetchAppInfo(String packageName) throws DevConsoleException {
+	private AppInfo fetchAppInfo(String packageName,String store) throws DevConsoleException {
 		AppInfo result = null;
 		for (DeveloperConsoleAccount consoleAccount : protocol.getSessionCredentials()
 				.getDeveloperConsoleAccounts()) {
+            if(store.equals(consoleAccount.getName())){
+                if (logger.isInfoEnabled())
+                {
+                    logger.info("Fetching statistics for package %s on %s store",packageName,consoleAccount.getName());
+                }
+
+
 			String developerId = consoleAccount.getDeveloperId();
                         String developername = consoleAccount.getName();
 			if (logger.isDebugEnabled()) {
@@ -498,6 +505,7 @@ public class DevConsoleV2 implements DevConsole {
 			
                         
 			result=app;
+                return result;
 			
 				/*
 				 * When consulting a single app it will always be incomplete
@@ -527,31 +535,39 @@ public class DevConsoleV2 implements DevConsole {
           
                         
 		}
+            else
+            {
+                if(logger.isInfoEnabled())
+                {
+                    logger.info("Package % does not belong to store %s",packageName,consoleAccount.getName());
+                }
+            }
+        }
                 
                 
 		return result;
 	}
 
-	protected AppInfo getAppInfo(String packageName) {
+	protected AppInfo getAppInfo(String packageName,String store) {
 		try {
 			// the authenticator launched a sub-activity, bail out for now
 			if (!authenticateWithCachedCredentialas()) {
 				return null;
 			}
 
-			return fetchAppInfoAndStatistics(packageName);
+			return fetchAppInfoAndStatistics(packageName,store);
 		} catch (AuthenticationException ex) {
 			if (!authenticateFromScratch()) {
 				return null;
 			}
 
-			return fetchAppInfoAndStatistics(packageName);
+			return fetchAppInfoAndStatistics(packageName,store);
 		}
 	}
 
-	private AppInfo fetchAppInfoAndStatistics(String packageName) {
+	private AppInfo fetchAppInfoAndStatistics(String packageName, String store) {
 		// Fetch a list of available apps
-		AppInfo app = fetchAppInfo(packageName);
+		AppInfo app = fetchAppInfo(packageName,store);
 		fetchStatistics(app, app.getLatestStats(), 4);
 		
 

@@ -66,7 +66,6 @@ public class AndroidStoreStats implements IStoreStats {
 	}*/
 	/**
 	 * Basisc android available stats such as: Name, average rating, total downloads
-	 * @param packageName
 	 * @return
 	 */
 	protected List<StatsDataAndroid> getBasicStatsDataAndroid()
@@ -85,7 +84,7 @@ public class AndroidStoreStats implements IStoreStats {
 	}
 	
 	
-	protected CommonStatsData getStatsDataAndroidBetweenDates(String packageName,Date initDate,Date endDate)
+	protected CommonStatsData getStatsDataAndroidBetweenDates(String packageName,Date initDate,Date endDate,String store)
 	{
 		/*
 		 * CUrrently obtaining full app list because ratings, downloads... etc are not visible from detailed app view
@@ -93,7 +92,7 @@ public class AndroidStoreStats implements IStoreStats {
 		 */
 		if(logger.isDebugEnabled())
 			logger.debug("getStatsDataAndroidBetweenDates() - {}", String.format("Getting statistics for %d", packageName));
-		AppInfo app=console.getAppInfoAndStatisticsFromFullQuery(packageName);
+		AppInfo app=console.getAppInfoAndStatisticsFromFullQuery(packageName,store);
 		
 		return buildStats(app,initDate,endDate);
 	}
@@ -106,9 +105,9 @@ public class AndroidStoreStats implements IStoreStats {
 	 * @param packageName
 	 * @return
 	 */
-	protected StatsDataAndroid getBasicStatsDataAndroid(String packageName)
+	protected StatsDataAndroid getBasicStatsDataAndroid(String packageName,String store)
 	{
-		AppInfo app=console.getAppInfoFromFullQuery(packageName);
+		AppInfo app=console.getAppInfoFromFullQuery(packageName,store);
 		return buildStats(app);
 		
 	}
@@ -244,10 +243,10 @@ public class AndroidStoreStats implements IStoreStats {
 
 	@Override
 	public CommonStatsData getStatsForApp(String user, String password,
-			String appId, Date initDate, Date endDate,String vectorId) {
+			String appId, Date initDate, Date endDate,String vectorId,String store) {
 		console=DevConsoleV2.createForAccountAndPassword(user, password, createDefaultHttpClient());
 		
-		return getStatsDataAndroidBetweenDates(appId,initDate,endDate);
+		return getStatsDataAndroidBetweenDates(appId,initDate,endDate,store);
 	}
 
 	
@@ -257,12 +256,23 @@ public class AndroidStoreStats implements IStoreStats {
 		return null;
 	}
 
+    /**
+     *
+     *
+     *
+     * @param user
+     * @param password
+     * @param appId
+     * @param vectorId
+     * @param store
+     * @return
+     */
 	@Override
 	public StatsDataAndroid getFullStatsForApp(String user, String password,
-			String appId,String vectorId) {
+                                               String appId, String vectorId, String store) {
 		
 		console=DevConsoleV2.createForAccountAndPassword(user, password, createDefaultHttpClient());
-		StatsDataAndroid stats =getBasicStatsDataAndroid(appId);
+		StatsDataAndroid stats =getBasicStatsDataAndroid(appId,store);
 		stats=this.getCommentForApp(stats);
 		return stats;
 	}

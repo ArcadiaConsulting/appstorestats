@@ -19,9 +19,11 @@ import java.util.Date;
 
 public interface IStoreStats {
 	
-	public CommonStatsData getStatsForApp(String user,String password,String appId,Date initDate,Date endDate,String vendorId);
+	public CommonStatsData getStatsForApp(String user,String password,String appId,Date initDate,Date endDate,String vendorId,String store);
 	//public List<CommonStatsData> getStatsForAllApps(String user,String password,Date initDate,Date endDate);
-	public CommonStatsData getFullStatsForApp(String user,String password,String appId,String vendorId);
-	//public List<CommonStatsData> getFullStatsForAllApps(String user,String password);
+	public CommonStatsData getFullStatsForApp(String user, String password, String appId, String vectorId, String store);
+
+
+    //public List<CommonStatsData> getFullStatsForAllApps(String user,String password);
 	
 }

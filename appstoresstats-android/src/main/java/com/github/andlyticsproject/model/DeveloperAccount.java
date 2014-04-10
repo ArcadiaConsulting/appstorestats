@@ -6,9 +6,9 @@ public class DeveloperAccount {
 
 	public enum State {
 		HIDDEN, ACTIVE, SELECTED
-	};
+	}
 
-	private Long id;
+    private Long id;
 	private String name;
 	private State state;
 	private Date lastStatsUpdate;

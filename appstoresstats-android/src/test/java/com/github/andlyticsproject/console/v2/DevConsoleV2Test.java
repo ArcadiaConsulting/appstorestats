@@ -79,7 +79,7 @@ public class DevConsoleV2Test extends TestCase{
 			doCallRealMethod().when(protocol).parseRatingsResponse(anyString(),isA(AppStats.class));
 
 
-		AppInfo app=console.getAppInfoFromFullQuery(PACKAGE_NAME_OK);
+		AppInfo app=console.getAppInfoFromFullQuery(PACKAGE_NAME_OK,null);
 		assertNotNull(app);
 		assertEquals(app.getDeveloperId(), DEVELOPERID );
 		//assertEquals(app.getAccount(), DEVELOPER_ACCOUNT_OK );
@@ -119,7 +119,7 @@ public class DevConsoleV2Test extends TestCase{
 		 doCallRealMethod().when(protocol).parseStatisticsResponse(anyString(),isA(AppStats.class),anyInt());
 			doCallRealMethod().when(protocol).parseRatingsResponse(anyString(),isA(AppStats.class));
 
-		 AppInfo app=console.getAppInfoAndStatisticsFromFullQuery(PACKAGE_NAME_OK);
+		 AppInfo app=console.getAppInfoAndStatisticsFromFullQuery(PACKAGE_NAME_OK,null);
 		assertNotNull(app);
 		assertEquals(app.getDeveloperId(), DEVELOPERID );
 		//assertEquals(app.getAccount(), DEVELOPER_ACCOUNT_OK );

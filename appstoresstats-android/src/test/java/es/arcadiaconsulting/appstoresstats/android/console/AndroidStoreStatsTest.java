@@ -110,7 +110,7 @@ public class AndroidStoreStatsTest extends TestCase{
 		    Date initDate=new Date(1381442400000L);
 		endDate.setTime(1381788000000L);
 
-		StatsDataAndroid inf=(StatsDataAndroid) stats.getStatsDataAndroidBetweenDates(PACKAGE_NAME_OK, initDate, endDate);
+		StatsDataAndroid inf=(StatsDataAndroid) stats.getStatsDataAndroidBetweenDates(PACKAGE_NAME_OK, initDate, endDate,null);
 		assertNotNull(inf);
 		assertEquals(inf.getAppId(), PACKAGE_NAME_OK);
 		assertEquals(inf.getAppName(),APP_OK_NAME);
@@ -154,7 +154,7 @@ public class AndroidStoreStatsTest extends TestCase{
 		    Date initDate=new Date(1381442400000L);
 		endDate.setTime(1381788000000L);
 		
-		StatsDataAndroid inf=(StatsDataAndroid) stats.getBasicStatsDataAndroid(PACKAGE_NAME_OK);
+		StatsDataAndroid inf=(StatsDataAndroid) stats.getBasicStatsDataAndroid(PACKAGE_NAME_OK,null);
 		assertNotNull(inf);
 		assertEquals(inf.getAppId(), PACKAGE_NAME_OK);
 		assertEquals(inf.getAppName(),APP_OK_NAME);
@@ -165,7 +165,7 @@ public class AndroidStoreStatsTest extends TestCase{
 		assertEquals(inf.getDownloadsNumber(),4148);
 		initDate=new Date(1381788000000L);
 		endDate.setTime(System.currentTimeMillis());
-		inf=(StatsDataAndroid) stats.getStatsDataAndroidBetweenDates("abc", initDate, endDate);
+		inf=(StatsDataAndroid) stats.getStatsDataAndroidBetweenDates("abc", initDate, endDate,null);
 		
 		
 	}

@@ -59,8 +59,8 @@ public class JSONParser {
 		
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
-			logger.error("Exception parsing");;
-		}
+			logger.error("Exception parsing");
+        }
 		
 		
 		return appInfo;
