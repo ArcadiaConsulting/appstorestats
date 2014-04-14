@@ -111,6 +111,8 @@ public class DateHelper {
 			unitDataList.addAll(dayUnitData);
 			deploymentyear = deploymentyear+1;
 			yearIterator.add(Calendar.YEAR, 1);
+			deploymentDateCalendar = (GregorianCalendar)yearIterator.clone();
+			deploymentDateCalendar.set(Calendar.DAY_OF_YEAR,1);
 			
 			//if query is on first day of year return response
 			if(dateIterator.get(Calendar.MONTH)==1&&dateIterator.get(Calendar.DAY_OF_MONTH)==1)
@@ -149,9 +151,9 @@ public class DateHelper {
 					Constants.REPORT_SUBTYPE_SUMMARY_NAME,
 					sdf.format(monthIterator.getTime()), sku);
 			if (dayUnitData == null) {
-				logger.error("Error Getting month units for app: "+sku);
-				throw new DateHelperException(
-						"Problem getting day sales. Please see log for more information");
+				logger.info("Error Getting month units for app: "+sku);
+				//throw new DateHelperException(
+				//		"Problem getting day sales. Please see log for more information");
 			}
 			unitDataList.addAll(dayUnitData);
 			
@@ -171,9 +173,9 @@ public class DateHelper {
 					Constants.REPORT_SUBTYPE_SUMMARY_NAME,
 					sdf.format(weekIterator.getTime()), sku);
 			if (dayUnitData == null) {
-				logger.error("Error Getting week units for app: "+sku);
-				throw new DateHelperException(
-						"Problem getting day sales. Please see log for more information");
+				logger.info("Error Getting week units for app: "+sku);
+				//throw new DateHelperException(
+				//		"Problem getting day sales. Please see log for more information");
 			}
 			unitDataList.addAll(dayUnitData);
 			if(dateIterator.get(Calendar.DAY_OF_MONTH)==7)
@@ -191,9 +193,9 @@ public class DateHelper {
 						Constants.REPORT_SUBTYPE_SUMMARY_NAME,
 						sdf.format(weekIterator.getTime()), sku);
 				if (dayUnitData == null) {
-					logger.error("Error Getting week units for app "+sku);
-					throw new DateHelperException(
-							"Problem getting day sales. Please see log for more information");
+					logger.info("Error Getting week units for app "+sku);
+					//throw new DateHelperException(
+					//		"Problem getting day sales. Please see log for more information");
 				}
 				unitDataList.addAll(dayUnitData);
 				
