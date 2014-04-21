@@ -104,11 +104,12 @@ public class DateHelper {
 					Constants.REPORT_SUBTYPE_SUMMARY_NAME,
 					sdf.format(yearIterator.getTime()), sku);
 			if (dayUnitData == null) {
-				logger.error("Error Getting year units "+sku);
-				throw new DateHelperException(
-						"Problem getting day sales. Please see log for more information");
+				logger.info("Error Getting year units "+sku);
+				//throw new DateHelperException( "Problem getting day sales. Please see log for more information");
+			}else{
+				unitDataList.addAll(dayUnitData);
 			}
-			unitDataList.addAll(dayUnitData);
+			
 			deploymentyear = deploymentyear+1;
 			yearIterator.add(Calendar.YEAR, 1);
 			deploymentDateCalendar = (GregorianCalendar)yearIterator.clone();
@@ -154,9 +155,9 @@ public class DateHelper {
 				logger.info("Error Getting month units for app: "+sku);
 				//throw new DateHelperException(
 				//		"Problem getting day sales. Please see log for more information");
+			}else{
+				unitDataList.addAll(dayUnitData);
 			}
-			unitDataList.addAll(dayUnitData);
-			
 			//if query is first day of month return unit data
 //			if(dateIterator.get(Calendar.DAY_OF_MONTH)==dateIterator.getActualMaximum(Calendar.DAY_OF_MONTH))
 //					return unitDataList;			
@@ -176,8 +177,9 @@ public class DateHelper {
 				logger.info("Error Getting week units for app: "+sku);
 				//throw new DateHelperException(
 				//		"Problem getting day sales. Please see log for more information");
+			}else{
+				unitDataList.addAll(dayUnitData);
 			}
-			unitDataList.addAll(dayUnitData);
 			if(dateIterator.get(Calendar.DAY_OF_MONTH)==7)
 				return cleanUnitDataList(unitDataList);
 			weekIterator.add(Calendar.DATE, 7);
@@ -196,9 +198,9 @@ public class DateHelper {
 					logger.info("Error Getting week units for app "+sku);
 					//throw new DateHelperException(
 					//		"Problem getting day sales. Please see log for more information");
+				}else{
+					unitDataList.addAll(dayUnitData);
 				}
-				unitDataList.addAll(dayUnitData);
-				
 				//si es el mismo dia que el ultimo dia consultable se retorna
 				if(weekIterator.get(Calendar.YEAR)==dateIterator.get(Calendar.YEAR)&&
 						weekIterator.get(Calendar.MONTH)==dateIterator.get(Calendar.MONTH)&&
@@ -265,8 +267,9 @@ public class DateHelper {
 			if (dayUnitData == null) {
 				logger.info("there are not day sales; " +  sdf.format(weekIterator.getTime()));
 				return cleanUnitDataList(unitDataList);
-			}
+			}else{
 			unitDataList.addAll(dayUnitData);
+			}
 			weekIterator.add(Calendar.DATE, 1);
 			
 		}

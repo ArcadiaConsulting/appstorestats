@@ -68,14 +68,14 @@ public class Autoingestion
 	  try{
 		  
 		  if(autoingestionMap!=null && autoingestionMap.containsKey(date+dateType)){
-			  return getUnits(autoingestionMap.get(date+dateType),sku);
+			  return getUnits(autoingestionMap.get(date+dateType+vendorId),sku);
 		  }
 		  List<AutoingestionBean> is=	getSalesOutput(new String[]{/**propertiesFile,*/user,password,vendorId,reportType,dateType,reportSubType,date});
 		  if(is==null){
 			  logger.info("Problem getting Autoingestion for app: "+sku);
 			  return null;
 		  }
-		  autoingestionMap.put(date+dateType, is);
+		  autoingestionMap.put(date+dateType+vendorId, is);
 		  return getUnits(is,sku);
 	  }catch(IOException e){
 		  logger.error("Exception on getUnits method for app: " + sku);
