@@ -9,6 +9,8 @@ import com.github.andlyticsproject.model.AppStats;
 import com.github.andlyticsproject.model.Comment;
 import com.github.andlyticsproject.model.DeveloperConsoleAccount;
 import es.arcadiaconsulting.appstoresstats.common.AppNotPublishedException;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpResponseException;
@@ -479,76 +481,67 @@ public class DevConsoleV2 implements DevConsole {
 	public boolean hasSessionCredentials() {
 		return protocol.hasSessionCredentials();
 	}
-	private AppInfo fetchAppInfo(String packageName,String store) throws DevConsoleException {
-		if(logger.isInfoEnabled())
-        {
-            logger.info(String.format("fetchAppInfo-packageName: %s store: %s",packageName,store));
-        }
-        AppInfo result = null;
-		for (DeveloperConsoleAccount consoleAccount : protocol.getSessionCredentials()
-				.getDeveloperConsoleAccounts()) {
-            if(store.equals(consoleAccount.getName())){
-                if (logger.isInfoEnabled())
-                {
-                    logger.info(String.format("Fetching statistics for package %s on %s store",packageName,consoleAccount.getName()));
-                }
 
+	private AppInfo fetchAppInfo(String packageName, String store)
+			throws DevConsoleException {
 
-			String developerId = consoleAccount.getDeveloperId();
-                        String developername = consoleAccount.getName();
-			if (logger.isDebugEnabled()) {
-				logger.debug("fetchAppInfos() - {}", "Getting apps for: " + developername + " - " + developerId); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			}
-
-			String response = post(protocol.createFetchAppsUrl(developerId),
-					protocol.createFetchAppInfoRequest(packageName), developerId);
-
-			// don't skip incomplete apps, so we can get the package list
-			AppInfo app = protocol.parseAppInfoResponse(response, accountName,developerId, true);
-			
-                        
-			result=app;
-                return result;
-			
-				/*
-				 * When consulting a single app it will always be incomplete
-				 * if (app.isIncomplete()) {
-					result=null;
-					if (logger.isDebugEnabled()) {
-						logger.debug("fetchAppInfos() - {}", String.format("Incomplete apps, issuing details request")); //$NON-NLS-1$ //$NON-NLS-2$
-					}
-					
-					response = post(protocol.createFetchAppsUrl(developerId),
-                            protocol.createFetchAppInfoRequest(packageName), developerId);
-				      // if info is not here, not much to do, skip
-	                AppInfo extraApp = protocol.parseAppInfoResponse(response,accountName, developerId, true);
-				if (logger.isDebugEnabled()) {
-					logger.debug("fetchAppInfos() - {}", String.format("Got extra app from details request")); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-	              if(extraApp!=null)
-				result=extraApp;
-				}*/
-			
-			
-
-			
-                
-                
-                        
-          
-                        
+		if (logger.isInfoEnabled()) {
+			logger.info(String.format("fetchAppInfo-packageName: %s store: %s",
+					packageName, store));
 		}
-            else
-            {
-                if(logger.isInfoEnabled())
-                {
-                    logger.info(String.format("Package %s does not belong to store %s",packageName,consoleAccount.getName()));
-                }
-            }
-        }
-                
-                
+		
+		String developerId = null;
+		String developername = null;
+		AppInfo result = null;
+		
+		if(StringUtils.isNotBlank(store)) {
+		for (DeveloperConsoleAccount consoleAccount : protocol
+				.getSessionCredentials().getDeveloperConsoleAccounts()) {
+				if (store.equals(consoleAccount.getName())) {
+					if (logger.isInfoEnabled()) {
+						logger.info(String.format(
+								"Fetching statistics for package %s on %s store",
+								packageName, consoleAccount.getName()));
+					}
+	
+					developerId = consoleAccount.getDeveloperId();
+					developername = consoleAccount.getName();
+
+				} else {
+					if (logger.isInfoEnabled()) {
+						logger.info(String.format(
+								"Package %s does not belong to store %s",
+								packageName, consoleAccount.getName()));
+					}
+				}
+			}
+		} else if ( protocol.getSessionCredentials().getDeveloperConsoleAccounts().length > 0) {
+			DeveloperConsoleAccount consoleAccount  = protocol.getSessionCredentials().getDeveloperConsoleAccounts()[0];			
+			developerId = consoleAccount.getDeveloperId();
+			developername = consoleAccount.getName();
+		} else {
+			logger.warn(
+					"fetchAppInfos() - Gien credentials does not have any Developers Console Account so search connont be executed"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			return null;
+		}
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug(
+					"fetchAppInfos() - {}", "Getting apps for: " + developername + " - " + developerId); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
+
+		String response = post(
+				protocol.createFetchAppsUrl(developerId),
+				protocol.createFetchAppInfoRequest(packageName),
+				developerId);
+
+		// don't skip incomplete apps, so we can get the package list
+		AppInfo app = protocol.parseAppInfoResponse(response,
+				accountName, developerId, true);
+
+		result = app;
 		return result;
+		
 	}
 
 	protected AppInfo getAppInfo(String packageName,String store) {
