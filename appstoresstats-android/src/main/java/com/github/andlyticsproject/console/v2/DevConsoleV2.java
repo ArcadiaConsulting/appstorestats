@@ -9,7 +9,6 @@ import com.github.andlyticsproject.model.AppStats;
 import com.github.andlyticsproject.model.Comment;
 import com.github.andlyticsproject.model.DeveloperConsoleAccount;
 import es.arcadiaconsulting.appstoresstats.common.AppNotPublishedException;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpResponseException;
@@ -403,7 +402,7 @@ public class DevConsoleV2 implements DevConsole {
 			int count, String displayLocale) throws DevConsoleException,AppNotPublishedException {
 		if(logger.isDebugEnabled())
 		{
-			logger.debug("Fetching Comments for app: %s",packageName);
+			logger.debug(String.format("Fetching Comments for app: %s",packageName));
 		}
 		List<Comment> comments = new ArrayList<Comment>();
 		String response = post(protocol.createCommentsUrl(developerId),
@@ -481,13 +480,17 @@ public class DevConsoleV2 implements DevConsole {
 		return protocol.hasSessionCredentials();
 	}
 	private AppInfo fetchAppInfo(String packageName,String store) throws DevConsoleException {
-		AppInfo result = null;
+		if(logger.isInfoEnabled())
+        {
+            logger.info(String.format("fetchAppInfo-packageName: %s store: %s",packageName,store));
+        }
+        AppInfo result = null;
 		for (DeveloperConsoleAccount consoleAccount : protocol.getSessionCredentials()
 				.getDeveloperConsoleAccounts()) {
             if(store.equals(consoleAccount.getName())){
                 if (logger.isInfoEnabled())
                 {
-                    logger.info("Fetching statistics for package %s on %s store",packageName,consoleAccount.getName());
+                    logger.info(String.format("Fetching statistics for package %s on %s store",packageName,consoleAccount.getName()));
                 }
 
 
@@ -539,7 +542,7 @@ public class DevConsoleV2 implements DevConsole {
             {
                 if(logger.isInfoEnabled())
                 {
-                    logger.info("Package % does not belong to store %s",packageName,consoleAccount.getName());
+                    logger.info(String.format("Package %s does not belong to store %s",packageName,consoleAccount.getName()));
                 }
             }
         }
