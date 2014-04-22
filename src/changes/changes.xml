@@ -54,5 +54,12 @@
 			</action>                      
 		</release>
 		
+		<release version="1.0.7" date="2014-04-22" description="Release including fixes">   
+			<action dev="ggomez" type="add" issue="9">
+				Add support for multiple stores in Android client  
+			</action>                      
+		</release>
+		
+		
 	</body>     
 </document>
