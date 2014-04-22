@@ -250,8 +250,20 @@ public class DateHelper {
 			}else{
 			unitDataList.addAll(dayUnitData);
 			
-			if(weekIterator.get(Calendar.DAY_OF_MONTH)+7==dateIterator.get(Calendar.DAY_OF_MONTH))
+			if(weekIterator.get(Calendar.DAY_OF_YEAR)+7==dateIterator.get(Calendar.DAY_OF_YEAR)){
+				dayUnitData = Autoingestion.getUnitsByDate(
+						/**propertiesFile,*/ user, password, vendorId,
+						Constants.REPORT_TYPE_SALES, Constants.DATE_TYPE_WEEDLY,
+						Constants.REPORT_SUBTYPE_SUMMARY_NAME,
+						sdf.format(weekIterator.getTime()), sku);
+				if (dayUnitData == null) {
+					logger.info("there are not day sales; " +  sdf.format(weekIterator.getTime())+" "+sku);
+					return cleanUnitDataList(unitDataList);
+				}
+				unitDataList.addAll(dayUnitData);
+				
 				return cleanUnitDataList(unitDataList);
+			}
 			weekIterator.add(Calendar.DAY_OF_MONTH, 1);
 		
 			}
