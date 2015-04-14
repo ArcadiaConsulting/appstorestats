@@ -32,9 +32,6 @@ public class JSONParserTest extends TestCase {
 		String s = formatter.format(appInfo.getReleaseDate());
 		assertEquals("2013-06-21T20:32:43Z",s);
 		
-		appInfo = JSONParser.getAPPInfoByID("548280988");
-		assertEquals("548280988", appInfo.getId());
-		assertFalse(appInfo.isDeployed());
 		
 		
 		

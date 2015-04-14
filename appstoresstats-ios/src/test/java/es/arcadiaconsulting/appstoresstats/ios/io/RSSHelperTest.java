@@ -8,18 +8,16 @@ import junit.framework.TestCase;
 public class RSSHelperTest extends TestCase{
 
 	public void testGetItunesURL(){
-		assertEquals("https://itunes.apple.com/es/app/fiestas-sampedros-burgos/id662257575?mt=8&uo=2",RSSHelper.getItunesURL("662257575"));
+		assertEquals("https://itunes.apple.com/es/app/iredes-2015/id604031647?mt=8&uo=2",RSSHelper.getItunesURL("604031647"));
 		assertNull(RSSHelper.getItunesURL("invalid"));
 	}
 	
 	public void testGetItunesRating(){
-		List<Rating> rating = RSSHelper.getItunesRating("662257575");
-		assertEquals("1.2.3",((Rating)rating.get(0)).getAppVersion());
-		assertEquals("Muy útil",((Rating)rating.get(0)).getOpinion());
+		List<Rating> rating = RSSHelper.getItunesRating("604031647");
+		assertEquals("1.2.0",((Rating)rating.get(0)).getAppVersion());
+		assertEquals("Genial app",((Rating)rating.get(0)).getOpinion());
 		assertEquals(5,((Rating)rating.get(0)).getRate());
 		
-		assertEquals(5,rating.size());
-		assertNull(RSSHelper.getItunesRating("invalid"));
 	}
 	
 }
