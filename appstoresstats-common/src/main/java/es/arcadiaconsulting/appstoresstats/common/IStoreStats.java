@@ -17,13 +17,42 @@
 import java.util.Date;
 
 
+/**
+ * Interface that defines method for stats resolution
+ * @author <a href="mailto:ggomez@arcadiaconsulting.es">ggomez</a>
+ * 14/04/2015
+ *
+ */
 public interface IStoreStats {
 	
-	public CommonStatsData getStatsForApp(String user,String password,String appId,Date initDate,Date endDate,String vendorId,String store);
-	//public List<CommonStatsData> getStatsForAllApps(String user,String password,Date initDate,Date endDate);
-	public CommonStatsData getFullStatsForApp(String user, String password, String appId, String vectorId, String store);
+	/**
+	 * Resolve stats for given app within given dates
+	 * @param user
+	 * @param password
+	 * @param appId
+	 * @param initDate
+	 * @param endDate
+	 * @param vendorId
+	 * @param store
+	 * @return
+	 * @throws AppNotPublishedException if the given application is not available in store
+	 */
+	public CommonStatsData getStatsForApp(String user, String password,
+			String appId, Date initDate, Date endDate, String vendorId,
+			String store) throws AppNotPublishedException;
 
-
-    //public List<CommonStatsData> getFullStatsForAllApps(String user,String password);
+	/**
+	 * Resolve stats for given app in all time
+	 * @param user
+	 * @param password
+	 * @param appId
+	 * @param vectorId
+	 * @param store
+	 * @return
+	 * @throws AppNotPublishedException if the given application is not available in store
+	 */
+	public CommonStatsData getFullStatsForApp(String user, String password,
+			String appId, String vectorId, String store)
+			throws AppNotPublishedException;
 	
 }

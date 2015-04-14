@@ -63,6 +63,10 @@ public class AutoingestionBean {
 	
 	private java.lang.String period;
 	
+	public AutoingestionBean(){
+		super();
+	}
+	
 	
 
 	public java.lang.String getProvider() {

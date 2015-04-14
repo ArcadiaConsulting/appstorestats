@@ -52,8 +52,10 @@ public class DateHelper {
 	
 	public static List<UnitData> getFullUnitData(Date deploymentDate,
 			Date queryDate, String sku,/** String propertiesFile,*/ String user,
-			String password, String vendorId) throws DateHelperException {
-		SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT);
+			String password, String vendorId) throws Exception {
+		SimpleDateFormat sdfDay = new SimpleDateFormat("yyyyMMdd");
+		SimpleDateFormat sdfMonth = new SimpleDateFormat("yyyyMM");
+		SimpleDateFormat sdfYear = new SimpleDateFormat("yyyy");
 
 		List<UnitData> unitDataList = new Vector<UnitData>();
 
@@ -102,7 +104,7 @@ public class DateHelper {
 					/**propertiesFile,*/ user, password, vendorId,
 					Constants.REPORT_TYPE_SALES, Constants.DATE_TYPE_YEARLY,
 					Constants.REPORT_SUBTYPE_SUMMARY_NAME,
-					sdf.format(yearIterator.getTime()), sku);
+					sdfYear.format(yearIterator.getTime()), sku);
 			if (dayUnitData == null) {
 				logger.info("Error Getting year units "+sku);
 				//throw new DateHelperException( "Problem getting day sales. Please see log for more information");
@@ -132,7 +134,7 @@ public class DateHelper {
 						/**propertiesFile,*/ user, password, vendorId,
 						Constants.REPORT_TYPE_SALES, Constants.DATE_TYPE_DAILY,
 						Constants.REPORT_SUBTYPE_SUMMARY_NAME,
-						sdf.format(dayIterator.getTime()), sku);
+						sdfDay.format(dayIterator.getTime()), sku);
 				if (dayUnitData == null) {
 					logger.info("Error Getting day units day: " + dayIterator.getTime()+": "+sku);
 					return cleanUnitDataList(unitDataList);
@@ -150,7 +152,7 @@ public class DateHelper {
 					/**propertiesFile,*/ user, password, vendorId,
 					Constants.REPORT_TYPE_SALES, Constants.DATE_TYPE_MONTHLY,
 					Constants.REPORT_SUBTYPE_SUMMARY_NAME,
-					sdf.format(monthIterator.getTime()), sku);
+					sdfMonth.format(monthIterator.getTime()), sku);
 			if (dayUnitData == null) {
 				logger.info("Error Getting month units for app: "+sku);
 				//throw new DateHelperException(
@@ -172,7 +174,7 @@ public class DateHelper {
 					/**propertiesFile,*/ user, password, vendorId,
 					Constants.REPORT_TYPE_SALES, Constants.DATE_TYPE_WEEDLY,
 					Constants.REPORT_SUBTYPE_SUMMARY_NAME,
-					sdf.format(weekIterator.getTime()), sku);
+					sdfDay.format(weekIterator.getTime()), sku);
 			if (dayUnitData == null) {
 				logger.info("Error Getting week units for app: "+sku);
 				//throw new DateHelperException(
@@ -193,7 +195,7 @@ public class DateHelper {
 						/**propertiesFile,*/ user, password, vendorId,
 						Constants.REPORT_TYPE_SALES, Constants.DATE_TYPE_DAILY,
 						Constants.REPORT_SUBTYPE_SUMMARY_NAME,
-						sdf.format(weekIterator.getTime()), sku);
+						sdfDay.format(weekIterator.getTime()), sku);
 				if (dayUnitData == null) {
 					logger.info("Error Getting week units for app "+sku);
 					//throw new DateHelperException(
@@ -224,7 +226,7 @@ public class DateHelper {
 					/**propertiesFile,*/ user, password, vendorId,
 					Constants.REPORT_TYPE_SALES, Constants.DATE_TYPE_WEEDLY,
 					Constants.REPORT_SUBTYPE_SUMMARY_NAME,
-					sdf.format(weekIterator.getTime()), sku);
+					sdfDay.format(weekIterator.getTime()), sku);
 			if (dayUnitData == null) {
 				logger.info("Problem getting week sales for app: "+sku);
 				//throw new DateHelperException("Problem getting week sales. Please see log for more information");
@@ -236,9 +238,9 @@ public class DateHelper {
 							/**propertiesFile,*/ user, password, vendorId,
 							Constants.REPORT_TYPE_SALES, Constants.DATE_TYPE_DAILY,
 							Constants.REPORT_SUBTYPE_SUMMARY_NAME,
-							sdf.format(weekIterator.getTime()), sku);
+							sdfDay.format(weekIterator.getTime()), sku);
 					if (dayUnitData == null) {
-						logger.info("there are not day sales; " +  sdf.format(weekIterator.getTime())+" "+sku);
+						logger.info("there are not day sales; " +  sdfDay.format(weekIterator.getTime())+" "+sku);
 						return cleanUnitDataList(unitDataList);
 					}
 					unitDataList.addAll(dayUnitData);
@@ -255,9 +257,9 @@ public class DateHelper {
 						/**propertiesFile,*/ user, password, vendorId,
 						Constants.REPORT_TYPE_SALES, Constants.DATE_TYPE_WEEDLY,
 						Constants.REPORT_SUBTYPE_SUMMARY_NAME,
-						sdf.format(weekIterator.getTime()), sku);
+						sdfDay.format(weekIterator.getTime()), sku);
 				if (dayUnitData == null) {
-					logger.info("there are not day sales; " +  sdf.format(weekIterator.getTime())+" "+sku);
+					logger.info("there are not day sales; " +  sdfDay.format(weekIterator.getTime())+" "+sku);
 					return cleanUnitDataList(unitDataList);
 				}
 				unitDataList.addAll(dayUnitData);
@@ -275,9 +277,9 @@ public class DateHelper {
 					/**propertiesFile,*/ user, password, vendorId,
 					Constants.REPORT_TYPE_SALES, Constants.DATE_TYPE_DAILY,
 					Constants.REPORT_SUBTYPE_SUMMARY_NAME,
-					sdf.format(weekIterator.getTime()), sku);
+					sdfDay.format(weekIterator.getTime()), sku);
 			if (dayUnitData == null) {
-				logger.info("there are not day sales; " +  sdf.format(weekIterator.getTime()));
+				logger.info("there are not day sales; " +  sdfDay.format(weekIterator.getTime()));
 				return cleanUnitDataList(unitDataList);
 			}else{
 			unitDataList.addAll(dayUnitData);
@@ -540,7 +542,7 @@ public class DateHelper {
 	
 	public static List<UnitData> getUnitDataByDate(Date firstDate,
 			Date secondDate, String sku, String user,
-			String password, String vendorId) throws DateHelperException {
+			String password, String vendorId) throws Exception {
 		SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT);
 		
 		List<UnitData> unitDataList = new Vector<UnitData>();

@@ -42,6 +42,7 @@ import com.github.andlyticsproject.model.Comment;
 
 import es.arcadiaconsulting.appstoresstats.android.model.StarsRate;
 import es.arcadiaconsulting.appstoresstats.android.model.StatsDataAndroid;
+import es.arcadiaconsulting.appstoresstats.common.AppNotPublishedException;
 import es.arcadiaconsulting.appstoresstats.common.CommonStatsData;
 import es.arcadiaconsulting.appstoresstats.common.IStoreStats;
 import es.arcadiaconsulting.appstoresstats.common.NumberHelper;
@@ -113,8 +114,8 @@ public class AndroidStoreStats implements IStoreStats {
 	}
 	protected StatsDataAndroid getCommentForApp(StatsDataAndroid stats)
 	{
- List<Comment> comments=console.getComments(stats.getAppId(), stats.getDeveloperId(), 0, 50, "es");
- return buildComments(stats, comments);
+	 List<Comment> comments=console.getComments(stats.getAppId(), stats.getDeveloperId(), 0, 50, "es");
+	 return buildComments(stats, comments);
 	}
 
 	protected StatsDataAndroid parseInstallationsBetweenDates(StatsDataAndroid stats,AppInfo app)
@@ -243,7 +244,7 @@ public class AndroidStoreStats implements IStoreStats {
 
 	@Override
 	public CommonStatsData getStatsForApp(String user, String password,
-			String appId, Date initDate, Date endDate,String vectorId,String store) {
+			String appId, Date initDate, Date endDate,String vectorId,String store) throws AppNotPublishedException {
 		console=DevConsoleV2.createForAccountAndPassword(user, password, createDefaultHttpClient());
 		
 		return getStatsDataAndroidBetweenDates(appId,initDate,endDate,store);
@@ -251,8 +252,8 @@ public class AndroidStoreStats implements IStoreStats {
 
 	
 	public List<CommonStatsData> getStatsForAllApps(String user,
-			String password, Date initDate, Date endDate) {
-		// TODO Auto-generated method stub
+			String password, Date initDate, Date endDate) throws AppNotPublishedException {
+		// TODO Review if method can be implementd or not
 		return null;
 	}
 
@@ -286,6 +287,8 @@ public class AndroidStoreStats implements IStoreStats {
 
 	protected DefaultHttpClient createDefaultHttpClient()
 	{
+		
+		// TODO: refactor connector manager to intance level and replace with new instance type: https://hc.apache.org/httpcomponents-client-ga/httpclient/apidocs/org/apache/http/impl/conn/PoolingHttpClientConnectionManager.html
 		ThreadSafeClientConnManager cxMgr = new ThreadSafeClientConnManager( SchemeRegistryFactory.createDefault());
 		cxMgr.setMaxTotal(100);
 		cxMgr.setDefaultMaxPerRoute(20);
@@ -311,6 +314,7 @@ public class AndroidStoreStats implements IStoreStats {
 	            return isRedirect;
 	        }
 	    });
+		
 		return defHttp;
 	}
 	public AndroidStoreStats() {

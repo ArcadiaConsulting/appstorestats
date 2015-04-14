@@ -49,7 +49,7 @@ public class IOSStoreStats implements IStoreStats{
 	 * La fecha inicial tiene que ser posterior al despliegue
 	 */
 	public CommonStatsData getStatsForApp(String user, String password,
-			String appId, Date initDate, Date endDate, String vendorId,String store)  {
+			String appId, Date initDate, Date endDate, String vendorId,String store)  throws AppNotPublishedException {
 		Date current = new Date(System.currentTimeMillis());
 		GregorianCalendar enddateCalendar = new GregorianCalendar();
 		enddateCalendar.setTime(current);
@@ -60,10 +60,11 @@ public class IOSStoreStats implements IStoreStats{
 		String appleId;
 		try {
 			appleId = Autoingestion.getAppleIDBySKU(user, password, vendorId, Constants.REPORT_TYPE_SALES,  Constants.REPORT_SUBTYPE_SUMMARY_NAME, initDateGregorian, appId);
-		} catch (IOException e1) {
-			logger.error("error getting appleid",e1);
-			return null;
-			
+		} catch(AppNotPublishedException e) {
+			throw e;
+		} catch (Exception e) {
+			logger.error("getStatsForApp(String, String, Strnig, String, String) - error getting appleid",e);
+			throw new RuntimeException("error getting appleid", e);
 		}
 		
 		AppInfo appInfo = JSONParser.getAPPInfoByID(appleId);
@@ -108,7 +109,7 @@ StatsDataIOS statsData= new StatsDataIOS(appId,endDate,releaseDate,appName);
 			}	
 			
 			statsData.setDownloadsNumber(units);
-		} catch (DateHelperException e) {
+		} catch (Exception e) {
 			logger.error("Error getting units");
 			return null;
 		}
@@ -123,7 +124,7 @@ StatsDataIOS statsData= new StatsDataIOS(appId,endDate,releaseDate,appName);
 	 * en la fecha actual debe haber habido alguna descarga en el mes ultimo
 	 */
 	public CommonStatsData getFullStatsForApp(String user, String password,
-                                              String appId, String vectorId, String store) {
+                                              String appId, String vectorId, String store) throws AppNotPublishedException {
 		Date endDate = new Date(System.currentTimeMillis());
 		GregorianCalendar enddateCalendar = new GregorianCalendar();
 		enddateCalendar.setTime(endDate);
@@ -132,10 +133,11 @@ StatsDataIOS statsData= new StatsDataIOS(appId,endDate,releaseDate,appName);
 		String appleId;
 		try {
 			appleId = Autoingestion.getAppleIDBySKU(user, password, vectorId, Constants.REPORT_TYPE_SALES,  Constants.REPORT_SUBTYPE_SUMMARY_NAME, enddateCalendar, appId);
-		} catch (IOException e1) {
-			logger.error("error getting appleid",e1);
-			throw new AppNotPublishedException("error getting appleid", e1);
-			
+		} catch(AppNotPublishedException e) {
+			throw e;
+		} catch (Exception e) {
+			logger.error("getFullStatsForApp(String, String, Strnig, String, String) - error getting appleid",e);
+			throw new RuntimeException("error getting appleid", e);
 		}
 		
 		
@@ -173,7 +175,7 @@ StatsDataIOS statsData= new StatsDataIOS(appId,endDate,initDate,appName);
 			statsData.setDownloadsNumber(units);
 			statsData.setFirstDeploymentDate(initDate);
 			
-		} catch (DateHelperException e) {
+		} catch (Exception e) {
 			logger.error("Error getting units");
 			throw new AppNotPublishedException("error getting units", e);
 		}
