@@ -243,7 +243,7 @@ public class JsonParser {
         					pp("appDetails", appDetails);
         				}
         				app.setName(appDetails.getString("2"));
-        				String description = appDetails.getString("3");
+        				String description = appDetails.optString("3");
         				String changelog = appDetails.optString("5");
         				Long lastPlayStoreUpdate = jsonAppInfo.optLong("7");
         				AppDetails details = new AppDetails(description, changelog, lastPlayStoreUpdate);
