@@ -19,15 +19,15 @@ public class AndroidStoreStatsRealTest {
 	public void testObtainRealStatistics() throws IOException {
 
 		//email and password are obtained from env and are required
-		String userEmail = System.getenv("STATS_USER_EMAIL");
+		String userEmail = System.getProperty("STATS_USER_EMAIL");
 		assertNotNull("A google email need to be provided as env property STATS_USER_EMAIL", userEmail);
 
-		String userPassword = System.getenv("STATS_USER_PASSWORD");
+		String userPassword = System.getProperty("STATS_USER_PASSWORD");
 		assertNotNull("The password for the email need to be provided as env property STATS_USER_PASSWORD", userPassword);
 
 		//store and app package can be provided as env prop or use a default value (LifList manager)
-		String storeToTest = System.getenv("STATS_STORE") != null ? System.getenv("STATS_STORE") : "LifList";
-		String packageName = System.getenv("STATS_APP_PACKAGE") != null ? System.getenv("STATS_APP_PACKAGE") : "com.liflist.manager.android";
+		String storeToTest = System.getProperty("STATS_STORE") != null ? System.getenv("STATS_STORE") : "LifList";
+		String packageName = System.getProperty("STATS_APP_PACKAGE") != null ? System.getenv("STATS_APP_PACKAGE") : "com.liflist.manager.android";
 
 		//fetch the statistics for the app
 		IStoreStats fetchStats =  new AndroidStoreStats();
