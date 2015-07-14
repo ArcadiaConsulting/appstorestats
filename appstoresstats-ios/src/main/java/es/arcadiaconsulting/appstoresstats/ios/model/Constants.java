@@ -32,7 +32,7 @@ public class Constants {
 	
 	public static final java.lang.String[] UPDATE_PRODUCT_TYPE_IDENTIFYER = new String[]{"7", "7F", "7T", "F7"};
 	
-	public static final java.lang.String HTTP_RSS_APP_INFO = "https://itunes.apple.com/es/rss/customerreviews/id={0}/xml";
+	public static final java.lang.String HTTP_RSS_APP_INFO = "https://itunes.apple.com/es/rss/customerreviews/id={0}/sortBy=mostRecent/xml";
 	
 	public static final java.lang.String NOT_PUBLISHED_ERROR="There are no reports available to download for this selection";
 	public static final java.lang.String NOT_DAILY_STATS_ERROR="Daily reports are available only for past";
