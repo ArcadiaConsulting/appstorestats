@@ -31,8 +31,8 @@ public class DevConsoleV2Protocol {
 			+ "\"params\":{\"2\":1,\"3\":7},\"xsrf\":\"%s\"}";
 	
 	// 1$: comma separated list of package names
-	static final String FETCH_APPS_BY_PACKAGES_TEMPLATE = "{\"method\":\"fetch\","
-			+ "\"params\":{\"1\":[%1$s],\"3\":1},\"xsrf\":\"%2$s\"}";
+	static final String FETCH_APPS_BY_PACKAGES_TEMPLATE =  "{\"method\":\"fetch\","
+			+ "\"params\":{\"1\":[\"%1$s\"],\"3\":1},\"xsrf\":\"%2$s\"}";
 	// 1$: package name, 2$: XSRF
 		static final String FETCH_APP_TEMPLATE = "{\"method\":\"fetch\","
 				+ "\"params\":{\"1\":[\"%1$s\"],\"3\":1},\"xsrf\":\"%2$s\"}";
@@ -41,7 +41,7 @@ public class DevConsoleV2Protocol {
 			+ "\"params\":{\"1\":[\"%1$s\"]},\"xsrf\":\"%2$s\"}";
 	// 1$: package name, 2$: start, 3$: num comments to fetch, 4$: display locale, 5$ XSRF
 	static final String GET_REVIEWS_TEMPLATE = "{\"method\":\"getReviews\","
-			+ "\"params\":{\"1\":\"%1$s\",\"2\":%2$d,\"3\":%3$d,\"8\":\"%4$s\"},\"xsrf\":\"%5$s\"}";
+			+ "\"params\":{\"1\":\"%1$s\",\"2\":%2$d,\"3\":%3$d,\"8\":\"%4$s\",\"10\":0,\"18\":1},\"xsrf\":\"%5$s\"}";
 	// 1$: package name, 2$: stats type, 3$: stats by, 4$: XSRF
 	static final String GET_COMBINED_STATS_TEMPLATE = "{\"method\":\"getCombinedStats\","
 			+ "\"params\":{\"1\":\"%1$s\",\"2\":1,\"3\":%2$d,\"4\":[%3$d]},\"xsrf\":\"%4$s\"}";
@@ -239,7 +239,7 @@ public class DevConsoleV2Protocol {
 		if (reply.length() > COMMENT_REPLY_MAX_LENGTH) {
 			reply = reply.substring(0, COMMENT_REPLY_MAX_LENGTH);
 		}
-
+                
 		return String.format(REPLY_TO_COMMENT_TEMPLATE, packageName, commentId, reply,
 				sessionCredentials.getXsrfToken());
 	}
