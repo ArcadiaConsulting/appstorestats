@@ -8,7 +8,7 @@ import junit.framework.TestCase;
 public class RSSHelperTest extends TestCase{
 
 	public void testGetItunesURL(){
-		assertEquals("https://itunes.apple.com/es/app/iredes-2015/id604031647?mt=8&uo=2",RSSHelper.getItunesURL("604031647"));
+		assertEquals("https://itunes.apple.com/es/app/iredes-2016/id604031647?mt=8&uo=2",RSSHelper.getItunesURL("604031647"));
 		assertNull(RSSHelper.getItunesURL("invalid"));
 	}
 	
