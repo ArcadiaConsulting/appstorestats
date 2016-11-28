@@ -1,6 +1,8 @@
 package com.github.andlyticsproject.console.v2;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +24,11 @@ import org.slf4j.LoggerFactory;
 import com.github.andlyticsproject.console.AuthenticationException;
 import com.github.andlyticsproject.model.DeveloperConsoleAccount;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 public class PasswordAuthenticator extends BaseAuthenticator {
 	/**
 	 * Logger for this class
@@ -34,7 +41,7 @@ public class PasswordAuthenticator extends BaseAuthenticator {
 
 	private static final String LOGIN_PAGE_URL = "https://accounts.google.com/ServiceLogin?service=androiddeveloper";
 	private static final String AUTHENTICATE_URL = "https://accounts.google.com/ServiceLoginAuth?service=androiddeveloper";
-	private static final String DEV_CONSOLE_URL = "https://play.google.com/apps/publish/v2/";
+	private static final String DEV_CONSOLE_URL = "https://play.google.com/apps/publish/";
 
 	private DefaultHttpClient httpClient;
 	private String password;
@@ -79,6 +86,17 @@ public class PasswordAuthenticator extends BaseAuthenticator {
 					galxValue = c.getValue();
 				}
 			}
+
+			//GET GXF
+			String gxf = "";
+			Document document = Jsoup.parse(EntityUtils.toString(response.getEntity()));
+			Elements form = document.select("form");
+			for (Element input : form.first().children()) {
+				if(input.attr("name").equals("gxf")){
+					gxf = input.attr("value");
+					break;
+				}
+			}
 			if (DEBUG) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("authenticate() - {}", "GALX: " + galxValue); //$NON-NLS-1$ //$NON-NLS-2$
@@ -86,16 +104,30 @@ public class PasswordAuthenticator extends BaseAuthenticator {
 			}
 
 			HttpPost post = new HttpPost(AUTHENTICATE_URL);
-			List<NameValuePair> parameters = createAuthParameters(galxValue);
+			List<NameValuePair> parameters = createAuthParameters(galxValue, gxf);
 			UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(parameters, "UTF-8");
 			post.setEntity(formEntity);
 
 			response = httpClient.execute(post);
+			BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+
+			StringBuffer result2 = new StringBuffer();
+			String line = "";
+			while ((line = rd.readLine()) != null) {
+				result2.append(line);
+			}
+			//get info
+			HttpGet getDev = new HttpGet(DEV_CONSOLE_URL);
+			response = httpClient.execute(getDev);
+
+
 			if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
 				throw new AuthenticationException("Auth error: " + response.getStatusLine());
 			}
 
 			String responseStr = EntityUtils.toString(response.getEntity());
+
+
 			if (DEBUG) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("authenticate() - {}", "Response: " + responseStr); //$NON-NLS-1$ //$NON-NLS-2$
@@ -126,7 +158,7 @@ public class PasswordAuthenticator extends BaseAuthenticator {
 		}
 	}
 
-	private List<NameValuePair> createAuthParameters(String galxValue) {
+	private List<NameValuePair> createAuthParameters(String galxValue, String gxfValue) {
 		List<NameValuePair> result = new ArrayList<NameValuePair>();
 		NameValuePair email = new BasicNameValuePair("Email", accountName);
 		result.add(email);
@@ -136,7 +168,10 @@ public class PasswordAuthenticator extends BaseAuthenticator {
 		result.add(galx);
 		NameValuePair cont = new BasicNameValuePair("continue", DEV_CONSOLE_URL);
 		result.add(cont);
-
+		NameValuePair gxf = new BasicNameValuePair("gxf", gxfValue);
+		result.add(gxf);
+		NameValuePair bgVal = new BasicNameValuePair("bgresponse", "js_disabled");
+		result.add(bgVal);
 		return result;
 	}
 }
