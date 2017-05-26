@@ -86,7 +86,7 @@ public class DevConsoleV2Test extends TestCase{
 		assertEquals(app.getName(), APP_OK_NAME );
 		assertEquals(app.getPackageName(), PACKAGE_NAME_OK );
 		assertNotNull(app.getLatestStats());
-		assertEquals(app.getLatestStats().getActiveInstalls(),290);
+		assertEquals(app.getLatestStats().getActiveInstalls(),4148);
 		assertEquals(app.getLatestStats().getTotalDownloads(), 4148);
 		assertEquals(app.getLatestStats().getAvgRatingDiff(), Float.parseFloat("4.7884617"));
 		assertEquals(app.getLatestStats().getNumberOfComments(), 52);
@@ -126,7 +126,7 @@ public class DevConsoleV2Test extends TestCase{
 		assertEquals(app.getName(), APP_OK_NAME );
 		assertEquals(app.getPackageName(), PACKAGE_NAME_OK );
 		assertNotNull(app.getLatestStats());
-		assertEquals(app.getLatestStats().getActiveInstalls(), 290);
+		assertEquals(app.getLatestStats().getActiveInstalls(), 4148);
 		assertEquals(app.getLatestStats().getTotalDownloads(), 4148);
 		assertEquals(app.getLatestStats().getAvgRatingDiff(),Float.parseFloat("4.7884617"));
 		assertEquals(app.getLatestStats().getNumberOfComments(), 52);

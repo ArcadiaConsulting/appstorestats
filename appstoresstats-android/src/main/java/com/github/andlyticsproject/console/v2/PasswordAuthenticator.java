@@ -39,8 +39,9 @@ public class PasswordAuthenticator extends BaseAuthenticator {
 
 	private static final boolean DEBUG = false;
 
-	private static final String LOGIN_PAGE_URL = "https://accounts.google.com/ServiceLogin?service=androiddeveloper";
-	private static final String AUTHENTICATE_URL = "https://accounts.google.com/ServiceLoginAuth?service=androiddeveloper";
+	private static final String LOGIN_PAGE_URL = "https://accounts.google.com/ServiceLogin?continue=https%3A%2F%2Faccounts.google.com%2FManageAccount&rip=1&nojavascript=1&service=androiddeveloper";
+	private static final String AUTHENTICATE_URL = "https://accounts.google.com/signin/v1/lookup";
+	private static final String FINALY_AUTHENTICATE_URL = "https://accounts.google.com/signin/challenge/sl/password";
 	private static final String DEV_CONSOLE_URL = "https://play.google.com/apps/publish/";
 
 	private DefaultHttpClient httpClient;
@@ -77,45 +78,61 @@ public class PasswordAuthenticator extends BaseAuthenticator {
 			if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
 				throw new AuthenticationException("Auth error: " + response.getStatusLine());
 			}
-
-			String galxValue = null;
-			CookieStore cookieStore = httpClient.getCookieStore();
-			List<Cookie> cookies = cookieStore.getCookies();
-			for (Cookie c : cookies) {
-				if ("GALX".equals(c.getName())) {
-					galxValue = c.getValue();
-				}
-			}
-
-			//GET GXF
-			String gxf = "";
+			List<NameValuePair> postGetUserParams = new ArrayList<NameValuePair>();
 			Document document = Jsoup.parse(EntityUtils.toString(response.getEntity()));
 			Elements form = document.select("form");
 			for (Element input : form.first().children()) {
-				if(input.attr("name").equals("gxf")){
-					gxf = input.attr("value");
-					break;
+				NameValuePair inputVal = null;
+				if (input.attr("name").equals("Email")) {
+					inputVal = new BasicNameValuePair(input.attr("name"), accountName);
+				} else if (input.attr("name").equals("bgresponse")){
+					inputVal = new BasicNameValuePair("bgresponse", "js_disabled");
+				}else if(!input.attr("name").equals("")){
+					inputVal = new BasicNameValuePair(input.attr("name"), input.attr("value"));
+				}
+				if(inputVal != null) {
+					postGetUserParams.add(inputVal);
 				}
 			}
-			if (DEBUG) {
-				if (logger.isDebugEnabled()) {
-					logger.debug("authenticate() - {}", "GALX: " + galxValue); //$NON-NLS-1$ //$NON-NLS-2$
+			NameValuePair inputVal = new BasicNameValuePair("Email", accountName);
+			postGetUserParams.add(inputVal);
+
+			HttpPost postGetUser = new HttpPost(AUTHENTICATE_URL);
+			UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(postGetUserParams, "UTF-8");
+			postGetUser.setEntity(formEntity);
+			response = httpClient.execute(postGetUser);
+
+			List<NameValuePair> postFinalAuthParams = new ArrayList<NameValuePair>();
+			Document documentGetUser = Jsoup.parse(EntityUtils.toString(response.getEntity()));
+			Elements formGetUser = documentGetUser.select("form");
+			for (Element input : formGetUser.first().children()) {
+				NameValuePair inputVal2 = null;
+				if (input.attr("name").equals("Email")) {
+					inputVal2 = new BasicNameValuePair(input.attr("name"), accountName);
+				} if (input.attr("name").equals("Passwd")) {
+					inputVal2 = new BasicNameValuePair(input.attr("name"), password);
+				} else if (input.attr("name").equals("bgresponse")){
+					inputVal2 = new BasicNameValuePair("bgresponse", "js_disabled");
+				}else if(!input.attr("name").equals("")){
+					inputVal2 = new BasicNameValuePair(input.attr("name"), input.attr("value"));
+				}
+				if(inputVal2 != null) {
+					postFinalAuthParams.add(inputVal2);
 				}
 			}
+			NameValuePair inputVal3 = new BasicNameValuePair("Passwd", password);
+			postFinalAuthParams.add(inputVal3);
+			NameValuePair inputVal4 = new BasicNameValuePair("Email", accountName);
+			postFinalAuthParams.add(inputVal4);
 
-			HttpPost post = new HttpPost(AUTHENTICATE_URL);
-			List<NameValuePair> parameters = createAuthParameters(galxValue, gxf);
-			UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(parameters, "UTF-8");
-			post.setEntity(formEntity);
+			HttpPost postFinalAuthen = new HttpPost(FINALY_AUTHENTICATE_URL);
+			UrlEncodedFormEntity formEntityFinalAuth = new UrlEncodedFormEntity(postFinalAuthParams, "UTF-8");
+			postFinalAuthen.setEntity(formEntityFinalAuth);
+			response = httpClient.execute(postFinalAuthen);
 
-			response = httpClient.execute(post);
-			BufferedReader rd = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
+			CookieStore cookieStore = httpClient.getCookieStore();
 
-			StringBuffer result2 = new StringBuffer();
-			String line = "";
-			while ((line = rd.readLine()) != null) {
-				result2.append(line);
-			}
+
 			//get info
 			HttpGet getDev = new HttpGet(DEV_CONSOLE_URL);
 			response = httpClient.execute(getDev);
@@ -158,7 +175,8 @@ public class PasswordAuthenticator extends BaseAuthenticator {
 		}
 	}
 
-	private List<NameValuePair> createAuthParameters(String galxValue, String gxfValue) {
+	private List<NameValuePair> createAuthParameters(String galxValue, String gxfValue, String gapsValue) {
+
 		List<NameValuePair> result = new ArrayList<NameValuePair>();
 		NameValuePair email = new BasicNameValuePair("Email", accountName);
 		result.add(email);
@@ -170,8 +188,17 @@ public class PasswordAuthenticator extends BaseAuthenticator {
 		result.add(cont);
 		NameValuePair gxf = new BasicNameValuePair("gxf", gxfValue);
 		result.add(gxf);
+		NameValuePair gaps = new BasicNameValuePair("GAPS", gapsValue);
+		result.add(gaps);
 		NameValuePair bgVal = new BasicNameValuePair("bgresponse", "js_disabled");
 		result.add(bgVal);
+		NameValuePair service = new BasicNameValuePair("service", "androiddeveloper");
+		result.add(service);
+		NameValuePair rip = new BasicNameValuePair("rip", "1");
+		result.add(rip);
+		NameValuePair pst = new BasicNameValuePair("pstMsg", "0");
+		result.add(pst);
+
 		return result;
 	}
 }

@@ -115,7 +115,7 @@ public class AndroidStoreStatsTest extends TestCase{
 		assertEquals(inf.getAppId(), PACKAGE_NAME_OK);
 		assertEquals(inf.getAppName(),APP_OK_NAME);
 		assertEquals(inf.getAverageRate(), Float.parseFloat("4.79"));
-		assertEquals(inf.getCurrentInstallationsNumber(), 290);
+		assertEquals(inf.getCurrentInstallationsNumber(), 4148);
 		assertEquals(inf.getErrorNumber(),6);
 		assertEquals(inf.getRatingNumber(),52);
 		assertEquals(inf.getDownloadsNumber(),2);
@@ -159,7 +159,7 @@ public class AndroidStoreStatsTest extends TestCase{
 		assertEquals(inf.getAppId(), PACKAGE_NAME_OK);
 		assertEquals(inf.getAppName(),APP_OK_NAME);
 		assertEquals(inf.getAverageRate(), Float.parseFloat("4.79"));
-		assertEquals(inf.getCurrentInstallationsNumber(), 290);
+		assertEquals(inf.getCurrentInstallationsNumber(), 4148);
 		assertEquals(inf.getErrorNumber(),6);
 		assertEquals(inf.getRatingNumber(),52);
 		assertEquals(inf.getDownloadsNumber(),4148);

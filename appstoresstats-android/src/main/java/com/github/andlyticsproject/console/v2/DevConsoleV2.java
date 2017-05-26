@@ -503,7 +503,7 @@ public class DevConsoleV2 implements DevConsole {
 								"Fetching statistics for package %s on %s store",
 								packageName, consoleAccount.getName()));
 					}
-	
+
 					developerId = consoleAccount.getDeveloperId();
 					developername = consoleAccount.getName();
 

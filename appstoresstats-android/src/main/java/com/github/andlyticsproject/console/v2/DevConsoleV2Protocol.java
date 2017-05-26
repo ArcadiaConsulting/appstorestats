@@ -21,7 +21,7 @@ public class DevConsoleV2Protocol {
 	private static final Logger logger = LoggerFactory.getLogger(DevConsoleV2Protocol.class);
 
 	// Base urls
-	static final String URL_DEVELOPER_CONSOLE = "https://play.google.com:443/apps/publish";
+	static final String URL_DEVELOPER_CONSOLE = "https://play.google.com/apps/publish";
 	static final String URL_APPS = DevConsoleV2Protocol.URL_DEVELOPER_CONSOLE + "/androidapps";
 	static final String URL_STATISTICS = DevConsoleV2Protocol.URL_DEVELOPER_CONSOLE + "/statistics";
 	static final String URL_REVIEWS = DevConsoleV2Protocol.URL_DEVELOPER_CONSOLE + "/reviews";
@@ -132,7 +132,6 @@ public class DevConsoleV2Protocol {
 
 	public String createFetchAppInfosRequest() {
 		checkState();
-
 		// TODO Check the remaining possible parameters to see if they are
 		// needed for large numbers of apps
 		return String.format(FETCH_APPS_TEMPLATE, sessionCredentials.getXsrfToken());
@@ -150,7 +149,6 @@ public class DevConsoleV2Protocol {
 			}
 		}
 		String packageList = buff.toString();
-
 		return String.format(FETCH_APPS_BY_PACKAGES_TEMPLATE, packageList,
 				sessionCredentials.getXsrfToken());
 	}
@@ -182,7 +180,6 @@ public class DevConsoleV2Protocol {
 
 	public String createFetchAppInfoRequest(String packageName) {
 		checkState();
-
 		return String.format(FETCH_APP_TEMPLATE, packageName, sessionCredentials.getXsrfToken());
 	}
 

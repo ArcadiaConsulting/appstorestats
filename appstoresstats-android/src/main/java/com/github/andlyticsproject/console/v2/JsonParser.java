@@ -21,10 +21,10 @@ import com.github.andlyticsproject.model.Comment;
 
 /**
  * This class contains static methods used to parse JSON from {@link DevConsoleV2}
- * 
+ *
  * See {@link https://github.com/AndlyticsProject/andlytics/wiki/Developer-Console-v2} for some more
  * documentation
- * 
+ *
  */
 @SuppressWarnings("JavadocReference")
 public class JsonParser {
@@ -44,7 +44,7 @@ public class JsonParser {
 	/**
 	 * Parses the supplied JSON string and adds the extracted ratings to the supplied
 	 * {@link AppStats} object
-	 * 
+	 *
 	 * @param json
 	 * @param stats
 	 * @throws JSONException
@@ -65,7 +65,7 @@ public class JsonParser {
 	 * {@link AppStats} object
 	 * based on the supplied statsType
 	 * Not used at the moment
-	 * 
+	 *
 	 * @param json
 	 * @param stats
 	 * @param statsType
@@ -74,12 +74,12 @@ public class JsonParser {
 	static void parseStatistics(String json, AppStats stats, int statsType) throws JSONException {
 		// Extract the top level values array
 		JSONObject values = new JSONObject(json).getJSONObject("result").getJSONObject("1");
-		
+
 		// For now we just care about todays value, later we may delve into the historical and
 		// dimensioned data
 		JSONArray historicalData = values.getJSONObject("1").getJSONArray("1");
 		JSONObject latestData = historicalData.getJSONObject(historicalData.length() - 1);
-		
+
 		int latestValue = latestData.getJSONObject("2").getInt("1");
 		if(stats.getHistoricalStats()==null){
 			stats.setHistoricalStats(new AppHistoricalStats());
@@ -89,7 +89,7 @@ public class JsonParser {
 				stats.setTotalDownloads(latestValue);
 				break;
 			case DevConsoleV2Protocol.STATS_TYPE_DAILY_DEVICE_INSTALLS:
-				
+
 				stats.getHistoricalStats().setDailyInstallsByDevice(parseStatisticsHistoricalData(historicalData));
 				break;
 			case DevConsoleV2Protocol.STATS_TYPE_ACTIVE_DEVICE_INSTALLS:
@@ -98,13 +98,13 @@ public class JsonParser {
 			default:
 				break;
 		}
-		
-		
+
+
 
 	}
 	static List<AppHistoricalStatsElement> parseStatisticsHistoricalData(JSONArray result) throws JSONException {
 		// Extract the top level values array
-		
+
 		// For now we just care about todays value, later we may delve into the historical and
 		// dimensioned data
 		List<AppHistoricalStatsElement> elements=new ArrayList<AppHistoricalStatsElement>();
@@ -112,16 +112,16 @@ public class JsonParser {
 		{
 			JSONObject obj=result.getJSONObject(i);
 			long date=obj.getLong("1");
-			String number=obj.getJSONObject("2").getString("1");			
+			String number=obj.getJSONObject("2").getString("1");
 			elements.add(new AppHistoricalStatsElement(new Date(date), number));
 		}
 		return elements;
 
 	}
-	
+
 	/**
 	 * Parses the supplied JSON string and builds a list of apps from it
-	 * 
+	 *
 	 * @param json
 	 * @param accountName
 	 * @param skipIncomplete
@@ -131,7 +131,6 @@ public class JsonParser {
 	static List<AppInfo> parseAppInfos(String json, String accountName,String developerId, boolean skipIncomplete)
 			throws JSONException {
 
-		
 		List<AppInfo> apps = new ArrayList<AppInfo>();
 		// Extract the base array containing apps
 		JSONObject result = new JSONObject(json).getJSONObject("result");
@@ -151,18 +150,18 @@ public class JsonParser {
 		int numberOfApps = jsonApps.length();
 //		System.out.println(String.format("Found %d apps in JSON", numberOfApps));
 		for (int i = 0; i < numberOfApps; i++) {
-		
+
 			JSONObject jsonApp = jsonApps.getJSONObject(i);
-			AppInfo app=parseApp(jsonApp, skipIncomplete,developerId,accountName);      
+			AppInfo app=parseApp(jsonApp, skipIncomplete,developerId,accountName);
 			if(app!=null){
-			apps.add(app);
+				apps.add(app);
 			}
-                        
+
 		}
 
 		return apps;
 	}
-	
+
 	private static AppInfo parseApp(JSONObject jsonApp,boolean skipIncomplete,String developerId,String accountName) throws JSONException
 	{
 		Date now = new Date();
@@ -206,22 +205,23 @@ public class JsonParser {
 		 * * Total installs
 		 * ]
 		 */
+
 		JSONObject jsonAppInfo = jsonApp.getJSONObject("1");
 		if (DEBUG) {
 			pp("jsonAppInfo", jsonAppInfo);
 		}
 		String packageName = jsonAppInfo.getString("1");
-                    
-                    
+
+
 		// TODO figure out the rest and add don't just skip, filter, etc. Cf. #223
 		int publishState = jsonAppInfo.optInt("7");
-                    
+
 		app.setPublishState(publishState);
 		app.setPackageName(packageName);
 
 		// skip if we can't get all the data
 		// XXX should we just let this crash so we know there is a problem?
-                    if (!jsonAppInfo.has("2")) {
+		if (!jsonAppInfo.has("2")) {
 			if (skipIncomplete) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("(JSONObject jsonApp,boolean skipIncomplete,String developerId,String accountName) - {}", String.format("Skipping app because no app details found: package name=%s", packageName)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -231,27 +231,27 @@ public class JsonParser {
 				if (logger.isDebugEnabled()) {
 					logger.debug("(JSONObject jsonApp,boolean skipIncomplete,String developerId,String accountName) - {}", "Adding incomplete app: " + packageName); //$NON-NLS-1$ //$NON-NLS-2$
 				}
-	
-				
+
+
 			}
-			
+
 		}
-                    else{
-            			JSONObject appDetails = jsonAppInfo.getJSONObject("2").getJSONArray("1")
-        						.getJSONObject(0);
-        				if (DEBUG) {
-        					pp("appDetails", appDetails);
-        				}
-        				app.setName(appDetails.getString("2"));
-        				String description = appDetails.optString("3");
-        				String changelog = appDetails.optString("5");
-        				Long lastPlayStoreUpdate = jsonAppInfo.optLong("7");
-        				AppDetails details = new AppDetails(description, changelog, lastPlayStoreUpdate);
-        				app.setDetails(details);
-                    	
-                    }
-            		
-            		JSONArray appVersions =null;
+		else{
+			JSONObject appDetails = jsonAppInfo.getJSONObject("2").getJSONArray("1")
+					.getJSONObject(0);
+			if (DEBUG) {
+				pp("appDetails", appDetails);
+			}
+			app.setName(appDetails.getString("2"));
+			String description = appDetails.optString("3");
+			String changelog = appDetails.optString("5");
+			Long lastPlayStoreUpdate = jsonAppInfo.optLong("7");
+			AppDetails details = new AppDetails(description, changelog, lastPlayStoreUpdate);
+			app.setDetails(details);
+
+		}
+
+		JSONArray appVersions =null;
 		if (!jsonAppInfo.has("4")) {
 			if (skipIncomplete) {
 				if (logger.isDebugEnabled()) {
@@ -262,10 +262,10 @@ public class JsonParser {
 				if (logger.isDebugEnabled()) {
 					logger.debug("(JSONObject jsonApp,boolean skipIncomplete,String developerId,String accountName) - {}", "Adding incomplete app: " + packageName); //$NON-NLS-1$ //$NON-NLS-2$
 				}
-				
-				
+
+
 			}
-			
+
 		}
 		else{
 			//Check application is versioned
@@ -286,12 +286,12 @@ public class JsonParser {
 			} else {
 				if (logger.isDebugEnabled()) {
 					logger.debug("(JSONObject jsonApp,boolean skipIncomplete,String developerId,String accountName) - {}", "Adding incomplete app: " + packageName); //$NON-NLS-1$ //$NON-NLS-2$
-					
+
 				}
-				
-				
+
+
 			}
-			
+
 		}
 		else
 		{
@@ -303,8 +303,8 @@ public class JsonParser {
 			app.setVersionName(lastAppVersionDetails.getString("4"));
 			app.setIconUrl(lastAppVersionDetails.getJSONObject("6").getString("3"));
 		}
-                    
-		
+
+
 
 		// XXX this index might not be correct for all apps?
 		// 3 : { 1: active dnd, 2: # ratings, 3: avg rating, 4: #errors?, 5: total dnd }
@@ -322,21 +322,22 @@ public class JsonParser {
 				if (logger.isDebugEnabled()) {
 					logger.debug("(JSONObject jsonApp,boolean skipIncomplete,String developerId,String accountName) - {}", "Adding incomplete app: " + packageName); //$NON-NLS-1$ //$NON-NLS-2$
 				}
-				
+
 			}
-			
+
 		}
-                    
+
 		AppStats stats = new AppStats();
 		stats.setRequestDate(now);
+
 		if (jsonAppStats==null||jsonAppStats.length() < 4) {
 			// no statistics (yet?) or weird format
 			// TODO do we need differentiate?
 			stats.setActiveInstalls(0);
 			stats.setTotalDownloads(0);
 			stats.setNumberOfErrors(0);
-                            stats.setAvgRatingDiff(0);
-                            
+			stats.setAvgRatingDiff(0);
+
 		} else {
                         /*
                          * 1 = Active Installs
@@ -345,16 +346,16 @@ public class JsonParser {
                          * 4 = Errors
                          * 5 = Total Downloads
                          */
-			stats.setActiveInstalls(jsonAppStats.getInt("1"));
+			stats.setActiveInstalls(jsonAppStats.getInt("7"));
 			stats.setTotalDownloads(jsonAppStats.getInt("5"));
 			stats.setNumberOfComments(jsonAppStats.getInt("2"));
-		stats.setNumberOfErrors(jsonAppStats.optInt("4"));
-                            stats.setAvgRatingDiff(Float.parseFloat(jsonAppStats.optString("3")));
-                            
+			stats.setNumberOfErrors(jsonAppStats.optInt("4"));
+			stats.setAvgRatingDiff(Float.parseFloat(jsonAppStats.optString("3")));
+
 		}
-                    
-                    app.setLatestStats(stats);
-                                            
+
+		app.setLatestStats(stats);
+
 		if (logger.isDebugEnabled()) {
 			logger.debug("(JSONObject jsonApp,boolean skipIncomplete,String developerId,String accountName) - {}", app.getPackageName() + ", " + app.getAccount() + ", " + app.getName() + ", " + app.getVersionName() + ", " + stats.getTotalDownloads() + ", " + stats.getActiveInstalls() + ", " + stats.getAvgRatingDiff() + ", "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$ //$NON-NLS-7$ //$NON-NLS-8$
 		}
@@ -363,7 +364,7 @@ public class JsonParser {
 	static AppInfo parseAppInfo(String json, String accountName,String developerId, boolean skipIncomplete)
 			throws JSONException {
 
-		
+
 		AppInfo app = null;
 		// Extract the base array containing apps
 		JSONObject result = new JSONObject(json).getJSONObject("result");
@@ -372,7 +373,7 @@ public class JsonParser {
 		}
 
 		JSONArray jsonArray = result.optJSONArray("1");
-		
+
 		if (DEBUG) {
 			pp("jsonArray", jsonArray);
 		}
@@ -381,9 +382,9 @@ public class JsonParser {
 			return app;
 		}
 		JSONObject jsonApp=jsonArray.optJSONObject(0);
-		app=parseApp(jsonApp, false,developerId,accountName); 
+		app=parseApp(jsonApp, false,developerId,accountName);
 
-			return app;
+		return app;
 	}
 
 	private static void pp(String name, JSONArray jsonArr) {
@@ -412,7 +413,7 @@ public class JsonParser {
 
 	/**
 	 * Parses the supplied JSON string and returns the number of comments.
-	 * 
+	 *
 	 * @param json
 	 * @return
 	 * @throws JSONException
@@ -429,7 +430,7 @@ public class JsonParser {
 
 	/**
 	 * Parses the supplied JSON string and returns a list of comments.
-	 * 
+	 *
 	 * @param json
 	 * @return
 	 * @throws JSONException
@@ -441,18 +442,18 @@ public class JsonParser {
 			{
 				logger.debug("Parsing JSON for comments");
 			}
-		
+
 		/*
 		 * null
 		 * Array containing arrays of comments
 		 * numberOfComments
 		 */
-		JSONArray jsonComments = new JSONObject(json).getJSONObject("result").getJSONArray("1");
-		int count = jsonComments.length();
-		for (int i = 0; i < count; i++) {
-			Comment comment = new Comment();
-			JSONObject jsonComment = jsonComments.getJSONObject(i);
-			// TODO These examples are out of date and need updating
+			JSONArray jsonComments = new JSONObject(json).getJSONObject("result").getJSONArray("1");
+			int count = jsonComments.length();
+			for (int i = 0; i < count; i++) {
+				Comment comment = new Comment();
+				JSONObject jsonComment = jsonComments.getJSONObject(i);
+				// TODO These examples are out of date and need updating
 			/*
 			 * null
 			 * "gaia:17919762185957048423:1:vm:11887109942373535891", -- ID?
@@ -472,7 +473,7 @@ public class JsonParser {
 			 * null,
 			 * 0
 			 */
-			// Example with developer reply
+				// Example with developer reply
 			/*
 			 * [
 			 * null,
@@ -501,57 +502,57 @@ public class JsonParser {
 			 * 1
 			 * ]
 			 */
-			String uniqueId = jsonComment.getString("1");
-			comment.setUniqueId(uniqueId);
-			String user = jsonComment.optString("2");
-			if (user != null && !"".equals(user) && !"null".equals(user)) {
-				comment.setUser(user);
-			}
-			comment.setDate(parseDate(jsonComment.getLong("3")));
-			comment.setRating(jsonComment.getInt("4"));
-			String version = jsonComment.optString("7");
-			if (version != null && !"".equals(version) && !version.equals("null")) {
-				comment.setAppVersion(version);
-			}
-
-			String commentLang = jsonComment.optJSONObject("5").getString("1");
-			String commentText = jsonComment.optJSONObject("5").getString("3");
-			comment.setLanguage(commentLang);
-			comment.setOriginalText(commentText);
-			// overwritten if translation is available
-			comment.setText(commentText);
-
-			JSONObject translation = jsonComment.optJSONObject("11");
-			if (translation != null) {
-				String displayLanguage = Locale.getDefault().getLanguage();
-				String translationLang = translation.getString("1");
-				String translationText = translation.optString("3");
-				if (translationLang.contains(displayLanguage)) {
-					comment.setText(translationText);
+				String uniqueId = jsonComment.getString("1");
+				comment.setUniqueId(uniqueId);
+				String user = jsonComment.optString("2");
+				if (user != null && !"".equals(user) && !"null".equals(user)) {
+					comment.setUser(user);
 				}
-			}
-
-			JSONObject jsonDevice = jsonComment.optJSONObject("8");
-			if (jsonDevice != null) {
-				String device = jsonDevice.optString("3");
-				JSONArray extraInfo = jsonDevice.optJSONArray("2");
-				if (extraInfo != null) {
-					device += " " + extraInfo.optString(0);
+				comment.setDate(parseDate(jsonComment.getLong("3")));
+				comment.setRating(jsonComment.getInt("4"));
+				String version = jsonComment.optString("7");
+				if (version != null && !"".equals(version) && !version.equals("null")) {
+					comment.setAppVersion(version);
 				}
-				comment.setDevice(device.trim());
-			}
 
-			JSONObject jsonReply = jsonComment.optJSONObject("9");
-			if (jsonReply != null) {
-				Comment reply = new Comment(true);
-				reply.setText(jsonReply.getString("1"));
-				reply.setDate(parseDate(jsonReply.getLong("3")));
-				reply.setOriginalCommentDate(comment.getDate());
-				comment.setReply(reply);
-			}
+				String commentLang = jsonComment.optJSONObject("5").getString("1");
+				String commentText = jsonComment.optJSONObject("5").getString("3");
+				comment.setLanguage(commentLang);
+				comment.setOriginalText(commentText);
+				// overwritten if translation is available
+				comment.setText(commentText);
 
-			comments.add(comment);
-		}
+				JSONObject translation = jsonComment.optJSONObject("11");
+				if (translation != null) {
+					String displayLanguage = Locale.getDefault().getLanguage();
+					String translationLang = translation.getString("1");
+					String translationText = translation.optString("3");
+					if (translationLang.contains(displayLanguage)) {
+						comment.setText(translationText);
+					}
+				}
+
+				JSONObject jsonDevice = jsonComment.optJSONObject("8");
+				if (jsonDevice != null) {
+					String device = jsonDevice.optString("3");
+					JSONArray extraInfo = jsonDevice.optJSONArray("2");
+					if (extraInfo != null) {
+						device += " " + extraInfo.optString(0);
+					}
+					comment.setDevice(device.trim());
+				}
+
+				JSONObject jsonReply = jsonComment.optJSONObject("9");
+				if (jsonReply != null) {
+					Comment reply = new Comment(true);
+					reply.setText(jsonReply.getString("1"));
+					reply.setDate(parseDate(jsonReply.getLong("3")));
+					reply.setOriginalCommentDate(comment.getDate());
+					comment.setReply(reply);
+				}
+
+				comments.add(comment);
+			}
 		}
 		else
 		{
@@ -562,7 +563,7 @@ public class JsonParser {
 		}
 
 		return comments;
-		
+
 	}
 
 	static Comment parseCommentReplyResponse(String json) throws JSONException {
@@ -588,7 +589,7 @@ public class JsonParser {
 
 	/**
 	 * Parses the given date
-	 * 
+	 *
 	 * @param unixDateCode
 	 * @return
 	 */
